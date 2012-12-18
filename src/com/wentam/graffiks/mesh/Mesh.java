@@ -31,7 +31,7 @@ import com.wentam.graffiks.GraffiksRenderer;
 
 import java.util.ArrayList;
 
-public abstract class Mesh {
+public class Mesh {
     private static final int coordsPerVertex = 3;
     private static final int coordsPerNormal = 3;
 
@@ -68,6 +68,9 @@ public abstract class Mesh {
     private float locationX = 0f;
     private float locationY = 0f;
     private float locationZ = 0f;
+    private float prevLocationX = 0f;
+    private float prevLocationY = 0f;
+    private float prevLocationZ = 0f;
 
     // matrices
     private float projectionModelViewMatrix[] = new float[16];
@@ -89,7 +92,9 @@ public abstract class Mesh {
     }
 
     // Override this to create your mesh
-    protected abstract void createMesh ();
+    protected void createMesh (){
+
+    }
     
     // stuff to avoid GC's
     Float[][] vertexPosition;
@@ -104,7 +109,7 @@ public abstract class Mesh {
     ByteBuffer bb;
     ByteBuffer bb2;
     
-    private void initMesh () {
+    public void initMesh () {
 	ArrayList<Float[]>   tmp_vertices = new ArrayList<Float[]>();
 	ArrayList<Integer> tmp_indicies = new ArrayList<Integer>();
 	ArrayList<Float[]>   tmp_normals = new ArrayList<Float[]>();
@@ -200,45 +205,17 @@ public abstract class Mesh {
 	Log.i("GRAFFIKS","done loading mesh");
     }
 
-    protected void setVertices (float[][] v) {
+    public void setVertices (float[][] v) {
 	complexVertices = v;
-
-	// define vertexCount
-	// vertexCount = vertices.length;
-
-	// // create vertexBuffer 
-	// ByteBuffer bb = ByteBuffer.allocateDirect(vertexCount * 4);
-        // bb.order(ByteOrder.nativeOrder());
-
-	// vertexBuffer = bb.asFloatBuffer();
-	// vertexBuffer.put(vertices);
-	// vertexBuffer.position(0);
     }
 
     // TODO: optionally accept faces as quads and triangulate them.
-    protected void setFaces (int[][][] f) {
+    public void setFaces (int[][][] f) {
 	complexFaces = f;
-
-	// faceCount = faces.length;
-
-	// ByteBuffer bb = ByteBuffer.allocateDirect(faces.length * 4);
-	// bb.order(ByteOrder.nativeOrder());
-
-	// faceBuffer = bb.asIntBuffer();
-	// faceBuffer.put(faces);
-	// faceBuffer.position(0);
     }
 
-    protected void setNormals (float[][] n) {	
+    public void setNormals (float[][] n) {	
 	complexNormals = n;
-
-	// // create normalBuffer
-	// ByteBuffer bb = ByteBuffer.allocateDirect(normals.length * 4);
-        // bb.order(ByteOrder.nativeOrder());
-
-	// normalBuffer = bb.asFloatBuffer();
-	// normalBuffer.put(normals);
-	// normalBuffer.position(0);
     }
     
     // variables defined here to avoid GC's during draw
@@ -252,6 +229,10 @@ public abstract class Mesh {
     private float specularIntensity;
 
     private float[] lightLocation = {5f,5f,5f};
+
+    private float offsetLocationX = 0f;
+    private float offsetLocationY = 0f;
+    private float offsetLocationZ = 0f;
 
     // handles    
     private int MVPMatrixHandle;
@@ -297,12 +278,24 @@ public abstract class Mesh {
 				     (coordsPerNormal*4), normalBuffer);
 
        	// model matrix (rotate and translate)
-	Matrix.translateM(modelMatrix, 0, locationX, locationY, locationZ);
-	Matrix.setRotateM(modelRotationMatrix, 0, angle, rotationAxisX, rotationAxisY, rotationAxisZ);
+	
+	// reset matrices
+	modelMatrix = new float[16];
+	modelViewMatrix = new float[16];
+	projectionModelViewMatrix = new float[16];
 
-	// combine our model matrix with the main view matrix
+	Matrix.setIdentityM(modelMatrix, 0);	
+	
+	// translate
+	Matrix.translateM(modelMatrix, 0, locationX, locationY, locationZ);
+
+	// rotate
+	Matrix.rotateM(modelMatrix, 0, angle, rotationAxisX, rotationAxisY, rotationAxisZ);
+
+
+  	// combine our model matrix with the view matrix
 	Matrix.multiplyMM(modelViewMatrix, 0, renderer.viewMatrix, 0, modelMatrix, 0);
-	Matrix.multiplyMM(modelViewMatrix, 0, renderer.viewMatrix, 0, modelRotationMatrix, 0);
+	
 
 	// combine modelViewMatrix with renderer.projectionMatrix
 	Matrix.multiplyMM(projectionModelViewMatrix, 0, renderer.projectionMatrix, 0, modelViewMatrix, 0);
@@ -331,7 +324,8 @@ public abstract class Mesh {
 	GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount/3);
 
 	// disable vertex array
-	GLES20.glDisableVertexAttribArray(vertexPositionHandle);	
+	GLES20.glDisableVertexAttribArray(vertexPositionHandle);
+	GLES20.glDisableVertexAttribArray(normalHandle);
     }
 
     public void setRotationCenter(float x, float y, float z) {
@@ -350,7 +344,6 @@ public abstract class Mesh {
 	angleZ = z;
 
 	// convert from degrees to radians.
-	// we also reorder x y and z here
 	double radiansX = Math.toRadians(x);
 	double radiansY = Math.toRadians(y);
 	double radiansZ = Math.toRadians(z);

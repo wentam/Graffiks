@@ -43,12 +43,10 @@ public class GraffiksRenderer implements GLSurfaceView.Renderer {
 
     public float projectionMatrix[] = new float[16];
     public float viewMatrix[] = new float[16];
-    // public float viewProjectionMatrix[] = new float[16];
     public Context context;
     private GraffiksView view;
 
     // vars declared here to avoid GCs
-    // increases overhead, but speeds up rendering by alot.
     private long startTime;
     private long endTime;
     private long dt;   

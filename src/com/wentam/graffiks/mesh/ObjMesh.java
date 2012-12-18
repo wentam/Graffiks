@@ -36,7 +36,6 @@ import java.io.IOException;
 
 
 
-
 public class ObjMesh extends Mesh {
     private Context context;
     private String file;

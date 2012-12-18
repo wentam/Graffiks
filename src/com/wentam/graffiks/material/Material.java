@@ -43,6 +43,8 @@ public class Material {
     private float diffuseIntensity = 100f;
     private float specularIntensity = 100f;
 
+    public String name; // this exists to make the job easier for parsers. parsers can use it for anything they want.
+
     private String readShaderFile(String file) {
 	AssetManager assetManager = context.getAssets();
 	ByteArrayOutputStream outputStream = null;

@@ -21,6 +21,7 @@ import com.wentam.graffiks.GraffiksRenderer;
 public class CubeMesh extends Mesh {
     public CubeMesh(GraffiksRenderer renderer) {
 	super(renderer);
+	buildMesh();
     }
 
     private static float verts[][] = {
