@@ -201,8 +201,6 @@ public class Mesh {
 	normalBuffer = bb2.asFloatBuffer();
 	normalBuffer.put(normals);
 	normalBuffer.position(0);
-
-	Log.i("GRAFFIKS","done loading mesh");
     }
 
     public void setVertices (float[][] v) {

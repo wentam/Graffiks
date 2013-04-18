@@ -86,36 +86,19 @@ public class ObjLoader extends Loader {
 	// create array of indicies that refer to the correct materials in the correct order based on material_names
 	int[] materialIndicies = new int[material_names.length];
 
-	int i3 = 0;
-	for (String name : material_names) {
-	    int i2 = 0;
-	    for (Material mat : materials) {
-		Log.i("GRAFFIKS","matname: "+mat.name);
-		Log.i("GRAFFIKS","name: "+name);
-		if (mat.name.equals(name)) {
-		    Log.i("GRAFFIKS","equals!!");
-		    materialIndicies[i3] = i2;
+	long starttime = System.currentTimeMillis();
+	for (int i = 0; i < material_names.length; i++) {
+	    for (int i2 = 0; i2 < materials.length; i2++) {
+		if (materials[i2].name.equals(material_names[i])) {
+		    materialIndicies[i] = i2;
 		    break;
 		}
-		i2++;
 	    }
-
-	    i3++;
 	}
 
-	// tmp
-	float redValue = 0.5f;
-	// tmp end	
-
-	// TODO strip vertices that the current faces array doesn't need for this mesh *if it doesn't take very long to do*
-	for (int i = 0; i < meshes.length; i++) {
-	    // tmp
-	    Material mat = new Material(this.context);
-	    float[] diffuse = {redValue, redValue, redValue, 1f};
-	    mat.setDiffuseColor(diffuse);
-	    redValue += 0.1f;
-	    // tmp end
-
+	starttime = System.currentTimeMillis();
+	Log.i("GRAFFIKS","creating obj");
+	for (int i = 0; i < meshes.length; i++) {	   
 	    meshes[i] = new Mesh(renderer);
 	    meshes[i].setVertices(verts);
 	    meshes[i].setNormals(normals);
@@ -124,6 +107,7 @@ public class ObjLoader extends Loader {
 	    obj.addMesh(meshes[i]);
 	    obj.addMaterial(materials[materialIndicies[i]]);
 	}
+	Log.i("GRAFFIKS","obj creation took "+(System.currentTimeMillis()-starttime)+"ms");
 
 	return obj;
     }
@@ -149,10 +133,8 @@ public class ObjLoader extends Loader {
 	    
 	    if (lineSplit[0].equals("newmtl")) { 
 		// new material. save the previous data and move on.
-		Log.i("GRAFFIKS","newmtl if");
 
 		if (currentMaterialIndex >= 0) { // only save previous data if it exists
-		    Log.i("GRAFFIKS","new material");
 		    materials[currentMaterialIndex] = new Material(this.context);
 		    materials[currentMaterialIndex].setDiffuseColor(currentDiffuseColor.clone());
 		    materials[currentMaterialIndex].name = currentMaterialName;
@@ -190,9 +172,8 @@ public class ObjLoader extends Loader {
 	int currentVertCount = 0;
 	int currentNormalCount = 0;
 	int currentFaceCount = 0;
-	int currentMaterialCount = 0;
 
-	int currentFacesIndex = 0;
+	int currentFacesIndex = -1;
 	
 	String[] lineSplit;
 	String[] x;
@@ -225,14 +206,16 @@ public class ObjLoader extends Loader {
 	    	normals[currentNormalCount][2] = Float.parseFloat(lineSplit[3]);
 	    	currentNormalCount++;
 	    } else if (lineSplit[0].equals("usemtl")) {
-		material_names[currentMaterialCount] = lineSplit[1];
+		if (currentFacesIndex >= 0) {
+		    faces.add(tmpfaces);
+		}
 
-		tmpfaces = new int[faceCount.get(currentFacesIndex)][3][3];
-		faces.add(tmpfaces);
-
-		currentMaterialCount++;
 		currentFacesIndex++;
-		currentFaceCount = 0;		
+
+		material_names[currentFacesIndex] = lineSplit[1];
+		tmpfaces = new int[faceCount.get(currentFacesIndex)][3][3];
+				currentFaceCount = 0;		
+
 	    } else if (lineSplit[0].equals("f")) {
 
 	    	// split
@@ -258,14 +241,13 @@ public class ObjLoader extends Loader {
 	    	face[1] = inty.clone();
 	    	face[2] = intz.clone();
 
-	    	// faces[currentFacesIndex][currentFaceCount] = face.clone();
 		tmpfaces[currentFaceCount] = face.clone();
-		// tmpfaces = new int[faceCount.get(currentFacesIndex)][3][3];
-		// faces.add(tmpfaces);
 
 	    	currentFaceCount++;
 	    }
 	}
+
+	faces.add(tmpfaces);
 
 	Log.i("GRAFFIKS","parsing took "+(System.currentTimeMillis()-starttime)+"ms");
     }

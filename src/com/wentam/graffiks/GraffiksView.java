@@ -39,4 +39,5 @@ public abstract class GraffiksView extends GLSurfaceView {
 
     public abstract void init(GraffiksRenderer renderer);
     public abstract void update(float timeStep);
-    public abstract void draw();}
+    public abstract void draw();
+}
