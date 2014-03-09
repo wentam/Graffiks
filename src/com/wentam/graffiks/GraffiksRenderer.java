@@ -55,21 +55,21 @@ public class GraffiksRenderer implements GLSurfaceView.Renderer {
     private float ambientColor[] = {0f,0f,0f,1f};
 
     public GraffiksRenderer(Context cntxt, GraffiksView v) {
-	super();
-	context = cntxt;
-	view = v;
+        super();
+        context = cntxt;
+        view = v;
     }
-   
+
     public void onSurfaceCreated (GL10 unused, EGLConfig config) {
-	GLES20.glClearColor(0f,0f,0f,1.0f);
+        GLES20.glClearColor(0f,0f,0f,1.0f);
 
-	GLES20.glEnable(GLES20.GL_CULL_FACE);
- 	GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-	GLES20.glDepthFunc(GLES20.GL_LESS);
-	GLES20.glDepthMask(true);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthFunc(GLES20.GL_LESS);
+        GLES20.glDepthMask(true);
 
-	view.init(this);
-	startTime = System.currentTimeMillis();
+        view.init(this);
+        startTime = System.currentTimeMillis();
     }
 
     float smoothedDeltaRealTime_ms=16.6f;
@@ -80,65 +80,64 @@ public class GraffiksRenderer implements GLSurfaceView.Renderer {
     static final float smoothFactor=0.1f;
 
     public void onDrawFrame(GL10 unused) {
-	// limit FPS so we aren't wasting battery on the user's device as it renders 100s of FPS...
-	// most screens won't display more than 60FPS, so we'll use that.
-	limitFPS(60);
+        // limit FPS so we aren't wasting battery on the user's device as it renders 100s of FPS...
+        // most screens won't display more than 60FPS, so we'll use that.
+        limitFPS(60);
 
-	// update
-	view.update(smoothedDeltaRealTime_ms);
+        // update
+        view.update(smoothedDeltaRealTime_ms);
 
-	// draw
-	GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-	Matrix.setLookAtM(viewMatrix, 0, 0, 0, 20, 0f, 0f, 0f, 0f, 1f, 0f);
+        // draw
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, 7, 0f, 0f, 0f, 0f, 1f, 0f);
 
-	view.draw();
+        view.draw();
 
 
-	// we use a smoothed moving average to handle delta time,
-	// this way we get less janks, as well as the lack of a sudden jolt to catch up.
+        // we use a smoothed moving average to handle delta time,
+        // this way we get less janks, as well as the lack of a sudden jolt to catch up.
 
-	// moving average
+        // moving average
         long currTimePick_ms=SystemClock.uptimeMillis();
         float realTimeElapsed_ms;
         if (lastRealTimeMeasurement_ms>0){
-        realTimeElapsed_ms=(currTimePick_ms - lastRealTimeMeasurement_ms);
+            realTimeElapsed_ms=(currTimePick_ms - lastRealTimeMeasurement_ms);
         } else {
-                 realTimeElapsed_ms=smoothedDeltaRealTime_ms; // just the first time
+            realTimeElapsed_ms=smoothedDeltaRealTime_ms; // just the first time
         }
         movAverageDeltaTime_ms=(realTimeElapsed_ms + movAverageDeltaTime_ms*(movAveragePeriod-1))/movAveragePeriod;
 
-	// smoothed average
+        // smoothed average
         smoothedDeltaRealTime_ms=smoothedDeltaRealTime_ms +(movAverageDeltaTime_ms - smoothedDeltaRealTime_ms)* smoothFactor;
 
         lastRealTimeMeasurement_ms=currTimePick_ms;
     }
 
     public void onSurfaceChanged(GL10 unused, int width, int height) {
-	GLES20.glViewport(0, 0, width, height);
+        GLES20.glViewport(0, 0, width, height);
 
-	float ratio = (float) width / height;
-	float ratioReversed = (float) height / width;
-	Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 5, 100);
+        float ratio = (float) width / height;
+        Matrix.frustumM(projectionMatrix, 0, -ratio*50f, ratio*50f, -50f, 50f, 5, 100);
     }
 
     public void setAmbientLightColor(float color[]) {
-	ambientColor = color;
+        ambientColor = color;
     }
 
     public float[] getAmbientLightColor() {
-	return ambientColor;
+        return ambientColor;
     }
 
-    private void limitFPS(int FPS) {	
-	ms_per_frame = 1000/FPS;
-	
-	endTime = System.currentTimeMillis();
-	dt = endTime - startTime;
-	if (dt < ms_per_frame) {
-	    try {
-		Thread.sleep(ms_per_frame - dt);
-	    } catch (Exception e) {}
-	}
-	startTime = System.currentTimeMillis();
+    private void limitFPS(int FPS) {
+        ms_per_frame = 1000/FPS;
+
+        endTime = System.currentTimeMillis();
+        dt = endTime - startTime;
+        if (dt < ms_per_frame) {
+            try {
+                Thread.sleep(ms_per_frame - dt);
+            } catch (Exception e) {}
+        }
+        startTime = System.currentTimeMillis();
     }
 }
