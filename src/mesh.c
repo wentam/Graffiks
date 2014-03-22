@@ -16,16 +16,14 @@ mesh* create_mesh(float vertices[][3], int indicies[][3][3], int index_count, fl
     m->rot_x = 0;
     m->rot_y = 0;
     m->rot_z = 1;
-    m->triangle_buffer = malloc(sizeof(GLuint));
-    m->normal_buffer = malloc(sizeof(GLuint));
 
     // make buffers
-    glGenBuffers(1, m->triangle_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, *(m->triangle_buffer));
+    glGenBuffers(1, &m->triangle_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(system_vertices), system_vertices, GL_STATIC_DRAW);
 
-    glGenBuffers(1, m->normal_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, *(m->normal_buffer));
+    glGenBuffers(1, &m->normal_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(system_normals), system_normals, GL_STATIC_DRAW);
 
     return m;
@@ -91,24 +89,24 @@ mesh* create_mesh_with_instances(base_mesh *bmesh, double instances[][3], int in
     smesh->rot_x = 1;
     smesh->rot_y = 0;
     smesh->rot_z = 0;
-    smesh->triangle_buffer = malloc(sizeof(GLuint));
-    smesh->normal_buffer = malloc(sizeof(GLuint));
+    /*smesh->triangle_buffer = malloc(sizeof(GLuint));*/
+    /*smesh->normal_buffer = malloc(sizeof(GLuint));*/
 
     // make buffers
-    glGenBuffers(1, smesh->triangle_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, *(smesh->triangle_buffer));
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(bmesh->vertex_count*instance_count), system_vertices, GL_DYNAMIC_DRAW);
+    /*glGenBuffers(1, smesh->triangle_buffer);*/
+    /*glBindBuffer(GL_ARRAY_BUFFER, *(smesh->triangle_buffer));*/
+    /*glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(bmesh->vertex_count*instance_count), system_vertices, GL_DYNAMIC_DRAW);*/
 
-    glGenBuffers(1, smesh->normal_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, *(smesh->normal_buffer));
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(bmesh->normal_count*instance_count), system_normals, GL_DYNAMIC_DRAW);
+    /*glGenBuffers(1, smesh->normal_buffer);*/
+    /*glBindBuffer(GL_ARRAY_BUFFER, *(smesh->normal_buffer));*/
+    /*glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(bmesh->normal_count*instance_count), system_normals, GL_DYNAMIC_DRAW);*/
 
     return smesh;
 }
 
 void free_mesh(mesh *m) {
-    free(m->triangle_buffer);
-    free(m->normal_buffer);
+    glDeleteBuffers(1,&m->triangle_buffer);
+    glDeleteBuffers(1,&m->normal_buffer);
     free(m);
 }
 
@@ -136,12 +134,12 @@ void draw_mesh(mesh *m, material *mat) {
     /*__android_log_print(ANDROID_LOG_ERROR, "Graffiks","triangle buffer: %u", *(m->triangle_buffer));*/
 
     // add vertices
-    glBindBuffer(GL_ARRAY_BUFFER, *(m->triangle_buffer));
+    glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
     glEnableVertexAttribArray(a_position_location);
     glVertexAttribPointer(a_position_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     // add normals
-    glBindBuffer(GL_ARRAY_BUFFER, *(m->normal_buffer));
+    glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
     glEnableVertexAttribArray(a_normal_location);
     glVertexAttribPointer(a_normal_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 

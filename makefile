@@ -18,6 +18,7 @@ default: android_arm
 android_arm: CC = $(ANDROID_ARM_CC)
 android_arm: LD = $(ANDROID_ARM_LD)
 android_arm: ndk folders mesh core driver-android
+	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -llog -lGLESv2 -landroid \
 		o/renderer.o o/driver-jni-android.o \
@@ -33,7 +34,6 @@ endif
 
 folders:
 	mkdir -p lib
-	mkdir -p lib/$@
 	mkdir -p o
 
 mesh:

@@ -6,8 +6,8 @@
 #include "renderer.h"
 
 typedef struct {
-    GLuint *triangle_buffer;
-    GLuint *normal_buffer;
+    GLuint triangle_buffer;
+    GLuint normal_buffer;
     int vertex_count;
     int normal_count;
     float location_x;
