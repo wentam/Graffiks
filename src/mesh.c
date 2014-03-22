@@ -166,7 +166,7 @@ void draw_mesh(mesh *m, material *mat) {
     glUniform4f(u_ambient_color_location, ambient_color[0], ambient_color[1], ambient_color[2], ambient_color[3]);
     glUniform4f(u_diffuse_color_location,
             mat->diffuse_color[0], mat->diffuse_color[1], mat->diffuse_color[2], mat->diffuse_color[3]);
-    glUniform3f(u_light_position_location,5,5,5);
+    glUniform3f(u_light_position_location,0,0,5);
     glUniform1f(u_diffuse_intensity_location, mat->diffuse_intensity);
 
     // draw it!
