@@ -6,6 +6,7 @@
 #include "gl_helper.h"
 #include "graffiks.h"
 #include <android/log.h>
+#include <math.h>
 
 // change this to change the ambient color: {r,g,b,intensity}
 extern float ambient_color[4];
@@ -25,6 +26,6 @@ void _finish();
 float view_matrix[16];
 float projection_matrix[16];
 void _limit_fps(int fps);
-void _ms(long int *ms);
+void _ms(long long int *ms);
 void _sleep_ms(int ms);
 #endif

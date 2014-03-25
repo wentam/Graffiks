@@ -3,8 +3,8 @@
 // stuff for calculating update time
 #define MOVING_AVERAGE_PERIOD 60
 #define SMOOTH_FACTOR 0.1
-long int frame_start_time = 0;
-long int last_frame_time_elapsed = 0;
+long long int frame_start_time = 0;
+long long int last_frame_end_time = 0;
 float delta_time_smoothed = 16.6;
 float delta_time_moving_average = 16.6;
 
@@ -45,6 +45,7 @@ void _set_size(int width, int height) {
 void _draw_frame() {
     _limit_fps(60);
 
+
     // update
     _call_update(delta_time_smoothed);
 
@@ -56,17 +57,19 @@ void _draw_frame() {
 
     // figure out how much time the next update should handle
     // we use a moving average with an extra "smooth" pass to make the framerate more consistant
-    long int frame_end_time;
-    _ms(&frame_end_time);
+    long long int frame_end_time_;
+    _ms(&frame_end_time_);
+
     float frame_time_elapsed;
-    if (last_frame_time_elapsed  > 0) {
-        frame_time_elapsed = frame_end_time-last_frame_time_elapsed;
+    if (last_frame_end_time > 0) {
+        frame_time_elapsed = frame_end_time_ - last_frame_end_time;
     } else {
         frame_time_elapsed = delta_time_smoothed;
     }
+
     delta_time_moving_average = (frame_time_elapsed+delta_time_moving_average*(MOVING_AVERAGE_PERIOD-1))/MOVING_AVERAGE_PERIOD;
     delta_time_smoothed = delta_time_smoothed+(delta_time_moving_average-delta_time_smoothed)*SMOOTH_FACTOR;
-    last_frame_time_elapsed = frame_time_elapsed;
+    last_frame_end_time = frame_end_time_;
 }
 
 void _finish() {
@@ -85,7 +88,7 @@ void set_camera_location_target_and_up(float x, float y, float z,
 void _limit_fps(int fps) {
     int ms_per_frame = 1000/fps;
 
-    long int frame_end_time;
+    long long int frame_end_time;
     _ms(&frame_end_time);
 
     int frame_delta_time = frame_end_time-frame_start_time;
@@ -104,8 +107,8 @@ void _sleep_ms(int ms) {
 }
 
 // current epoch in milliseconds
-void _ms(long int *ms) {
+void _ms(long long int *ms) {
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    (*ms) = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    (*ms) = llround((tp.tv_sec*1000.0)+(tp.tv_usec/1000.0));
 }
