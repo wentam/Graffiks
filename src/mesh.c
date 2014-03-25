@@ -130,9 +130,6 @@ void draw_mesh(mesh *m, material *mat) {
     GLint a_position_location = glGetAttribLocation(*program, "a_position");
     GLint a_normal_location = glGetAttribLocation(*program, "a_normal");
 
-    /*__android_log_print(ANDROID_LOG_ERROR, "Graffiks","a_position_location: %d", a_position_location);*/
-    /*__android_log_print(ANDROID_LOG_ERROR, "Graffiks","triangle buffer: %u", *(m->triangle_buffer));*/
-
     // add vertices
     glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
     glEnableVertexAttribArray(a_position_location);

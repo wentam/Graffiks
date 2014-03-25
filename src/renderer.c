@@ -10,6 +10,9 @@ float delta_time_moving_average = 16.6;
 
 float ambient_color[] = {0,0,0,0};
 
+int renderer_width;
+int renderer_height;
+
 void _init_graffiks() {
     glClearColor(0.1,0.15,0.1,1.0);
     glEnable(GL_CULL_FACE);
@@ -22,7 +25,7 @@ void _init_graffiks() {
                                  0, 0, 0,  // camera target
                                  0, 1, 0); // up vector
 
-    _call_init();
+    _call_init(&renderer_width, &renderer_height);
     _ms(&frame_start_time);
 }
 
@@ -34,6 +37,9 @@ void _set_size(int width, int height) {
                           -ratio*5, ratio*5, // left, right
                           5, -5,             // top, bottom
                           4, 100);           // near, far
+
+    renderer_width = width;
+    renderer_height = height;
 }
 
 void _draw_frame() {
