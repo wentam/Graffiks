@@ -38,6 +38,6 @@ mesh* create_cube(float scale) {
         {0, 0, -1}
     };
 
-    mesh *m = create_mesh(verts,faces,12,normals);
+    mesh *m = create_mesh_st(verts,faces,12,normals);
     return m;
 }

@@ -1,23 +1,12 @@
 #include "mesh.h"
 
-mesh* create_mesh(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]) {
+mesh* create_mesh(float **vertices, int ***indicies, int index_count, float **normals) {
     float system_vertices[(index_count*3)*3];
     float system_normals[(index_count*3)*3];
-
     _generate_mesh(system_vertices, system_normals, vertices, indicies, index_count, normals);
 
-    mesh *m = malloc(sizeof(mesh));
-    m->vertex_count = (index_count*3)*3;
-    m->normal_count = (index_count*3)*3;
-    m->location_x = 0;
-    m->location_y = 0;
-    m->location_z = 0;
-    m->angle = 0;
-    m->rot_x = 0;
-    m->rot_y = 0;
-    m->rot_z = 1;
+    mesh *m = _allocate_mesh(index_count);
 
-    // make buffers
     glGenBuffers(1, &m->triangle_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(system_vertices), system_vertices, GL_STATIC_DRAW);
@@ -25,11 +14,27 @@ mesh* create_mesh(float vertices[][3], int indicies[][3][3], int index_count, fl
     glGenBuffers(1, &m->normal_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(system_normals), system_normals, GL_STATIC_DRAW);
-
     return m;
 }
 
-base_mesh* create_base_mesh(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]) {
+mesh* create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]) {
+    float system_vertices[(index_count*3)*3];
+    float system_normals[(index_count*3)*3];
+    _generate_mesh_st(system_vertices, system_normals, vertices, indicies, index_count, normals);
+
+    mesh *m = _allocate_mesh(index_count);
+
+    glGenBuffers(1, &m->triangle_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(system_vertices), system_vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &m->normal_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(system_normals), system_normals, GL_STATIC_DRAW);
+    return m;
+}
+
+base_mesh* create_base_mesh(float **vertices, int ***indicies, int index_count, float **normals) {
     float *system_vertices = malloc(sizeof(float)*(index_count*3*3));
     float *system_normals = malloc(sizeof(float)*(index_count*3*3));
 
@@ -66,7 +71,6 @@ mesh* create_mesh_with_instances(base_mesh *bmesh, double instances[][3], int in
             if (index_offset >= 3) {
                 index_offset = 0;
             }
-
         }
 
         start_index += bmesh->vertex_count;
@@ -174,7 +178,52 @@ void draw_mesh(mesh *m, material *mat) {
     glDisableVertexAttribArray(a_normal_location);
 }
 
+mesh* _allocate_mesh(int index_count) {
+
+    mesh *m = malloc(sizeof(mesh));
+    m->vertex_count = (index_count*3)*3;
+    m->normal_count = (index_count*3)*3;
+    m->location_x = 0;
+    m->location_y = 0;
+    m->location_z = 0;
+    m->angle = 0;
+    m->rot_x = 0;
+    m->rot_y = 0;
+    m->rot_z = 1;
+
+    return m;
+}
+
 void _generate_mesh(float output_vertices[], float output_normals[],
+        float **vertices, int ***indicies, int index_count, float **normals) {
+
+    int current_vertex_index = 0;
+    int current_normal_index = 0;
+    int i;
+    int i2;
+    for (i = 0; i < index_count; i++) {
+        // we need to create 3 vertices and 3 normals per index in indicies
+        for (i2 = 0; i2 < 3; i2++) {
+            // vertex
+            output_vertices[current_vertex_index] = vertices[indicies[i][i2][0]][0];
+            current_vertex_index++;
+            output_vertices[current_vertex_index] = vertices[indicies[i][i2][0]][1];
+            current_vertex_index++;
+            output_vertices[current_vertex_index] = vertices[indicies[i][i2][0]][2];
+            current_vertex_index++;
+
+            // normal
+            output_normals[current_normal_index] = normals[indicies[i][i2][2]][0];
+            current_normal_index++;
+            output_normals[current_normal_index] = normals[indicies[i][i2][2]][1];
+            current_normal_index++;
+            output_normals[current_normal_index] = normals[indicies[i][i2][2]][2];
+            current_normal_index++;
+        }
+    }
+}
+
+void _generate_mesh_st(float output_vertices[], float output_normals[],
         float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]) {
 
     int current_vertex_index = 0;

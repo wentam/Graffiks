@@ -28,14 +28,18 @@ typedef struct {
 
 typedef enum { false, true } bool;
 
-mesh* create_mesh(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]);
-base_mesh* create_base_mesh(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]);
+mesh* create_mesh(float **vertices, int ***indicies, int index_count, float **normals);
+mesh* create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]);
+base_mesh* create_base_mesh(float **vertices, int ***indicies, int index_count, float **normals);
 mesh* create_mesh_with_instances(base_mesh *mesh, double instances[][3], int instance_count, bool use_z);
 void free_mesh(mesh *mesh);
 void free_base_mesh(base_mesh *mesh);
 void draw_mesh(mesh *m, material *mat);
 
 // internal stuff
+mesh* _allocate_mesh(int index_count);
 void _generate_mesh(float output_vertices[], float output_normals[],
+        float **vertices, int ***indicies, int index_count, float **normals);
+void _generate_mesh_st(float output_vertices[], float output_normals[],
         float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]);
 #endif

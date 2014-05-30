@@ -23,7 +23,8 @@ android_arm: ndk folders mesh core driver-android
 		-lc -lm -llog -lGLESv2 -landroid \
 		o/renderer.o o/driver-jni-android.o \
 		o/gl_helper.o o/graffiks.o \
-		o/mesh.o o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
+		o/mesh.o \
+	    o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
 		o/material.o \
 		-o lib/$@/libgraffiks.so
 

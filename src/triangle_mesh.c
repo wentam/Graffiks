@@ -16,6 +16,6 @@ mesh* create_triangle(float scale) {
         {0, 0, 1}
     };
 
-    mesh *m = create_mesh(verts,faces,2,normals);
+    mesh *m = create_mesh_st(verts,faces,2,normals);
     return m;
 }
