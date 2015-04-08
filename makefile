@@ -1,19 +1,33 @@
 INCLUDE := -Iinclude
+CC_WARNINGS = -Wall -Wextra -Wno-implicit-function-declaration
 
 .PHONY: android
 ANDROID_PLATFORM := android-19
 ANDROID_ARM_SYSROOT := $(NDK)/platforms/$(ANDROID_PLATFORM)/arch-arm/
 ANDROID_ARM_TOOLCHAIN_BINARY_PATH := /toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/
 ANDROID_ARM_CC := $(NDK)$(ANDROID_ARM_TOOLCHAIN_BINARY_PATH)arm-linux-androideabi-gcc \
-				  --sysroot=$(ANDROID_ARM_SYSROOT) $(INCLUDE) -DANDROID -Wall -Wextra \
-				  -Wno-implicit-function-declaration
+				  --sysroot=$(ANDROID_ARM_SYSROOT) $(INCLUDE) -DANDROID $(CC_WARNINGS)
 ANDROID_ARM_LD := $(NDK)$(ANDROID_ARM_TOOLCHAIN_BINARY_PATH)arm-linux-androideabi-ld \
 				  --sysroot=$(ANDROID_ARM_SYSROOT) $(INCLUDE)
 
-X86_CC := gcc $(INCLUDE) -fPIC
-X86_LD := ld $(INCLUDE)
+LINUX_CC := gcc $(INCLUDE) -DLINUX $(CC_WARNINGS) -fPIC
+LINUX_LD := ld $(INCLUDE)
 
-default: android_arm
+default: linux
+
+linux: CC = $(LINUX_CC)
+linux: LD = $(LINUX_LD)
+linux: folders mesh core
+	mkdir -p lib/$@
+	$(LD) -shared \
+		-lc -lm \
+		o/renderer.o\
+		o/gl_helper.o o/graffiks.o \
+		o/mesh.o \
+	    o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
+		o/material.o \
+		-o lib/$@/libgraffiks.so
+	
 
 android_arm: CC = $(ANDROID_ARM_CC)
 android_arm: LD = $(ANDROID_ARM_LD)
@@ -30,7 +44,7 @@ android_arm: ndk folders mesh core driver-android
 
 ndk:
 ifndef NDK
-    $(error export NDK=/your/ndk/path/ before running building)
+$(error export NDK=/your/ndk/path/ before building)
 endif
 
 folders:
