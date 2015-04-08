@@ -18,11 +18,11 @@ default: linux
 
 linux: CC = $(LINUX_CC)
 linux: LD = $(LINUX_LD)
-linux: folders mesh core
+linux: folders mesh core driver-linux
 	mkdir -p lib/$@
 	$(LD) -shared \
-		-lc -lm -lX11 -lGL -lGLU\
-		o/renderer.o\
+		-lc -lm -lX11 -lGL -lGLU \
+		o/renderer.o o/driver-linux.o \
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \
 	    o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
@@ -66,6 +66,9 @@ core:
 
 driver-android:
 	$(CC) -Wno-unused-parameter -c src/driver-jni-android.c -o o/driver-jni-android.o
+
+driver-linux:
+	$(CC) -Wno-unused-parameter -c src/driver-linux.c -o o/driver-linux.o
 
 clean:
 	rm -rf o
