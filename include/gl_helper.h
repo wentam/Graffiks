@@ -1,7 +1,9 @@
 #ifndef GL_HELPER_H
 #define GL_HELPER_H
 #include <math.h>
+#ifdef ANDROID
 #include <android/log.h>
+#endif
 
 // matrix is a float[16]
 void set_view_matrix (float matrix[],

@@ -5,7 +5,11 @@
 #include <stdlib.h>
 #include "gl_helper.h"
 #include "graffiks.h"
+
+#ifdef ANDROID
 #include <android/log.h>
+#endif
+
 #include <math.h>
 
 // change this to change the ambient color: {r,g,b,intensity}

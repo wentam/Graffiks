@@ -17,6 +17,42 @@ mesh* create_mesh(float **vertices, int ***indicies, int index_count, float **no
     return m;
 }
 
+// colors:
+// [
+// [0..1,0..1,0..1,0..1] ([r,g,b,a])
+// ...
+// ]
+// colors MUST contain the same number of elements as there are vertices
+void set_mesh_vertex_colors(mesh *m, float colors[][4], int ***indicies, int index_count) {
+    // enable vertex coloring in mesh
+    m->use_vertex_color = true;
+
+    // flatten the colors 2d array
+    float colors_flat[(index_count*3)*4];
+
+    int current_vertex_index = 0;
+    int i;
+    int i2;
+    for (i = 0; i < index_count; i++) {
+        for (i2 = 0; i2 < 3; i2++) {
+            colors_flat[current_vertex_index] = colors[indicies[i][i2][0]][0];
+            current_vertex_index++;
+            colors_flat[current_vertex_index] = colors[indicies[i][i2][0]][1];
+            current_vertex_index++;
+            colors_flat[current_vertex_index] = colors[indicies[i][i2][0]][2];
+            current_vertex_index++;
+            colors_flat[current_vertex_index] = colors[indicies[i][i2][0]][3];
+            current_vertex_index++;
+        }
+    }
+
+
+    // create buffer
+    glGenBuffers(1, &m->vertex_color_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m->vertex_color_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors_flat), colors_flat, GL_STATIC_DRAW);
+}
+
 mesh* create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]) {
     float system_vertices[(index_count*3)*3];
     float system_normals[(index_count*3)*3];
@@ -111,6 +147,9 @@ mesh* create_mesh_with_instances(base_mesh *bmesh, double instances[][3], int in
 void free_mesh(mesh *m) {
     glDeleteBuffers(1,&m->triangle_buffer);
     glDeleteBuffers(1,&m->normal_buffer);
+    if (m->use_vertex_color) {
+        glDeleteBuffers(1,&m->vertex_color_buffer);
+    }
     free(m);
 }
 
@@ -131,8 +170,10 @@ void draw_mesh(mesh *m, material *mat) {
     GLint u_diffuse_color_location = glGetUniformLocation(*program, "u_diffuse_color");
     GLint u_diffuse_intensity_location = glGetUniformLocation(*program, "u_diffuse_intensity");
     GLint u_light_position_location = glGetUniformLocation(*program, "u_light_position");
+    GLint u_per_vertex_location = glGetUniformLocation(*program, "u_per_vertex");
     GLint a_position_location = glGetAttribLocation(*program, "a_position");
     GLint a_normal_location = glGetAttribLocation(*program, "a_normal");
+    GLint a_diffuse_color_location = glGetAttribLocation(*program, "a_diffuse_color");
 
     // add vertices
     glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
@@ -143,6 +184,17 @@ void draw_mesh(mesh *m, material *mat) {
     glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
     glEnableVertexAttribArray(a_normal_location);
     glVertexAttribPointer(a_normal_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    // add colors if m->use_vertex_color
+    if (m->use_vertex_color) {
+        glUniform1i(u_per_vertex_location,1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m->vertex_color_buffer);
+        glEnableVertexAttribArray(a_diffuse_color_location);
+        glVertexAttribPointer(a_diffuse_color_location, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    } else {
+        glUniform1i(u_per_vertex_location,0);
+    }
 
     // set up matrices
     float rotation_matrix[16];
@@ -181,6 +233,7 @@ void draw_mesh(mesh *m, material *mat) {
 mesh* _allocate_mesh(int index_count) {
 
     mesh *m = malloc(sizeof(mesh));
+    m->use_vertex_color = false;
     m->vertex_count = (index_count*3)*3;
     m->normal_count = (index_count*3)*3;
     m->location_x = 0;
@@ -254,14 +307,20 @@ void _generate_mesh_st(float output_vertices[], float output_normals[],
 
 void _dm(float m[]) {
     int i;
+#ifdef ANDROID
     __android_log_print(ANDROID_LOG_ERROR, "Graffiks","--");
+#endif
     for (i = 0; i < 4; i++) {
         int i2;
         float row[4];
         for (i2 = 0; i2 < 4; i2++) {
             row[i2] = m[(i*4)+i2];
         }
+#ifdef ANDROID
         __android_log_print(ANDROID_LOG_ERROR, "Graffiks","[%f, %f, %f, %f]",row[0],row[1],row[2],row[3]);
+#endif
     }
+#ifdef ANDROID
     __android_log_print(ANDROID_LOG_ERROR, "Graffiks","--");
+#endif
 }

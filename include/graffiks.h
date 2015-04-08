@@ -1,6 +1,8 @@
 #ifndef GRAFFIKS_H
 #define GRAFFIKS_H
+#ifdef ANDROID
 #include <android/log.h>
+#endif
 
 // To use the engine, call graffiks_setup with functions pointers for init, update, and draw
 // See other header files to see what functions are avaiable for drawing.

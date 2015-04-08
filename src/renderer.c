@@ -34,8 +34,8 @@ void _set_size(int width, int height) {
 
     float ratio = (float) width/height;
     set_projection_matrix(projection_matrix,
-                          -ratio*5, ratio*5, // left, right
-                          5, -5,             // top, bottom
+                          -ratio*3, ratio*3, // left, right
+                          3, -3,             // top, bottom
                           4, 100);           // near, far
 
     renderer_width = width;

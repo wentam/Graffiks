@@ -47,8 +47,7 @@ material* create_material() {
     fclose(vertex_shader_fp);
     vertex_shader[vertex_shader_file_size] = 0;
 
-
-    // read vertex shader
+    // read fragment shader
     char *fragment_shader;
     long fragment_shader_file_size;
     FILE *fragment_shader_fp = fopen(RESOURCE_PATH "/shaders/material.frag", "r");
