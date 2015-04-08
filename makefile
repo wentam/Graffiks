@@ -1,5 +1,6 @@
 INCLUDE := -Iinclude
 CC_WARNINGS = -Wall -Wextra -Wno-implicit-function-declaration
+RESOURCES = /home/wentam/Graffiks/share/# temporary path, obviously
 
 .PHONY: android
 ANDROID_PLATFORM := android-19
@@ -10,7 +11,7 @@ ANDROID_ARM_CC := $(NDK)$(ANDROID_ARM_TOOLCHAIN_BINARY_PATH)arm-linux-androideab
 ANDROID_ARM_LD := $(NDK)$(ANDROID_ARM_TOOLCHAIN_BINARY_PATH)arm-linux-androideabi-ld \
 				  --sysroot=$(ANDROID_ARM_SYSROOT) $(INCLUDE)
 
-LINUX_CC := gcc $(INCLUDE) -DLINUX $(CC_WARNINGS) -fPIC
+LINUX_CC := gcc $(INCLUDE) -DLINUX -DRESOURCE_PATH=\"$(RESOURCES)\" $(CC_WARNINGS) -fPIC
 LINUX_LD := ld $(INCLUDE)
 
 default: linux
@@ -20,7 +21,7 @@ linux: LD = $(LINUX_LD)
 linux: folders mesh core
 	mkdir -p lib/$@
 	$(LD) -shared \
-		-lc -lm \
+		-lc -lm -lX11 -lGL -lGLU\
 		o/renderer.o\
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \

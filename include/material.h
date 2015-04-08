@@ -3,12 +3,21 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include <GLES2/gl2.h>
 
 #ifdef ANDROID
+#include <GLES2/gl2.h>
 #include "jni.h"
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
+#endif
+
+#ifdef LINUX
+#include <stdio.h>
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glu.h>
 #endif
 
 typedef struct {

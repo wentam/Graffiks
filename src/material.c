@@ -34,6 +34,34 @@ material* create_material() {
     AAsset_close(asset);
     #endif
 
+    #ifdef LINUX
+    // read vertex shader
+    char *vertex_shader;
+    long vertex_shader_file_size;
+    FILE *vertex_shader_fp = fopen(RESOURCE_PATH "/shaders/material.vert", "r");
+    fseek(vertex_shader_fp, 0, SEEK_END);
+    vertex_shader_file_size = ftell(vertex_shader_fp);
+    rewind(vertex_shader_fp);
+    vertex_shader = malloc((vertex_shader_file_size+1) * sizeof(char));
+    fread(vertex_shader, sizeof(char), vertex_shader_file_size, vertex_shader_fp);
+    fclose(vertex_shader_fp);
+    vertex_shader[vertex_shader_file_size] = 0;
+
+
+    // read vertex shader
+    char *fragment_shader;
+    long fragment_shader_file_size;
+    FILE *fragment_shader_fp = fopen(RESOURCE_PATH "/shaders/material.frag", "r");
+    fseek(fragment_shader_fp, 0, SEEK_END);
+    fragment_shader_file_size = ftell(fragment_shader_fp);
+    rewind(fragment_shader_fp);
+    fragment_shader = malloc((fragment_shader_file_size+1) * sizeof(char));
+    fread(fragment_shader, sizeof(char), fragment_shader_file_size, fragment_shader_fp);
+    fclose(fragment_shader_fp);
+
+    int vsize = (int) vertex_shader_file_size;
+    int fsize = (int) fragment_shader_file_size;
+    #endif
 
     GLuint vertex_shader_ref = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragment_shader_ref = glCreateShader(GL_FRAGMENT_SHADER);
