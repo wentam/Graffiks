@@ -34,8 +34,10 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
 
     glXMakeCurrent(display, win, glc);
 
+    graffiks_setup(init, update, draw, finish);
     _set_size(window_width,window_height);
-    _init_graffiks();
+
+   _init_graffiks();
 
     while(1) {
 //  _draw_frame();
