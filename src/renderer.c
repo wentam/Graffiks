@@ -14,7 +14,7 @@ int renderer_width;
 int renderer_height;
 
 void _init_graffiks() {
-    glClearColor(0.1,0.15,0.1,1.0);
+    glClearColor(0.0,0.0,0.0,1.0);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
