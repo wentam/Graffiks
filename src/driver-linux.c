@@ -1,13 +1,4 @@
-#include "renderer.h"
-#include "graffiks.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glu.h>
-
+#include "driver-linux.h"
 
 Display *display;
 Window root;
@@ -47,9 +38,9 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
     _init_graffiks();
 
     while(1) {
-        _draw_frame();
+//  _draw_frame();
     }
 
-    _finish();
+ //   _finish();
 }
 
