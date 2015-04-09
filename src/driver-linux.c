@@ -1,7 +1,7 @@
 #include "driver-linux.h"
 
 Window root;
-GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24,GLX_DOUBLEBUFFER, None };
+GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24,GLX_DOUBLEBUFFER,GLX_SAMPLE_BUFFERS,1,GLX_SAMPLES,8,  None };
 XVisualInfo *vi;
 Colormap cmap;
 XSetWindowAttributes swa;
