@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "gl_helper.h"
 #include "graffiks.h"
+#include "driver-linux.h"
 
 #ifdef ANDROID
 #include <android/log.h>

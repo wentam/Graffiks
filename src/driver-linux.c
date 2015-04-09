@@ -1,12 +1,10 @@
 #include "driver-linux.h"
 
-Display *display;
 Window root;
-GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24,GLX_DOUBLEBUFFER, None };
 XVisualInfo *vi;
 Colormap cmap;
 XSetWindowAttributes swa;
-Window win;
 GLXContext glc;
 
 void init_graffiks_xorg(int window_width, int window_height, char *window_title,
@@ -40,9 +38,7 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
    _init_graffiks();
 
     while(1) {
-//  _draw_frame();
+        _draw_frame();
     }
-
- //   _finish();
 }
 

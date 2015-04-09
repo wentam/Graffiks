@@ -8,6 +8,9 @@
 #include <GL/glx.h>
 #include <GL/glu.h>
 
+Display *display;
+Window win;
+
 void init_graffiks_xorg(int window_width, int window_height, char *window_title,
         void (*init)(int *width, int *height),
         void (*update)(float time_step),

@@ -22,7 +22,7 @@ void _init_graffiks() {
 
     // set up view matrix
     set_view_matrix(view_matrix, 0, 0, 7,  // camera location
-                                 0, 0, 0,  // camera target
+                                0, 0, 0,  // camera target
                                  0, 1, 0); // up vector
 
     _call_init(&renderer_width, &renderer_height);
@@ -54,6 +54,10 @@ void _draw_frame() {
 
     // draw
     _call_draw();
+
+#ifndef ANDROID
+glXSwapBuffers(display, win);
+#endif
 
     // figure out how much time the next update should handle
     // we use a moving average with an extra "smooth" pass to make the framerate more consistant
