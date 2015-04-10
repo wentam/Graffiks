@@ -1,6 +1,7 @@
+RESOURCES = /usr/local/share/graffiks/
+
 INCLUDE := -Iinclude
 CC_WARNINGS = -Wall -Wextra -Wno-implicit-function-declaration
-RESOURCES = /home/wentam/Graffiks/share/# temporary path, obviously
 
 .PHONY: android
 ANDROID_PLATFORM := android-19
@@ -28,7 +29,6 @@ linux: folders mesh core driver-linux
 	    o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
 		o/material.o \
 		-o lib/$@/libgraffiks.so
-	
 
 android_arm: CC = $(ANDROID_ARM_CC)
 android_arm: LD = $(ANDROID_ARM_LD)
@@ -44,9 +44,9 @@ android_arm: ndk folders mesh core driver-android
 		-o lib/$@/libgraffiks.so
 
 ndk:
-ifndef NDK
-$(error export NDK=/your/ndk/path/ before building)
-endif
+	ifndef NDK
+	$(error export NDK=/your/ndk/path/ before building)
+	endif
 
 folders:
 	mkdir -p lib
@@ -69,6 +69,14 @@ driver-android:
 
 driver-linux:
 	$(CC) -Wno-unused-parameter -c src/driver-linux.c -o o/driver-linux.o
+
+install: install-linux
+
+install-linux:
+	mkdir -p /usr/local/lib/
+	cp lib/linux/libgraffiks.so /usr/local/lib/
+	mkdir -p $(RESOURCES)
+	cp -r share/* $(RESOURCES)
 
 clean:
 	rm -rf o
