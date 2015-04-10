@@ -1,4 +1,6 @@
 RESOURCES = /usr/local/share/graffiks/
+INCLUDE_DIR = /usr/local/include/graffiks/
+LIB_DIR = /usr/local/lib/
 
 INCLUDE := -Iinclude
 CC_WARNINGS = -Wall -Wextra -Wno-implicit-function-declaration
@@ -73,10 +75,12 @@ driver-linux:
 install: install-linux
 
 install-linux:
-	mkdir -p /usr/local/lib/
-	cp lib/linux/libgraffiks.so /usr/local/lib/
+	mkdir -p $(LIB_DIR)
+	cp lib/linux/libgraffiks.so $(LIB_DIR)
 	mkdir -p $(RESOURCES)
 	cp -r share/* $(RESOURCES)
+	mkdir -p $(INCLUDE_DIR)
+	cp -r include/* $(INCLUDE_DIR)
 
 clean:
 	rm -rf o
