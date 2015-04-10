@@ -35,9 +35,15 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
     graffiks_setup(init, update, draw, finish);
     _set_size(window_width,window_height);
 
-   _init_graffiks();
+    _init_graffiks();
+
 
     while(1) {
        _draw_frame();
     }
+}
+
+// 0 for off. Does nothing after init_graffiks_xorg
+void set_antialiasing_samples (int samples) {
+    att[7] = samples;
 }
