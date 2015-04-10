@@ -38,7 +38,6 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
    _init_graffiks();
 
     while(1) {
-        _draw_frame();
+       _draw_frame();
     }
 }
-
