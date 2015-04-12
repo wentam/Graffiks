@@ -53,64 +53,35 @@ char** _read_obj_data(char *filepath, int *line_count_output) {
     return obj_data;
 }
 
-int _resize_verts(float ***verts, int previous_size, int size) {
+int _resize_2d_int_array(float ***array, int previous_size, int size, int size2) {
     if (previous_size > size) {
         // we're shrinking, so free stuff
         int i;
         for (i = previous_size-1; i >= size; i--) {
-            free((*verts)[i]);
+            free((*array)[i]);
         }
     }
 
-    *verts = realloc(*verts, size * sizeof(float *));
+    *array = realloc(*array, size * sizeof(float *));
 
     if (size > previous_size) {
         // we're expanding, so allocate stuff
         int i;
         for (i = previous_size; i < size; i++) {
-            (*verts)[i] = malloc(3*sizeof(float));
+            (*array)[i] = malloc(size2*sizeof(float));
         }
     }
 
     return size;
 }
 
-void _free_verts(float ***verts, int size) {
+void _free_2d_int_array(float ***array, int size) {
     int i;
     for (i = 0; i < size; i++) {
-        free((*verts)[i]);
+        free((*array)[i]);
     }
 
-    free(*verts);
-}
-
-int _resize_normals(float ***normals, int previous_size, int size) {
-    if (previous_size > size) {
-        int i;
-        for (i = previous_size-1; i >= size; i--) {
-            free((*normals)[i]);
-        }
-    }
-
-    *normals = realloc(*normals, size * sizeof(float *));
-
-    if (size > previous_size) {
-        int i;
-        for (i = previous_size; i < size; i++) {
-            (*normals)[i] = malloc(3*sizeof(float));
-        }
-    }
-
-    return size;
-}
-
-void _free_normals(float ***normals, int size) {
-    int i;
-    for (i = 0; i < size; i++) {
-        free((*normals)[i]);
-    }
-
-    free(*normals);
+    free(*array);
 }
 
 int _resize_faces(int ****faces, int previous_size, int size) {
@@ -154,6 +125,11 @@ void _free_faces(int ****faces, int size) {
     free(*faces);
 }
 
+// Any obj you load must have:
+// * normals
+// * triangulated faces
+//
+// not all 3d software exports these by default.
 mesh* load_obj(char *filepath) {
     int line_count;
     char **obj_data = _read_obj_data(filepath, &line_count);
@@ -167,9 +143,9 @@ mesh* load_obj(char *filepath) {
     int normal_count = 0;
     int allocated_normal_count;
 
-    allocated_vertex_count = _resize_verts(&verts, 0, 64);
+    allocated_vertex_count = _resize_2d_int_array(&verts, 0, 64, 3);
     allocated_face_count = _resize_faces(&faces, 0, 64);
-    allocated_normal_count = _resize_normals(&normals, 0, 64);
+    allocated_normal_count = _resize_2d_int_array(&normals, 0, 64, 3);
 
     int i;
     for (i = 0; i < line_count; i++) {
@@ -181,7 +157,7 @@ mesh* load_obj(char *filepath) {
 
             if (vertex_count > allocated_vertex_count) {
                 allocated_vertex_count =
-                    _resize_verts(&verts, allocated_vertex_count, allocated_vertex_count+64);
+                    _resize_2d_int_array(&verts, allocated_vertex_count, allocated_vertex_count+64, 3);
             }
 
             verts[vertex_count-1][0] = atof(strtok_r(NULL, " ", &ptr));
@@ -243,7 +219,7 @@ mesh* load_obj(char *filepath) {
 
             if (normal_count > allocated_normal_count) {
                 allocated_normal_count =
-                    _resize_normals(&normals, allocated_normal_count, allocated_normal_count+64);
+                    _resize_2d_int_array(&normals, allocated_normal_count, allocated_normal_count+64, 3);
             }
 
             normals[normal_count-1][0] = atof(strtok_r(NULL, " ", &ptr));
@@ -252,12 +228,10 @@ mesh* load_obj(char *filepath) {
         }
     }
 
-
-
     // shrink arrays to true size
-    allocated_vertex_count = _resize_verts(&verts, allocated_vertex_count, vertex_count);
+    allocated_vertex_count = _resize_2d_int_array(&verts, allocated_vertex_count, vertex_count, 3);
     allocated_face_count = _resize_faces(&faces, allocated_face_count, face_count);
-    allocated_normal_count = _resize_normals(&normals, allocated_normal_count, normal_count);
+    allocated_normal_count = _resize_2d_int_array(&normals, allocated_normal_count, normal_count, 3);
 
     //printf("%f\n", normals[0][0]);
 
@@ -268,9 +242,9 @@ mesh* load_obj(char *filepath) {
     mesh *m = create_mesh(verts, faces, face_count, normals);
 
     // free other stuff
-    _free_verts(&verts, allocated_vertex_count);
+    _free_2d_int_array(&verts, allocated_vertex_count);
     _free_faces(&faces, allocated_face_count);
-    _free_normals(&normals, allocated_normal_count);
+    _free_2d_int_array(&normals, allocated_normal_count);
 
     return m;
 }
