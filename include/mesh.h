@@ -30,7 +30,6 @@ typedef struct {
     float *normals;
 } base_mesh;
 
-
 mesh* create_mesh(float **vertices, int ***indicies, int index_count, float **normals);
 mesh* create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count, float normals[][3]);
 base_mesh* create_base_mesh(float **vertices, int ***indicies, int index_count, float **normals);
