@@ -1,3 +1,5 @@
+#include <GL/glew.h>
+#include <GL/glxew.h>
 #include "driver-linux.h"
 
 Window root;
@@ -6,6 +8,7 @@ XVisualInfo *vi;
 Colormap cmap;
 XSetWindowAttributes swa;
 GLXContext glc;
+int _use_vsync = 1;
 
 void init_graffiks_xorg(int window_width, int window_height, char *window_title,
         void (*init)(int *width, int *height),
@@ -32,15 +35,27 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
 
     glXMakeCurrent(display, win, glc);
 
+    GLenum err = glewInit();
+    if (GLEW_OK != err) {
+        fprintf(stderr, "glew error: %s\n", glewGetErrorString(err));
+    }
+
+    if (GLX_EXT_swap_control && _use_vsync) {
+        glXSwapIntervalEXT(display, win, 0);
+    }
+
     graffiks_setup(init, update, draw, finish);
     _set_size(window_width,window_height);
 
     _init_graffiks();
 
-
     while(1) {
        _draw_frame();
     }
+}
+
+void use_vsync(int vsync) {
+    _use_vsync = vsync;
 }
 
 // 0 for off. Does nothing after init_graffiks_xorg

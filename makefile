@@ -24,7 +24,7 @@ linux: LD = $(LINUX_LD)
 linux: folders mesh core driver-linux
 	mkdir -p lib/$@
 	$(LD) -shared \
-		-lc -lm -lX11 -lGL -lGLU \
+		-lc -lm -lX11 -lGL -lGLU -lGLEW \
 		o/renderer.o o/driver-linux.o \
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \
