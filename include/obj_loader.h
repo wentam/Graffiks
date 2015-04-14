@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include <stdio.h>
 #include <string.h>
+#include "object.h"
 
-mesh* load_obj(char *filepath);
+object* load_obj(char *filepath);

@@ -29,7 +29,8 @@ linux: folders mesh core driver-linux
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \
 		o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
-		o/obj_loader.o \
+		o/obj_loader.o o/mtl_loader.o\
+		o/object.o \
 		o/material.o \
 		-o lib/$@/libgraffiks.so
 
@@ -61,6 +62,8 @@ mesh:
 	$(CC) -c src/plane_mesh.c -o o/plane_mesh.o
 	$(CC) -c src/triangle_mesh.c -o o/triangle_mesh.o
 	$(CC) -c src/obj_loader.c -o o/obj_loader.o
+	$(CC) -c src/mtl_loader.c -o o/mtl_loader.o
+	$(CC) -c src/object.c -o o/object.o
 
 core:
 	$(CC) -c src/renderer.c -o o/renderer.o
