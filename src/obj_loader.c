@@ -196,9 +196,6 @@ object* load_obj(char *filepath) {
     allocated_vertex_count = _resize_2d_int_array(&verts, 0, 64, 3);
     allocated_normal_count = _resize_2d_int_array(&normals, 0, 64, 3);
 
-    //allocated_face_group_count = _resize_face_groups(&face_groups,0,1);
-    //face_groups[0]->allocated_face_count = _resize_faces(&face_groups[0]->faces, 0, 64);
-
     int i;
     for (i = 0; i < line_count; i++) {
         if (obj_data[i][0] == 'v' && obj_data[i][1] != 't' && obj_data[i][1] != 'n') {
@@ -238,7 +235,7 @@ object* load_obj(char *filepath) {
             for (i2 = 0; i2 < 3; i2++) {
                 char *ptr2;
 
-                int first_token;
+                int first_token = 0;
 
                 if (i2 == 0) {
                     first_token = atoi(strtok_r(first, "/", &ptr2))-1;
@@ -334,7 +331,6 @@ object* load_obj(char *filepath) {
     }
     object *o = create_object(object_meshes, object_mats, allocated_face_group_count);
 
-//    mesh *m = create_mesh(verts, face_groups[0]->faces, face_groups[0]->face_count, normals);
     // free other stuff
     _free_2d_int_array(&verts, allocated_vertex_count);
     _free_2d_int_array(&normals, allocated_normal_count);
