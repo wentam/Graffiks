@@ -11,7 +11,6 @@ typedef struct {
     GLuint triangle_buffer;
     GLuint normal_buffer;
     GLuint vertex_color_buffer;
-    bool use_vertex_color;
     int vertex_count;
     int normal_count;
     float location_x;
@@ -21,6 +20,9 @@ typedef struct {
     float rot_x;
     float rot_y;
     float rot_z;
+    bool use_vertex_color; // because perl6 doesn't support native enums yet,
+                           // keep this bool as the last element.
+                           // this is for perl6 bindings to the engine.
 } mesh;
 
 typedef struct {
