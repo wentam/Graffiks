@@ -39,7 +39,6 @@ mesh* create_mesh_with_instances(base_mesh *mesh, double instances[][3], int ins
 void set_mesh_vertex_colors(mesh *m, float colors[][4], int ***indicies, int index_count);
 void free_mesh(mesh *mesh);
 void free_base_mesh(base_mesh *mesh);
-void draw_mesh(mesh *m, material *mat);
 
 // internal stuff
 mesh* _allocate_mesh(int index_count);
