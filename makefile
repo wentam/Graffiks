@@ -74,10 +74,10 @@ core:
 	$(CC) -c src/material.c -o o/material.o
 
 driver-android:
-	$(CC) -Wno-unused-parameter -c src/driver-jni-android.c -o o/driver-jni-android.o
+	$(CC) -Wno-unused-parameter -c src/driver/driver-jni-android.c -o o/driver-jni-android.o
 
 driver-linux:
-	$(CC) -Wno-unused-parameter -c src/driver-linux.c -o o/driver-linux.o
+	$(CC) -Wno-unused-parameter -c src/driver/driver-linux.c -o o/driver-linux.o
 
 install: install-linux
 
