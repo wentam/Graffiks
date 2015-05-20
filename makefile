@@ -21,7 +21,7 @@ default: linux
 
 linux: CC = $(LINUX_CC)
 linux: LD = $(LINUX_LD)
-linux: folders mesh object core driver-linux
+linux: folders mesh object renderer core driver-linux
 	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -lX11 -lGL -lGLU -lGLEW \
@@ -31,18 +31,21 @@ linux: folders mesh object core driver-linux
 		o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
 		o/obj_loader.o o/mtl_loader.o\
 		o/object.o \
+		o/forward_renderer.o \
 		o/material.o \
 		-o lib/$@/libgraffiks.so
 
 android_arm: CC = $(ANDROID_ARM_CC)
 android_arm: LD = $(ANDROID_ARM_LD)
-android_arm: ndk folders mesh object core driver-android
+android_arm: ndk folders mesh object renderer core driver-android
 	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -llog -lGLESv2 -landroid \
 		o/governor.o o/driver-jni-android.o \
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \
+		o/object.o \
+		o/forward_renderer.o \
 		o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
 		o/material.o \
 		-o lib/$@/libgraffiks.so
@@ -66,6 +69,9 @@ object:
 	$(CC) -c src/object/obj_loader.c -o o/obj_loader.o
 	$(CC) -c src/object/mtl_loader.c -o o/mtl_loader.o
 	$(CC) -c src/object/object.c -o o/object.o
+
+renderer:
+	$(CC) -c src/renderer/forward_renderer.c -o o/forward_renderer.o
 
 core:
 	$(CC) -c src/governor.c -o o/governor.o
