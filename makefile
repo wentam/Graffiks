@@ -21,7 +21,7 @@ default: linux
 
 linux: CC = $(LINUX_CC)
 linux: LD = $(LINUX_LD)
-linux: folders mesh core driver-linux
+linux: folders mesh object core driver-linux
 	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -lX11 -lGL -lGLU -lGLEW \
@@ -36,7 +36,7 @@ linux: folders mesh core driver-linux
 
 android_arm: CC = $(ANDROID_ARM_CC)
 android_arm: LD = $(ANDROID_ARM_LD)
-android_arm: ndk folders mesh core driver-android
+android_arm: ndk folders mesh object core driver-android
 	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -llog -lGLESv2 -landroid \
@@ -61,9 +61,11 @@ mesh:
 	$(CC) -c src/mesh/cube_mesh.c -o o/cube_mesh.o
 	$(CC) -c src/mesh/plane_mesh.c -o o/plane_mesh.o
 	$(CC) -c src/mesh/triangle_mesh.c -o o/triangle_mesh.o
-	$(CC) -c src/obj_loader.c -o o/obj_loader.o
-	$(CC) -c src/mtl_loader.c -o o/mtl_loader.o
-	$(CC) -c src/object.c -o o/object.o
+
+object:
+	$(CC) -c src/object/obj_loader.c -o o/obj_loader.o
+	$(CC) -c src/object/mtl_loader.c -o o/mtl_loader.o
+	$(CC) -c src/object/object.c -o o/object.o
 
 core:
 	$(CC) -c src/governor.c -o o/governor.o
