@@ -3,7 +3,7 @@
 #include <GLES2/gl2.h>
 #include <stdlib.h>
 #include "material.h"
-#include "renderer.h"
+#include "governor.h"
 
 typedef enum { false, true } bool;
 

@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "governor.h"
 
 // stuff for calculating update time
 #define MOVING_AVERAGE_PERIOD 60

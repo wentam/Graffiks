@@ -1,5 +1,5 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef GOVERNOR_H
+#define GOVERNOR_H
 #include <GLES2/gl2.h>
 #include <sys/time.h>
 #include <stdlib.h>
