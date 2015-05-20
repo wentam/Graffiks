@@ -25,7 +25,7 @@ linux: folders mesh core driver-linux
 	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -lX11 -lGL -lGLU -lGLEW \
-		o/renderer.o o/driver-linux.o \
+		o/governor.o o/driver-linux.o \
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \
 		o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
@@ -40,7 +40,7 @@ android_arm: ndk folders mesh core driver-android
 	mkdir -p lib/$@
 	$(LD) -shared \
 		-lc -lm -llog -lGLESv2 -landroid \
-		o/renderer.o o/driver-jni-android.o \
+		o/governor.o o/driver-jni-android.o \
 		o/gl_helper.o o/graffiks.o \
 		o/mesh.o \
 		o/cube_mesh.o o/plane_mesh.o o/triangle_mesh.o \
@@ -57,16 +57,16 @@ folders:
 	mkdir -p o
 
 mesh:
-	$(CC) -c src/mesh.c -o o/mesh.o
-	$(CC) -c src/cube_mesh.c -o o/cube_mesh.o
-	$(CC) -c src/plane_mesh.c -o o/plane_mesh.o
-	$(CC) -c src/triangle_mesh.c -o o/triangle_mesh.o
+	$(CC) -c src/mesh/mesh.c -o o/mesh.o
+	$(CC) -c src/mesh/cube_mesh.c -o o/cube_mesh.o
+	$(CC) -c src/mesh/plane_mesh.c -o o/plane_mesh.o
+	$(CC) -c src/mesh/triangle_mesh.c -o o/triangle_mesh.o
 	$(CC) -c src/obj_loader.c -o o/obj_loader.o
 	$(CC) -c src/mtl_loader.c -o o/mtl_loader.o
 	$(CC) -c src/object.c -o o/object.o
 
 core:
-	$(CC) -c src/renderer.c -o o/renderer.o
+	$(CC) -c src/governor.c -o o/governor.o
 	$(CC) -funroll-loops -c src/gl_helper.c -o o/gl_helper.o
 	$(CC) -c src/graffiks.c -o o/graffiks.o
 	$(CC) -c src/material.c -o o/material.o
