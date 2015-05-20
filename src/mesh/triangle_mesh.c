@@ -1,4 +1,4 @@
-#include "triangle_mesh.h"
+#include "mesh/triangle_mesh.h"
 
 mesh* create_triangle(float scale) {
     float verts[3][3] = {

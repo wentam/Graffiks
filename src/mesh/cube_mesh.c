@@ -1,4 +1,4 @@
-#include "cube_mesh.h"
+#include "mesh/cube_mesh.h"
 
 mesh* create_cube(float scale) {
     float verts[8][3] = {

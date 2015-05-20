@@ -1,5 +1,5 @@
-#include "obj_loader.h"
-#include "mtl_loader.h"
+#include "object/obj_loader.h"
+#include "object/mtl_loader.h"
 #include <libgen.h>
 
 int _string_starts_with(char *pre, char *str)

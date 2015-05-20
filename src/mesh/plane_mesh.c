@@ -1,4 +1,4 @@
-#include "plane_mesh.h"
+#include "mesh/plane_mesh.h"
 
 mesh* create_plane(float scale) {
     float verts[4][3] = {
