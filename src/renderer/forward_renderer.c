@@ -1,14 +1,5 @@
 #include "renderer/forward_renderer.h"
 
-
-void draw_object_fw(object *o) {
-  int i;
-  for (i = 0; i < o->mesh_count; i++) {
-    _draw_mesh(o, o->meshes[i],o->mats[i]);
-  }
-}
-
-
 void _draw_mesh(object *o, mesh *m, material *mat) {
     GLuint *program = mat->program;
     glUseProgram(*program);
@@ -90,4 +81,11 @@ void _draw_mesh(object *o, mesh *m, material *mat) {
     // disable arrays
     glDisableVertexAttribArray(a_position_location);
     glDisableVertexAttribArray(a_normal_location);
+}
+
+void draw_object_fw(object *o) {
+  int i;
+  for (i = 0; i < o->mesh_count; i++) {
+    _draw_mesh(o, o->meshes[i],o->mats[i]);
+  }
 }
