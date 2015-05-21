@@ -191,7 +191,7 @@ object* load_obj(char *filepath) {
     int normal_count = 0;
     int allocated_normal_count;
 
-    named_material_array *mats;
+    named_material_array *mats = NULL;
 
     allocated_vertex_count = _resize_2d_int_array(&verts, 0, 64, 3);
     allocated_normal_count = _resize_2d_int_array(&normals, 0, 64, 3);
@@ -289,7 +289,7 @@ object* load_obj(char *filepath) {
             }
         }
         else if (_string_starts_with("mtllib", obj_data[i])) {
-            char *ptr;
+            char *ptr = NULL;
             strtok_r(obj_data[i], " ", &ptr);
             char *mtl_file = strtok_r(NULL, " ", &ptr);
             mtl_file[strlen(mtl_file)-1] = 0;
