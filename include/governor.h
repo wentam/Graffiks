@@ -13,6 +13,9 @@
 
 #include <math.h>
 
+int renderer_width;
+int renderer_height;
+
 // change this to change the ambient color: {r,g,b,intensity}
 extern float ambient_color[4];
 

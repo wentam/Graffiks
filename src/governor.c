@@ -10,9 +10,6 @@ float delta_time_moving_average = 16.6;
 
 float ambient_color[] = {0,0,0,0};
 
-int renderer_width;
-int renderer_height;
-
 void _init_graffiks() {
     glClearColor(0.0,0.0,0.0,1.0);
     glEnable(GL_CULL_FACE);
