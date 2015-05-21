@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef ANDROID
 #include <GLES2/gl2.h>

@@ -1,4 +1,4 @@
-#include "material.h"
+#include "material/material.h"
 
 typedef struct {
     material *mat;
