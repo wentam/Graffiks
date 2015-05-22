@@ -1,4 +1,6 @@
 #include "renderer/deferred_renderer.h"
+#include "governor.h"
+#include "material/material.h"
 
 GLuint color_tex, fbo;
 

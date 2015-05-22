@@ -1,4 +1,6 @@
 #include "renderer/forward_renderer.h"
+#include "governor.h"
+#include "material/material.h"
 
 void _destroy_renderer_fw() {}
 void _init_renderer_fw() {}

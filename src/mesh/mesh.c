@@ -1,4 +1,5 @@
 #include "mesh/mesh.h"
+#include <stdlib.h>
 
 mesh *create_mesh(float **vertices, int ***indicies, int index_count, float **normals) {
   float system_vertices[(index_count * 3) * 3];

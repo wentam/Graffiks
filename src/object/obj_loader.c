@@ -175,7 +175,7 @@ void _free_face_groups(face_group ***f, int size) {
 // * triangulated faces
 // * usemtl statements and mtllib statement before all usemtl statements
 // not all 3d software exports these by default.
-object *load_obj(char *filepath) {
+object *load_obj(renderer_flags flags, char *filepath) {
   int line_count;
   char **obj_data = _read_obj_data(filepath, &line_count);
   float **verts = NULL;
@@ -303,7 +303,7 @@ object *load_obj(char *filepath) {
 
       free(filepath_heap);
 
-      mats = load_mtl(mtl_filepath); // TODO hardcoded path
+      mats = load_mtl(flags, mtl_filepath); // TODO hardcoded path
     }
   }
 

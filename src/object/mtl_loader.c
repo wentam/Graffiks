@@ -84,7 +84,7 @@ void free_named_mats(named_material_array *n) {
   free(n);
 }
 
-named_material_array *load_mtl(char *filepath) {
+named_material_array *load_mtl(renderer_flags flags, char *filepath) {
   int line_count;
   char **mtl_data = _read_mtl_data(filepath, &line_count);
 
@@ -103,7 +103,7 @@ named_material_array *load_mtl(char *filepath) {
 
       material_count++;
       allocated_mats = _resize_named_mats(&mats, allocated_mats, material_count);
-      mats[material_count - 1]->mat = create_material();
+      mats[material_count - 1]->mat = create_material(flags);
       mats[material_count - 1]->name = material_name_heap;
     } else if (_string_starts_with_("Kd", mtl_data[i])) {
       char *ptr;

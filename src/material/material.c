@@ -86,8 +86,11 @@ GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_file
   return program;
 }
 
-material *create_material() {
-  GLuint *program = _create_program("/shaders/material.vert", "/shaders/material.frag");
+material *create_material(renderer_flags flags) {
+  GLuint *program;
+  if (flags & GRAFFIKS_RENDERER_FORWARD) {
+    program = _create_program("/shaders/material.vert", "/shaders/material.frag");
+  }
 
   float *diffuse_color = malloc(sizeof(float) * 4);
   diffuse_color[0] = 1;

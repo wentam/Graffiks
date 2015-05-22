@@ -1,11 +1,9 @@
-#include "mesh/mesh.h"
-#include "material/material.h"
-#include <GLES2/gl2.h>
-#include <stdlib.h>
-#include "governor.h"
-
 #ifndef OBJECT_H
 #define OBJECT_H
+#include <stdlib.h>
+#include "mesh/mesh.h"
+
+typedef struct mate material;
 
 typedef struct {
   mesh **meshes;

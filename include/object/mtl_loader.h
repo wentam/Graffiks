@@ -10,7 +10,7 @@ typedef struct {
   int number_of_mats;
 } named_material_array;
 
-named_material_array *load_mtl(char *filepath);
+named_material_array *load_mtl(renderer_flags flags, char *filepath);
 
 // does not free the materials contained within
 void free_named_mats(named_material_array *n);

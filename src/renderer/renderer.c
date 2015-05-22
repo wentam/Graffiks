@@ -1,5 +1,6 @@
 #include "renderer/renderer.h"
 #include "renderer/deferred_renderer.h"
+#include "renderer/forward_renderer.h"
 
 void init_renderers(renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
