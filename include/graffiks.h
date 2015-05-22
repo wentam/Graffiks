@@ -4,9 +4,12 @@
 #include <android/log.h>
 #endif
 
-// To use the engine, call graffiks_setup with functions pointers for init, update, and draw
+// To use the engine, call graffiks_setup with functions pointers for init, update, and
+// draw
 // See other header files to see what functions are avaiable for drawing.
-void graffiks_setup(void (*init)(int *width, int *height), void (*update)(float time_step), void (*draw)(void), void (*finish)(void));
+void graffiks_setup(void (*init)(int *width, int *height),
+                    void (*update)(float time_step), void (*draw)(void),
+                    void (*finish)(void));
 
 // internal stuff
 void _call_init(int *width, int *height);

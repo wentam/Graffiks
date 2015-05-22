@@ -6,15 +6,12 @@
 #endif
 
 // matrix is a float[16]
-void set_view_matrix (float matrix[],
-                      float eye_x, float eye_y, float eye_z,
-                      float center_x, float center_y, float center_z,
-                      float up_x, float up_y, float up_z);
+void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
+                     float center_x, float center_y, float center_z, float up_x,
+                     float up_y, float up_z);
 
-void set_projection_matrix(float matrix[],
-                           float left, float right,
-                           float top, float bottom,
-                           float near, float far);
+void set_projection_matrix(float matrix[], float left, float right, float top,
+                           float bottom, float near, float far);
 
 void create_identity_matrix(float m[]);
 void translate_matrix(float matrix[], float x, float y, float z);

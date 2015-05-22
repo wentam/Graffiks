@@ -3,4 +3,4 @@
 #include <string.h>
 #include "object.h"
 
-object* load_obj(char *filepath);
+object *load_obj(char *filepath);

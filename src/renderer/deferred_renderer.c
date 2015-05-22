@@ -1,18 +1,36 @@
-#include "renderer/forward_renderer.h"
+#include "renderer/deferred_renderer.h"
 
-void _draw_mesh(object *o, mesh *m, material *mat) {
+GLuint color_tex, fbo;
+
+void init_renderer_df() {
+  glGenTextures(1, &color_tex);
+  glBindTexture(GL_TEXTURE_2D, color_tex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderer_width, renderer_height, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, NULL);
+
+  glGenFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+  glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, color_tex, 0);
+
+  GLuint attachments[1] = {GL_COLOR_ATTACHMENT0};
+  glDrawBuffers(1, attachments);
+};
+
+void renderer_done_df() { glDeleteFramebuffers(1, &fbo); }
+
+// this is the "geometry" pass
+void _df_draw_mesh(object *o, mesh *m, material *mat) {
   GLuint *program = mat->program;
   glUseProgram(*program);
 
   // get GLSL variable locations
   GLint u_mvp_matrix_location =
       glGetUniformLocation(*program, "u_mvp_matrix"); // model*view*projection
-  GLint u_mv_matrix_location =
-      glGetUniformLocation(*program, "u_mv_matrix"); // model*view
+  GLint u_mv_matrix_location = glGetUniformLocation(*program, "u_mv_matrix"); // model*view
   GLint u_ambient_color_location = glGetUniformLocation(*program, "u_ambient_color");
   GLint u_diffuse_color_location = glGetUniformLocation(*program, "u_diffuse_color");
-  GLint u_diffuse_intensity_location =
-      glGetUniformLocation(*program, "u_diffuse_intensity");
+  GLint u_diffuse_intensity_location = glGetUniformLocation(*program, "u_diffuse_intensity");
   GLint u_light_position_location = glGetUniformLocation(*program, "u_light_position");
   GLint u_per_vertex_location = glGetUniformLocation(*program, "u_per_vertex");
   GLint a_position_location = glGetAttribLocation(*program, "a_position");
@@ -73,8 +91,8 @@ void _draw_mesh(object *o, mesh *m, material *mat) {
   // send our data to the shader program
   glUniformMatrix4fv(u_mvp_matrix_location, 1, GL_FALSE, model_view_projection_matrix);
   glUniformMatrix4fv(u_mv_matrix_location, 1, GL_FALSE, model_view_matrix);
-  glUniform4f(u_ambient_color_location, ambient_color[0], ambient_color[1],
-              ambient_color[2], ambient_color[3]);
+  glUniform4f(u_ambient_color_location, ambient_color[0], ambient_color[1], ambient_color[2],
+              ambient_color[3]);
   glUniform4f(u_diffuse_color_location, mat->diffuse_color[0], mat->diffuse_color[1],
               mat->diffuse_color[2], mat->diffuse_color[3]);
   glUniform3f(u_light_position_location, 0, 0, 5);
@@ -88,9 +106,9 @@ void _draw_mesh(object *o, mesh *m, material *mat) {
   glDisableVertexAttribArray(a_normal_location);
 }
 
-void draw_object_fw(object *o) {
+void draw_object_df(object *o) {
   int i;
   for (i = 0; i < o->mesh_count; i++) {
-    _draw_mesh(o, o->meshes[i], o->mats[i]);
+    _df_draw_mesh(o, o->meshes[i], o->mats[i]);
   }
 }

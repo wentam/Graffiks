@@ -20,9 +20,8 @@ int renderer_height;
 extern float ambient_color[4];
 
 // put the camera where you want it :)
-void set_camera_location_target_and_up(float x, float y, float z,
-                                       float tx, float ty, float tz,
-                                       float ux, float uy, float uz);
+void set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
+                                       float tz, float ux, float uy, float uz);
 
 // to be controlled by a driver such as driver-jni-android.c
 void _init_graffiks();

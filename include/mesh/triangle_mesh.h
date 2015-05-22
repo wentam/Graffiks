@@ -1,3 +1,3 @@
 #include "mesh/mesh.h"
 
-mesh* create_triangle(float scale);
+mesh *create_triangle(float scale);
