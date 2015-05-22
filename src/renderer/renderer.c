@@ -11,7 +11,7 @@ void init_renderers(renderer_flags flags) {
   }
 }
 
-void destroy_renderers(renderer_flags flags) {
+void terminate_renderers(renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
     _destroy_renderer_df();
   }
