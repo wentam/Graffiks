@@ -7,7 +7,7 @@ void init_renderers(renderer_flags flags) {
   }
 
   if (flags & GRAFFIKS_RENDERER_FORWARD) {
-    _init_renderer_df();
+    _init_renderer_fw();
   }
 }
 

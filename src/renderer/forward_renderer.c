@@ -1,6 +1,7 @@
 #include "renderer/forward_renderer.h"
 
-void _destroy_renderer_fw(){}
+void _destroy_renderer_fw() {}
+void _init_renderer_fw() {}
 
 void _draw_mesh(object *o, mesh *m, material *mat) {
   GLuint *program = mat->program;
