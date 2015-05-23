@@ -1,15 +1,12 @@
-#version 330
-#extension GL_ARB_explicit_uniform_location : enable
-
 precision mediump float;
 
-layout(location = 100) uniform vec3 u_light_position;
+uniform vec3 u_light_position;
 
-in vec4 v_ambient_color;
-in vec4 v_diffuse_color;
-in float v_diffuse_intensity;
-in vec3 v_position;
-in vec3 v_normal;
+varying vec4 v_ambient_color;
+varying vec4 v_diffuse_color;
+varying float v_diffuse_intensity;
+varying vec3 v_position;
+varying vec3 v_normal;
 
 void main() {
   float distance = length(u_light_position - v_position);

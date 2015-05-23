@@ -14,15 +14,17 @@ void _init_renderer_df() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, color_tex, 0);
-
-  GLuint attachments[1] = {GL_COLOR_ATTACHMENT0};
-  glDrawBuffers(1, attachments);
 };
 
 void _destroy_renderer_df() { glDeleteFramebuffers(1, &fbo); }
 
 // this is the "geometry" pass
 void _df_draw_mesh(object *o, mesh *m, material *mat) {
+
+  // draw into first pass buffers
+  GLuint attachments[1] = {GL_COLOR_ATTACHMENT0};
+  glDrawBuffers(1, attachments);
+
   GLuint *program = mat->program;
   glUseProgram(*program);
 
@@ -37,9 +39,9 @@ void _df_draw_mesh(object *o, mesh *m, material *mat) {
       glGetUniformLocation(*program, "u_diffuse_intensity");
   GLint u_light_position_location = glGetUniformLocation(*program, "u_light_position");
   GLint u_per_vertex_location = glGetUniformLocation(*program, "u_per_vertex");
-  GLint a_position_location = glGetAttribLocation(*program, "a_position");
-  GLint a_normal_location = glGetAttribLocation(*program, "a_normal");
-  GLint a_diffuse_color_location = glGetAttribLocation(*program, "a_diffuse_color");
+  GLint a_position_location = glGetAttribLocation(*program, "in_position");
+  GLint a_normal_location = glGetAttribLocation(*program, "in_normal");
+  GLint a_diffuse_color_location = glGetAttribLocation(*program, "in_diffuse_color");
 
   // add vertices
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);

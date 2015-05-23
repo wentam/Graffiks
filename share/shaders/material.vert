@@ -1,36 +1,36 @@
-attribute vec4 a_position;
-attribute vec3 a_normal;
+#version 330
+#extension GL_ARB_explicit_uniform_location : enable
 
-uniform mat4 u_mvp_matrix;
-uniform mat4 u_mv_matrix;
-uniform vec4 u_ambient_color;
-uniform vec4 u_diffuse_color;
-uniform float u_diffuse_intensity;
+layout(location = 0) in vec4 in_position;
+layout(location = 1) in vec3 in_normal;
+layout(location = 2) in vec4 in_diffuse_color;
 
-uniform bool u_per_vertex;
+layout(location = 3) uniform mat4 u_mvp_matrix;
+layout(location = 4) uniform mat4 u_mv_matrix;
+layout(location = 5) uniform vec4 u_ambient_color;
+layout(location = 6) uniform vec4 u_diffuse_color;
+layout(location = 7) uniform float u_diffuse_intensity;
+layout(location = 8) uniform bool u_per_vertex;
 
-attribute vec4 a_diffuse_color;
-
-varying vec4 v_ambient_color;
-varying vec4 v_diffuse_color;
-varying float v_diffuse_intensity;
-varying vec3 v_position;
-varying vec3 v_normal;
+out vec4 v_ambient_color;
+out vec4 v_diffuse_color;
+out float v_diffuse_intensity;
+out vec3 v_position;
+out vec3 v_normal;
 
 void main() {
   v_ambient_color = u_ambient_color;
 
   if (u_per_vertex) {
-      v_diffuse_color = a_diffuse_color;
+      v_diffuse_color = in_diffuse_color;
   } else {
       v_diffuse_color = u_diffuse_color;
   }
 
   v_diffuse_intensity = u_diffuse_intensity;
 
-  v_position = vec3((u_mv_matrix) * a_position);
-  v_normal = vec3(u_mv_matrix * vec4(a_normal, 0.0));
-  
-  gl_Position = (u_mvp_matrix) * a_position;
-  /*gl_Position = a_position;*/
+  v_position = vec3((u_mv_matrix) * in_position);
+  v_normal = vec3(u_mv_matrix * vec4(in_normal, 0.0));
+
+  gl_Position = (u_mvp_matrix) * in_position;
 }

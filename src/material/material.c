@@ -62,6 +62,7 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
     GLchar info[info_log_length + 1];
     glGetShaderInfoLog(shader_ref, info_log_length, NULL, info);
 
+    printf("Error compiling shader (%s) %s", shader_filepath, info);
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_ERROR, "Graffiks", "%s", info);
 #endif
@@ -90,6 +91,10 @@ material *create_material(renderer_flags flags) {
   GLuint *program;
   if (flags & GRAFFIKS_RENDERER_FORWARD) {
     program = _create_program("/shaders/material.vert", "/shaders/material.frag");
+  }
+
+  if (flags & GRAFFIKS_RENDERER_DEFERRED) {
+    program = _create_program("/shaders/material_df.vert", "/shaders/material_df.frag");
   }
 
   float *diffuse_color = malloc(sizeof(float) * 4);

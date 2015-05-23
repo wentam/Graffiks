@@ -23,7 +23,7 @@
 
 #include "renderer/renderer.h"
 
-typedef struct mate {
+typedef struct mat {
   GLuint *program;
   float diffuse_intensity;
   float *diffuse_color;

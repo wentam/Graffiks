@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "mesh/mesh.h"
 
-typedef struct mate material;
+typedef struct mat material;
 
 typedef struct {
   mesh **meshes;
