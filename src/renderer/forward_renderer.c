@@ -89,3 +89,7 @@ void _draw_object_fw(object *o) {
     _draw_mesh(o, o->meshes[i], o->mats[i]);
   }
 }
+
+void _clear_fw() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}

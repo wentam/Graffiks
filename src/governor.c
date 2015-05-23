@@ -1,4 +1,5 @@
 #include "governor.h"
+#include "renderer/renderer.h"
 
 // stuff for calculating update time
 #define MOVING_AVERAGE_PERIOD 60
@@ -45,7 +46,7 @@ void _draw_frame() {
   _call_update(delta_time_smoothed);
 
   // clear screen
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  _clear(enabled_renderers);
 
   // draw
   _call_draw();
