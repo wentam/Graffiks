@@ -90,6 +90,4 @@ void _draw_object_fw(object *o) {
   }
 }
 
-void _clear_fw() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+void _clear_fw() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
