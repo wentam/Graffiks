@@ -3,7 +3,7 @@
 #include "material/material.h"
 #include "material/material_df.h"
 
-GLuint color_tex, normals_tex, fbo;
+GLuint color_tex, normals_tex, position_tex, fbo;
 
 void _init_renderer_df() {
   // diffuse
@@ -18,10 +18,17 @@ void _init_renderer_df() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, renderer_width, renderer_height, 0, GL_RGB,
                GL_UNSIGNED_BYTE, NULL);
 
+  // position
+  glGenTextures(1, &position_tex);
+  glBindTexture(GL_TEXTURE_2D, position_tex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, renderer_width, renderer_height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, NULL);
+
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, color_tex, 0);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, normals_tex, 0);
+  glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, position_tex, 0);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 };
 
@@ -34,15 +41,12 @@ void _clear_df() {
 void _destroy_renderer_df() { glDeleteFramebuffers(1, &fbo); }
 
 void _debug_show_fbo() {
-  /* We are going to blit into the window (default framebuffer)                     */
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glDrawBuffer(GL_BACK); /* Use backbuffer as color dst.         */
+  glDrawBuffer(GL_BACK);
 
-  /* Read from your FBO */
   glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-  glReadBuffer(GL_COLOR_ATTACHMENT1); /* Use Color Attachment 0 as color src. */
+  glReadBuffer(GL_COLOR_ATTACHMENT1);
 
-  /* Copy the color and depth buffer from your FBO to the default framebuffer       */
   glBlitFramebuffer(0, 0, 640, 480, 0, 0, 640, 480,
                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 }
@@ -53,8 +57,9 @@ void _df_draw_mesh(object *o, mesh *m, material *mat) {
   // draw into first pass buffers
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
-  GLuint attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-  glDrawBuffers(2, attachments);
+  GLuint attachments[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
+                           GL_COLOR_ATTACHMENT2};
+  glDrawBuffers(3, attachments);
 
   GLuint *program = mat->program;
   glUseProgram(*program);

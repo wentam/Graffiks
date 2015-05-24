@@ -12,22 +12,16 @@ layout(location = 6) uniform vec4 u_diffuse_color;
 layout(location = 7) uniform float u_diffuse_intensity;
 layout(location = 8) uniform bool u_per_vertex;
 
-out vec4 v_ambient_color;
 out vec4 v_diffuse_color;
-out float v_diffuse_intensity;
 out vec3 v_position;
 out vec3 v_normal;
 
 void main() {
-  v_ambient_color = u_ambient_color;
-
   if (u_per_vertex) {
       v_diffuse_color = in_diffuse_color;
   } else {
       v_diffuse_color = u_diffuse_color;
   }
-
-  v_diffuse_intensity = u_diffuse_intensity;
 
   v_position = vec3((u_mv_matrix) * in_position);
   v_normal = vec3(u_mv_matrix * vec4(in_normal, 0.0));
