@@ -18,12 +18,12 @@ void init_renderers(renderer_flags flags) {
 
 void terminate_renderers(renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
-    _destroy_renderer_df();
+    _terminate_renderer_df();
     enabled_renderers &= ~GRAFFIKS_RENDERER_DEFERRED;
   }
 
   if (flags & GRAFFIKS_RENDERER_FORWARD) {
-    _destroy_renderer_fw();
+    _terminate_renderer_fw();
     enabled_renderers &= ~GRAFFIKS_RENDERER_FORWARD;
   }
 }

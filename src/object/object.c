@@ -1,5 +1,6 @@
 #include "object/object.h"
 #include <stdlib.h>
+#include "material/material.h"
 
 object *create_object(mesh **meshes, material **mats, int mesh_count) {
   object *o = malloc(sizeof(object));

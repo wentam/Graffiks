@@ -1,5 +1,8 @@
 #include "governor.h"
 #include "renderer/renderer.h"
+#include "renderer/deferred_renderer.h"
+#include "lights.h"
+#include <time.h>
 
 // stuff for calculating update time
 #define MOVING_AVERAGE_PERIOD 60
@@ -52,7 +55,11 @@ void _draw_frame() {
   _call_draw();
 
   if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
-    _light_pass_df();
+    int i;
+    for (i = 0; i < point_light_count; i++) {
+      _light_pass_point_df(point_lights[i]);
+    }
+    //_light_pass_df(0.0, 0.0, 100.0);
   }
 
 #ifndef ANDROID

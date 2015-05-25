@@ -26,7 +26,7 @@ void main() {
 
   float diffuse = max(dot(normal, light_vector), 0.1) * diffuse_intensity;
   diffuse = clamp(diffuse, 0.0, 9.0);
-  diffuse = diffuse * (1.0 / ((0.7 * distance)));
+  diffuse = diffuse * (1.0 / (0.7 * distance)); // attenuation
 
   gl_FragColor = vec4((diffuse*diffuse_color) + ambient, 1.0);
 }

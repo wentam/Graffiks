@@ -4,6 +4,7 @@
 #include "material/material_df.h"
 #include "mesh/plane_mesh.h"
 #include "mesh/mesh.h"
+#include <GL/gl.h>
 
 GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *light_pass_program;
@@ -73,7 +74,7 @@ void _clear_df() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void _destroy_renderer_df() { glDeleteFramebuffers(1, &fbo); }
+void _terminate_renderer_df() { glDeleteFramebuffers(1, &fbo); }
 
 void _debug_show_fbo() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -170,10 +171,11 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
   glDisableVertexAttribArray(GRAFFIKS_MATERIAL_DF_ATTRIB_NORMAL);
 }
 
-void _light_pass_df() {
-  //  glEnable(GL_BLEND);
-  //  glBlendEquation(GL_FUNC_ADD);
-  //  glBlendFunc(GL_ONE, GL_ONE);
+void _light_pass_point_df(point_light *light) {
+  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_ONE, GL_ONE);
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
@@ -194,7 +196,8 @@ void _light_pass_df() {
   glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_NORMALS_TEX, 1);
   glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_POSITION_TEX, 2);
   glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_AMBIENT_TEX, 3);
-  glUniform3f(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_LIGHT_POSTION, 0, 0, 5);
+  glUniform3f(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y,
+              light->z);
   glUniform2f(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width,
               renderer_height);
 
@@ -204,6 +207,8 @@ void _light_pass_df() {
                         0);
 
   glDrawArrays(GL_TRIANGLES, 0, m->vertex_count / 3);
+  glDisable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
 }
 
 void _draw_object_df(object *o) {

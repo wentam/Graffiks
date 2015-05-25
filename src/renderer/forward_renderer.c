@@ -3,7 +3,7 @@
 #include "material/material.h"
 #include "material/material_fw.h"
 
-void _destroy_renderer_fw() {}
+void _terminate_renderer_fw() {}
 void _init_renderer_fw() {}
 
 void _draw_mesh(object *o, mesh *m, material *mat) {
