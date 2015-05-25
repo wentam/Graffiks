@@ -8,6 +8,8 @@
 GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *light_pass_program;
 
+mesh *m;
+
 void _init_renderer_df() {
   // diffuse color (alpha is diffuse intensity)
   glGenTextures(1, &color_tex);
@@ -60,6 +62,8 @@ void _init_renderer_df() {
 
   light_pass_program = _create_program("/shaders/material_df_light.vert",
                                        "/shaders/material_df_light.frag");
+
+  m = create_plane(2, 2);
 };
 
 void _clear_df() {
@@ -170,9 +174,6 @@ void _light_pass_df() {
   //  glEnable(GL_BLEND);
   //  glBlendEquation(GL_FUNC_ADD);
   //  glBlendFunc(GL_ONE, GL_ONE);
-
-  mesh *m = create_plane(2, 2); // should not be created every time we draw.
-                                // Also remember to remove the mesh includes
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
