@@ -33,4 +33,7 @@ material *create_material(renderer_flags flags);
 void free_material(material *m);
 void set_diffuse_intensity(material *m, float intensity);
 void set_diffuse_color(material *m, float diffuse_color[]);
+
+GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_filepath);
+
 #endif

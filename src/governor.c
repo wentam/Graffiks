@@ -51,6 +51,10 @@ void _draw_frame() {
   // draw
   _call_draw();
 
+  if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
+    _light_pass_df();
+  }
+
 #ifndef ANDROID
   glXSwapBuffers(display, win);
 #endif

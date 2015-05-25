@@ -94,7 +94,8 @@ material *create_material(renderer_flags flags) {
   }
 
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
-    program = _create_program("/shaders/material_df.vert", "/shaders/material_df.frag");
+    program = _create_program("/shaders/material_df_geom.vert",
+                              "/shaders/material_df_geom.frag");
   }
 
   float *diffuse_color = malloc(sizeof(float) * 4);

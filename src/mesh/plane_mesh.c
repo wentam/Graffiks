@@ -1,8 +1,11 @@
 #include "mesh/plane_mesh.h"
 
-mesh *create_plane(float scale) {
+mesh *create_plane(float width, float height) {
   float verts[4][3] = {
-      {scale, -scale, 0}, {-scale, -scale, 0}, {scale, scale, 0}, {-scale, scale, 0},
+      {width / 2, -height / 2, 0},
+      {-width / 2, -height / 2, 0},
+      {width / 2, height / 2, 0},
+      {-width / 2, height / 2, 0},
   };
 
   int faces[2][3][3] = {// v,vt,vn   v,vt,vn  v,vt,vn
