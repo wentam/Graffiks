@@ -15,7 +15,7 @@ in vec3 v_position;
 void main() {
   vec2 frag_coord = gl_FragCoord.xy / u_renderer_size;
 
-  vec3 diffuse_color = texture(color_tex, frag_coord).rgb; // TODO replace 640,480 with dynamic
+  vec3 diffuse_color = texture(color_tex, frag_coord).rgb;
   vec3 position = texture(position_tex, frag_coord).rgb;
   vec3 normal = texture(normals_tex, frag_coord).rgb;
   vec3 ambient = texture(ambient_tex, frag_coord).rgb;
