@@ -9,7 +9,7 @@ GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *light_pass_program;
 
 void _init_renderer_df() {
-  // diffuse color
+  // diffuse color (alpha is diffuse intensity)
   glGenTextures(1, &color_tex);
   glBindTexture(GL_TEXTURE_2D, color_tex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderer_width, renderer_height, 0, GL_RGBA,

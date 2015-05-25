@@ -20,7 +20,7 @@ void main() {
   float distance = length(u_light_position - v_position);
   vec3 light_vector = normalize(u_light_position - v_position);
 
-  out_diffuse = v_diffuse_color;
+  out_diffuse = vec4(v_diffuse_color.rgb, u_diffuse_intensity/100);
   out_normal = normalize(v_normal);
   out_position = v_position;
   out_ambient = u_ambient_color.rgb;
