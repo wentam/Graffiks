@@ -190,12 +190,13 @@ void _light_pass_df() {
   glBindTexture(GL_TEXTURE_2D, ambient_tex);
 
   // assign textures to uniforms
-  glUniform1i(1, 0);
-  glUniform1i(2, 1);
-  glUniform1i(3, 2);
-  glUniform1i(4, 3);
-  glUniform3f(100, 0, 0, 5);
-  glUniform2f(101, renderer_width, renderer_height);
+  glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
+  glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_NORMALS_TEX, 1);
+  glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_POSITION_TEX, 2);
+  glUniform1i(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_AMBIENT_TEX, 3);
+  glUniform3f(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_LIGHT_POSTION, 0, 0, 5);
+  glUniform2f(GRAFFIKS_MATERIAL_DF_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width,
+              renderer_height);
 
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
   glEnableVertexAttribArray(GRAFFIKS_MATERIAL_DF_ATTRIB_POSITION);

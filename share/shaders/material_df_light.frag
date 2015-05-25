@@ -3,8 +3,8 @@
 
 precision mediump float;
 
-layout(location = 100) uniform vec3 u_light_position;
-layout(location = 101) uniform vec2 u_renderer_size;
+layout(location = 5) uniform vec3 u_light_position;
+layout(location = 6) uniform vec2 u_renderer_size;
 layout(location = 1) uniform sampler2D color_tex;
 layout(location = 2) uniform sampler2D normals_tex;
 layout(location = 3) uniform sampler2D position_tex;
