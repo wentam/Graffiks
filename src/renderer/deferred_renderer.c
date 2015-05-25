@@ -12,7 +12,7 @@ void _init_renderer_df() {
   // diffuse color (alpha is diffuse intensity)
   glGenTextures(1, &color_tex);
   glBindTexture(GL_TEXTURE_2D, color_tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderer_width, renderer_height, 0, GL_RGBA,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, renderer_width, renderer_height, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -36,7 +36,7 @@ void _init_renderer_df() {
   // position
   glGenTextures(1, &position_tex);
   glBindTexture(GL_TEXTURE_2D, position_tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, renderer_width, renderer_height, 0, GL_RGB,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, renderer_width, renderer_height, 0, GL_RGB,
                GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);

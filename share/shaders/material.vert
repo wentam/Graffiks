@@ -9,7 +9,6 @@ layout(location = 3) uniform mat4 u_mvp_matrix;
 layout(location = 4) uniform mat4 u_mv_matrix;
 layout(location = 5) uniform vec4 u_ambient_color;
 layout(location = 6) uniform vec4 u_diffuse_color;
-layout(location = 7) uniform float u_diffuse_intensity;
 layout(location = 8) uniform bool u_per_vertex;
 
 out vec4 v_diffuse_color;
@@ -24,7 +23,6 @@ void main() {
       v_diffuse_color = u_diffuse_color;
   }
 
-  v_diffuse_intensity = u_diffuse_intensity;
 
   v_position = vec3((u_mv_matrix) * in_position);
   v_normal = vec3(u_mv_matrix * vec4(in_normal, 0.0));
