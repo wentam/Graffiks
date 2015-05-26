@@ -2,7 +2,7 @@
 #define LIGHTS_H
 #include <stdbool.h>
 
-extern float ambient_color[4]; // rgbi (i == intensity)
+extern float ambient_color[3]; // rgb
 
 extern const int GRAFFIKS_LIGHT_ATTENUATION_LINEAR;
 extern const int GRAFFIKS_LIGHT_ATTENUATION_QUADRATIC;
@@ -25,6 +25,6 @@ extern int point_light_count;
 
 point_light *add_point_light();
 void remove_point_light(point_light *light);
-void set_ambient_light(float r, float g, float b, float intensity);
+void set_ambient_light(float r, float g, float b);
 
 #endif

@@ -56,6 +56,7 @@ void _draw_frame() {
   if (render_queue_size > 0) {
     if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
       _geom_pass_df();
+      _ambient_pass_df();
       _light_pass_df();
     }
 

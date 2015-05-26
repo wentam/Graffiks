@@ -4,7 +4,7 @@
 precision mediump float;
 
 layout(location = 100) uniform vec3 u_light_position;
-layout(location = 5) uniform vec4 u_ambient_color;
+layout(location = 5) uniform vec3 u_ambient_color;
 layout(location = 7) uniform float u_diffuse_intensity;
 
 in vec4 v_diffuse_color;

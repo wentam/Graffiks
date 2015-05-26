@@ -49,8 +49,8 @@ void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
                      model_view_projection_matrix);
   glUniformMatrix4fv(GRAFFIKS_MATERIAL_FW_UATTRIB_MV_MATRIX, 1, GL_FALSE,
                      model_view_matrix);
-  glUniform4f(GRAFFIKS_MATERIAL_FW_UATTRIB_AMBIENT_COLOR, ambient_color[0],
-              ambient_color[1], ambient_color[2], ambient_color[3]);
+  glUniform3f(GRAFFIKS_MATERIAL_FW_UATTRIB_AMBIENT_COLOR, ambient_color[0],
+              ambient_color[1], ambient_color[2]);
   glUniform4f(GRAFFIKS_MATERIAL_FW_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0],
               mat->diffuse_color[1], mat->diffuse_color[2], mat->diffuse_color[3]);
   glUniform3f(GRAFFIKS_MATERIAL_FW_UATTRIB_LIGHT_POSITION, l->x, l->y, l->z);

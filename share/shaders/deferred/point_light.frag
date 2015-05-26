@@ -8,7 +8,6 @@ layout(location = 6) uniform vec2 u_renderer_size;
 layout(location = 1) uniform sampler2D color_tex;
 layout(location = 2) uniform sampler2D normals_tex;
 layout(location = 3) uniform sampler2D position_tex;
-layout(location = 4) uniform sampler2D ambient_tex;
 
 in vec3 v_position;
 
@@ -19,7 +18,6 @@ void main() {
   float diffuse_intensity = (texture(color_tex, frag_coord).a);
   vec3 position = texture(position_tex, frag_coord).rgb;
   vec3 normal = texture(normals_tex, frag_coord).rgb;
-  vec3 ambient = texture(ambient_tex, frag_coord).rgb;
 
   float distance = length(u_light_position - position);
   vec3 light_vector = normalize(u_light_position - position);
@@ -28,5 +26,5 @@ void main() {
   diffuse = clamp(diffuse, 0.0, 9.0);
   diffuse = diffuse * (1.0 / (0.7 * distance)); // attenuation
 
-  gl_FragColor = vec4((diffuse*diffuse_color) + ambient, 1.0);
+  gl_FragColor = vec4((diffuse*diffuse_color), 1.0);
 }

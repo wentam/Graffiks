@@ -5,7 +5,7 @@ const int GRAFFIKS_LIGHT_ATTENUATION_LINEAR = 0x01;
 const int GRAFFIKS_LIGHT_ATTENUATION_QUADRATIC = 0x02;
 const int GRAFFIKS_LIGHT_ATTENUATION_CONSTANT = 0x04;
 int point_light_count = 0;
-float ambient_color[] = {0, 0, 0, 0};
+float ambient_color[] = {0, 0, 0};
 
 point_light *add_point_light() {
   point_lights = realloc(point_lights, sizeof(point_light *) * (point_light_count + 1));
@@ -22,11 +22,10 @@ point_light *add_point_light() {
   return l;
 }
 
-void set_ambient_light(float r, float g, float b, float intensity) {
+void set_ambient_light(float r, float g, float b) {
   ambient_color[0] = r;
   ambient_color[1] = g;
   ambient_color[2] = b;
-  ambient_color[3] = intensity;
 }
 
 void remove_point_light(point_light *light) {
