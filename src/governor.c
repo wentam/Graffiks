@@ -55,13 +55,15 @@ void _draw_frame() {
   // draw
   _call_draw();
 
-  if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
-    _geom_pass_df();
-    _light_pass_df();
-  }
+  if (render_queue_size > 0) {
+    if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
+      _geom_pass_df();
+      _light_pass_df();
+    }
 
-  if (enabled_renderers & GRAFFIKS_RENDERER_FORWARD) {
-    _draw_from_queue_fw();
+    if (enabled_renderers & GRAFFIKS_RENDERER_FORWARD) {
+      _draw_from_queue_fw();
+    }
   }
 
 #ifndef ANDROID

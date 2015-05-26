@@ -20,6 +20,8 @@ typedef struct {
 
 // there must be an equal number of materials and meshes.
 object *create_object(mesh **meshes, material **mats, int mesh_count);
-void free_object(object *o);
+void remove_object(object *o);
+void show_object(object *o);
+void hide_object(object *o);
 
 #endif

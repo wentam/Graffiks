@@ -60,6 +60,11 @@ void _init_renderer_df() {
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, position_tex, 0);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, ambient_tex, 0);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_tex, 0);
+
+  GLuint attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
+                           GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+  glDrawBuffers(4, attachments);
+
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   light_pass_program = _create_program("/shaders/material_df_light.vert",
@@ -91,10 +96,6 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
 
   // draw into first pass buffers
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-
-  GLuint attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
-                           GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-  glDrawBuffers(4, attachments);
 
   GLuint *program = mat->program;
   glUseProgram(*program);
