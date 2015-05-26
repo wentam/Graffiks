@@ -8,9 +8,9 @@
 #include <GL/gl.h>
 
 GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
-GLuint *point_light_program;
-GLuint *geom_pass_program;
-GLuint *ambient_pass_program;
+GLuint *df_point_light_program;
+GLuint *df_geom_pass_program;
+GLuint *df_ambient_pass_program;
 
 mesh *screen_mesh;
 
@@ -69,12 +69,12 @@ void _init_renderer_df() {
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-  ambient_pass_program = _create_program("/shaders/deferred/ambient_light.vert",
-                                         "/shaders/deferred/ambient_light.frag");
-  point_light_program = _create_program("/shaders/deferred/point_light.vert",
-                                        "/shaders/deferred/point_light.frag");
-  geom_pass_program = _create_program("/shaders/deferred/geometry_pass.vert",
-                                      "/shaders/deferred/geometry_pass.frag");
+  df_ambient_pass_program = _create_program("/shaders/deferred/ambient_light.vert",
+                                            "/shaders/deferred/ambient_light.frag");
+  df_point_light_program = _create_program("/shaders/deferred/point_light.vert",
+                                           "/shaders/deferred/point_light.frag");
+  df_geom_pass_program = _create_program("/shaders/deferred/geometry_pass.vert",
+                                         "/shaders/deferred/geometry_pass.frag");
 
   screen_mesh = create_plane(2, 2);
 };
@@ -98,16 +98,16 @@ void _debug_show_fbo() {
   glBlitFramebuffer(0, 0, 640, 480, 0, 0, 640, 480, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-const GLint GEOM_ATTRIB_POSITION = 0;
-const GLint GEOM_ATTRIB_NORMAL = 1;
-const GLint GEOM_ATTRIB_DIFFUSE_COLOR = 2;
-const GLint GEOM_UATTRIB_MVP_MATRIX = 3;
-const GLint GEOM_UATTRIB_MV_MATRIX = 4;
-const GLint GEOM_UATTRIB_AMBIENT_COLOR = 5;
-const GLint GEOM_UATTRIB_DIFFUSE_COLOR = 6;
-const GLint GEOM_UATTRIB_DIFFUSE_INTENSITY = 7;
-const GLint GEOM_UATTRIB_PER_VERTEX = 8;
-const GLint GEOM_UATTRIB_LIGHT_POSITION = 9;
+const GLint DF_GEOM_ATTRIB_POSITION = 0;
+const GLint DF_GEOM_ATTRIB_NORMAL = 1;
+const GLint DF_GEOM_ATTRIB_DIFFUSE_COLOR = 2;
+const GLint DF_GEOM_UATTRIB_MVP_MATRIX = 3;
+const GLint DF_GEOM_UATTRIB_MV_MATRIX = 4;
+const GLint DF_GEOM_UATTRIB_AMBIENT_COLOR = 5;
+const GLint DF_GEOM_UATTRIB_DIFFUSE_COLOR = 6;
+const GLint DF_GEOM_UATTRIB_DIFFUSE_INTENSITY = 7;
+const GLint DF_GEOM_UATTRIB_PER_VERTEX = 8;
+const GLint DF_GEOM_UATTRIB_LIGHT_POSITION = 9;
 
 void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
 
@@ -145,70 +145,71 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
   multiply_matrices(model_view_projection_matrix, projection_matrix, model_view_matrix);
 
   // send our data to the shader program
-  glUniformMatrix4fv(GEOM_UATTRIB_MVP_MATRIX, 1, GL_FALSE, model_view_projection_matrix);
-  glUniformMatrix4fv(GEOM_UATTRIB_MV_MATRIX, 1, GL_FALSE, model_view_matrix);
-  glUniform3f(GEOM_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
+  glUniformMatrix4fv(DF_GEOM_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
+                     model_view_projection_matrix);
+  glUniformMatrix4fv(DF_GEOM_UATTRIB_MV_MATRIX, 1, GL_FALSE, model_view_matrix);
+  glUniform3f(DF_GEOM_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
               ambient_color[2]);
-  glUniform4f(GEOM_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0], mat->diffuse_color[1],
+  glUniform4f(DF_GEOM_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0], mat->diffuse_color[1],
               mat->diffuse_color[2], mat->diffuse_color[3]);
-  glUniform3f(GEOM_UATTRIB_LIGHT_POSITION, 0, 0, 5);
-  glUniform1f(GEOM_UATTRIB_DIFFUSE_INTENSITY, mat->diffuse_intensity);
+  glUniform3f(DF_GEOM_UATTRIB_LIGHT_POSITION, 0, 0, 5);
+  glUniform1f(DF_GEOM_UATTRIB_DIFFUSE_INTENSITY, mat->diffuse_intensity);
 
   // add vertices
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
-  glEnableVertexAttribArray(GEOM_ATTRIB_POSITION);
-  glVertexAttribPointer(GEOM_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(DF_GEOM_ATTRIB_POSITION);
+  glVertexAttribPointer(DF_GEOM_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   // add normals
   glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
-  glEnableVertexAttribArray(GEOM_ATTRIB_NORMAL);
-  glVertexAttribPointer(GEOM_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(DF_GEOM_ATTRIB_NORMAL);
+  glVertexAttribPointer(DF_GEOM_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   // add colors if m->use_vertex_color
   if (m->use_vertex_color) {
-    glUniform1i(GEOM_UATTRIB_PER_VERTEX, 1);
+    glUniform1i(DF_GEOM_UATTRIB_PER_VERTEX, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, m->vertex_color_buffer);
-    glEnableVertexAttribArray(GEOM_ATTRIB_DIFFUSE_COLOR);
-    glVertexAttribPointer(GEOM_ATTRIB_DIFFUSE_COLOR, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(DF_GEOM_ATTRIB_DIFFUSE_COLOR);
+    glVertexAttribPointer(DF_GEOM_ATTRIB_DIFFUSE_COLOR, 4, GL_FLOAT, GL_FALSE, 0, 0);
   } else {
-    glUniform1i(GEOM_UATTRIB_PER_VERTEX, 0);
+    glUniform1i(DF_GEOM_UATTRIB_PER_VERTEX, 0);
   }
 
   // draw it!
   glDrawArrays(GL_TRIANGLES, 0, m->vertex_count / 3);
 
   // disable arrays
-  glDisableVertexAttribArray(GEOM_ATTRIB_POSITION);
-  glDisableVertexAttribArray(GEOM_ATTRIB_NORMAL);
+  glDisableVertexAttribArray(DF_GEOM_ATTRIB_POSITION);
+  glDisableVertexAttribArray(DF_GEOM_ATTRIB_NORMAL);
 }
 
-const GLint AMBIENT_ATTRIB_POSITION = 0;
-const GLint AMBIENT_UATTRIB_AMBIENT_COLOR = 1;
+const GLint DF_AMBIENT_ATTRIB_POSITION = 0;
+const GLint DF_AMBIENT_UATTRIB_AMBIENT_COLOR = 1;
 
 void _ambient_pass_df() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glDepthMask(GL_FALSE);
-  glUseProgram(*ambient_pass_program);
+  glUseProgram(*df_ambient_pass_program);
 
-  glUniform3f(AMBIENT_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
+  glUniform3f(DF_AMBIENT_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
               ambient_color[2]);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
-  glEnableVertexAttribArray(AMBIENT_ATTRIB_POSITION);
-  glVertexAttribPointer(AMBIENT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(DF_AMBIENT_ATTRIB_POSITION);
+  glVertexAttribPointer(DF_AMBIENT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glDrawArrays(GL_TRIANGLES, 0, screen_mesh->vertex_count / 3);
   glDepthMask(GL_TRUE);
 }
 
-const GLint POINT_LIGHT_ATTRIB_POSITION = 0;
-const GLint POINT_LIGHT_UATTRIB_DIFFUSE_TEX = 1;
-const GLint POINT_LIGHT_UATTRIB_NORMALS_TEX = 2;
-const GLint POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
-const GLint POINT_LIGHT_UATTRIB_AMBIENT_TEX = 4;
-const GLint POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
-const GLint POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
+const GLint DF_POINT_LIGHT_ATTRIB_POSITION = 0;
+const GLint DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX = 1;
+const GLint DF_POINT_LIGHT_UATTRIB_NORMALS_TEX = 2;
+const GLint DF_POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
+const GLint DF_POINT_LIGHT_UATTRIB_AMBIENT_TEX = 4;
+const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
+const GLint DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
 
 void _light_pass_point_df(point_light *light) {
   glDepthMask(GL_FALSE);
@@ -227,15 +228,15 @@ void _light_pass_point_df(point_light *light) {
   glBindTexture(GL_TEXTURE_2D, position_tex);
 
   // assign textures to uniforms
-  glUniform1i(POINT_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
-  glUniform1i(POINT_LIGHT_UATTRIB_NORMALS_TEX, 1);
-  glUniform1i(POINT_LIGHT_UATTRIB_POSITION_TEX, 2);
-  glUniform3f(POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
-  glUniform2f(POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
+  glUniform1i(DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
+  glUniform1i(DF_POINT_LIGHT_UATTRIB_NORMALS_TEX, 1);
+  glUniform1i(DF_POINT_LIGHT_UATTRIB_POSITION_TEX, 2);
+  glUniform3f(DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
+  glUniform2f(DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
-  glEnableVertexAttribArray(POINT_LIGHT_ATTRIB_POSITION);
-  glVertexAttribPointer(POINT_LIGHT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(DF_POINT_LIGHT_ATTRIB_POSITION);
+  glVertexAttribPointer(DF_POINT_LIGHT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glDrawArrays(GL_TRIANGLES, 0, screen_mesh->vertex_count / 3);
   glDisable(GL_BLEND);
@@ -243,7 +244,7 @@ void _light_pass_point_df(point_light *light) {
 }
 
 void _geom_pass_df() {
-  glUseProgram(*geom_pass_program);
+  glUseProgram(*df_geom_pass_program);
 
   int i;
   for (i = 0; i < render_queue_size; i++) {
@@ -255,7 +256,7 @@ void _geom_pass_df() {
 }
 
 void _light_pass_df() {
-  glUseProgram(*point_light_program);
+  glUseProgram(*df_point_light_program);
 
   int i;
   for (i = 0; i < point_light_count; i++) {
