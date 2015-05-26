@@ -5,12 +5,14 @@
 #include "lights.h"
 #include "renderer/renderer.h"
 
+GLuint *program;
+
 void _terminate_renderer_fw() {}
-void _init_renderer_fw() {}
+void _init_renderer_fw() {
+  program = _create_program("/shaders/material.vert", "/shaders/material.frag");
+}
 
 void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
-  GLuint *program = mat->program;
-  glUseProgram(*program);
 
   // set up matrices
   float object_rotation_matrix[16];
@@ -86,6 +88,8 @@ void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
 }
 
 void _draw_from_queue_fw() {
+  glUseProgram(*program);
+
   // TODO depth buffer pre-pass
   int i;
   for (i = 0; i < render_queue_size; i++) {

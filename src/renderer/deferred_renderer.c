@@ -9,6 +9,7 @@
 
 GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *light_pass_program;
+GLuint *geom_pass_program;
 
 mesh *m;
 
@@ -69,6 +70,8 @@ void _init_renderer_df() {
 
   light_pass_program = _create_program("/shaders/material_df_light.vert",
                                        "/shaders/material_df_light.frag");
+  geom_pass_program =
+      _create_program("/shaders/material_df_geom.vert", "/shaders/material_df_geom.frag");
 
   m = create_plane(2, 2);
 };
@@ -96,9 +99,6 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
 
   // draw into first pass buffers
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-
-  GLuint *program = mat->program;
-  glUseProgram(*program);
 
   // set up matrices
   float object_rotation_matrix[16];
@@ -181,8 +181,6 @@ void _light_pass_point_df(point_light *light) {
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-  glUseProgram(*light_pass_program);
-
   // bind textures
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, color_tex);
@@ -214,6 +212,8 @@ void _light_pass_point_df(point_light *light) {
 }
 
 void _geom_pass_df() {
+  glUseProgram(*geom_pass_program);
+
   int i;
   for (i = 0; i < render_queue_size; i++) {
     if (render_queue[i]->material->renderer & GRAFFIKS_RENDERER_DEFERRED) {
@@ -224,6 +224,8 @@ void _geom_pass_df() {
 }
 
 void _light_pass_df() {
+  glUseProgram(*light_pass_program);
+
   int i;
   for (i = 0; i < point_light_count; i++) {
     _light_pass_point_df(point_lights[i]);
