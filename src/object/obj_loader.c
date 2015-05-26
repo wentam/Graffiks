@@ -303,7 +303,7 @@ object *load_obj(renderer_flags flags, char *filepath) {
 
       free(filepath_heap);
 
-      mats = load_mtl(flags, mtl_filepath); // TODO hardcoded path
+      mats = load_mtl(flags, mtl_filepath);
     }
   }
 
