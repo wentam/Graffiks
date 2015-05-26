@@ -30,16 +30,6 @@ void terminate_renderers(renderer_flags flags) {
   }
 }
 
-void draw_object(renderer_flags flags, object *o) {
-  if (flags & GRAFFIKS_RENDERER_DEFERRED) {
-    _draw_object_df(o);
-  }
-
-  if (flags & GRAFFIKS_RENDERER_FORWARD) {
-    _draw_object_fw(o);
-  }
-}
-
 void _clear(renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
     _clear_df();

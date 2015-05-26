@@ -19,7 +19,6 @@ extern render_queue_item **render_queue;
 extern int render_queue_size;
 
 void init_renderers(renderer_flags flags);
-void draw_object(renderer_flags flags, object *o);
 void terminate_renderers(renderer_flags flags);
 void _clear(renderer_flags flags);
 
