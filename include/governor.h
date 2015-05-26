@@ -16,10 +16,7 @@
 int renderer_width;
 int renderer_height;
 
-// change this to change the ambient color: {r,g,b,intensity}
-extern float ambient_color[4];
-
-// put the camera where you want it :)
+// put the camera where you want it
 void set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
                                        float tz, float ux, float uy, float uz);
 

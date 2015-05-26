@@ -13,8 +13,6 @@ long long int last_frame_end_time = 0;
 float delta_time_smoothed = 16.6;
 float delta_time_moving_average = 16.6;
 
-float ambient_color[] = {0, 0, 0, 0};
-
 void _init_graffiks() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glEnable(GL_CULL_FACE);
