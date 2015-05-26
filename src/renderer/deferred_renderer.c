@@ -4,6 +4,7 @@
 #include "material/material_df.h"
 #include "mesh/plane_mesh.h"
 #include "mesh/mesh.h"
+#include "renderer/renderer.h"
 #include <GL/gl.h>
 
 GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
@@ -172,7 +173,7 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
 }
 
 void _light_pass_point_df(point_light *light) {
-  glDisable(GL_DEPTH_TEST);
+  glDepthMask(GL_FALSE);
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_ONE, GL_ONE);
@@ -208,7 +209,24 @@ void _light_pass_point_df(point_light *light) {
 
   glDrawArrays(GL_TRIANGLES, 0, m->vertex_count / 3);
   glDisable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
+}
+
+void _geom_pass_df() {
+  int i;
+  for (i = 0; i < render_queue_size; i++) {
+    if (render_queue[i]->material->renderer & GRAFFIKS_RENDERER_DEFERRED) {
+      _df_draw_mesh_geom_pass(render_queue[i]->parent_object, render_queue[i]->mesh,
+                              render_queue[i]->material);
+    }
+  }
+}
+
+void _light_pass_df() {
+  int i;
+  for (i = 0; i < point_light_count; i++) {
+    _light_pass_point_df(point_lights[i]);
+  }
 }
 
 void _draw_object_df(object *o) {

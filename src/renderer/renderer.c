@@ -3,6 +3,8 @@
 #include "renderer/forward_renderer.h"
 
 renderer_flags enabled_renderers = 0;
+render_queue_item **render_queue;
+int render_queue_size = 0;
 
 void init_renderers(renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {

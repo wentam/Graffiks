@@ -19,7 +19,7 @@ void main() {
   /* calculate diffuse intensity for this fragment */
   float diffuse = max(dot(v_normal, light_vector), 0.1) * u_diffuse_intensity;
   diffuse = clamp(diffuse, 0.0, 9.0);
-  diffuse = 1.0 / (0.7 * distance); // attenuation
+  diffuse = diffuse * (1.0 / (0.7 * distance)); // attenuation
 
   /* combine target color with diffuse intensity and ambient color. set as result. */
   gl_FragColor = (v_diffuse_color * diffuse) + u_ambient_color;

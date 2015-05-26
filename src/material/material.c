@@ -108,6 +108,7 @@ material *create_material(renderer_flags flags) {
   m->program = program;
   m->diffuse_intensity = 10;
   m->diffuse_color = diffuse_color;
+  m->renderer = flags;
 
   return m;
 }

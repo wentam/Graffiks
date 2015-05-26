@@ -1,6 +1,7 @@
 #include "governor.h"
 #include "renderer/renderer.h"
 #include "renderer/deferred_renderer.h"
+#include "renderer/forward_renderer.h"
 #include "lights.h"
 #include <time.h>
 
@@ -18,7 +19,7 @@ void _init_graffiks() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
+  glDepthFunc(GL_LEQUAL);
   glDepthMask(GL_TRUE);
 
   // set up view matrix
@@ -55,11 +56,12 @@ void _draw_frame() {
   _call_draw();
 
   if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
-    int i;
-    for (i = 0; i < point_light_count; i++) {
-      _light_pass_point_df(point_lights[i]);
-    }
-    //_light_pass_df(0.0, 0.0, 100.0);
+    _geom_pass_df();
+    _light_pass_df();
+  }
+
+  if (enabled_renderers & GRAFFIKS_RENDERER_FORWARD) {
+    _draw_from_queue_fw();
   }
 
 #ifndef ANDROID

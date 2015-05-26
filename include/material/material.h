@@ -27,6 +27,7 @@ typedef struct mat {
   GLuint *program;
   float diffuse_intensity;
   float *diffuse_color;
+  renderer_flags renderer;
 } material;
 
 material *create_material(renderer_flags flags);

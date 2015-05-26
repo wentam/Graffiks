@@ -2,11 +2,13 @@
 #include "governor.h"
 #include "material/material.h"
 #include "material/material_fw.h"
+#include "lights.h"
+#include "renderer/renderer.h"
 
 void _terminate_renderer_fw() {}
 void _init_renderer_fw() {}
 
-void _draw_mesh(object *o, mesh *m, material *mat) {
+void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
   GLuint *program = mat->program;
   glUseProgram(*program);
 
@@ -49,7 +51,7 @@ void _draw_mesh(object *o, mesh *m, material *mat) {
               ambient_color[1], ambient_color[2], ambient_color[3]);
   glUniform4f(GRAFFIKS_MATERIAL_FW_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0],
               mat->diffuse_color[1], mat->diffuse_color[2], mat->diffuse_color[3]);
-  glUniform3f(GRAFFIKS_MATERIAL_FW_UATTRIB_LIGHT_POSITION, 0, 0, 5);
+  glUniform3f(GRAFFIKS_MATERIAL_FW_UATTRIB_LIGHT_POSITION, l->x, l->y, l->z);
   glUniform1f(GRAFFIKS_MATERIAL_FW_UATTRIB_DIFFUSE_INTENSITY, mat->diffuse_intensity);
 
   // add vertices
@@ -83,11 +85,53 @@ void _draw_mesh(object *o, mesh *m, material *mat) {
   glDisableVertexAttribArray(GRAFFIKS_MATERIAL_FW_ATTRIB_NORMAL);
 }
 
-void _draw_object_fw(object *o) {
+void _draw_from_queue_fw() {
+  // TODO depth buffer pre-pass
   int i;
-  for (i = 0; i < o->mesh_count; i++) {
-    _draw_mesh(o, o->meshes[i], o->mats[i]);
+  for (i = 0; i < render_queue_size; i++) {
+
+    if (render_queue[i]->material->renderer & GRAFFIKS_RENDERER_FORWARD) {
+      int i2;
+      for (i2 = 0; i2 < point_light_count; i2++) {
+        if (i2 != 0) {
+          glEnable(GL_BLEND);
+          glBlendEquation(GL_FUNC_ADD);
+          glBlendFunc(GL_ONE, GL_ONE);
+        } else {
+          glDisable(GL_BLEND);
+        }
+
+        _draw_mesh_point_light(render_queue[i]->parent_object, render_queue[i]->mesh,
+                               render_queue[i]->material, point_lights[i2]);
+      }
+    }
   }
+  glDisable(GL_BLEND);
+}
+
+//
+// void _draw_object_fw(object *o) {
+//     int i;
+//     for (i = 0; i < o->mesh_count; i++) {
+//     _draw_mesh_point_light(o, o->meshes[i], o->mats[i], point_lights[i2]);
+//     }
+// }
+void _draw_object_fw(object *o) {
+  int i2;
+  for (i2 = 0; i2 < point_light_count; i2++) {
+    if (i2 == 0) {
+    } else {
+      glEnable(GL_BLEND);
+      glBlendEquation(GL_FUNC_ADD);
+      glBlendFunc(GL_ONE, GL_ONE);
+    }
+
+    int i;
+    for (i = 0; i < o->mesh_count; i++) {
+      _draw_mesh_point_light(o, o->meshes[i], o->mats[i], point_lights[i2]);
+    }
+  }
+  glDisable(GL_BLEND);
 }
 
 void _clear_fw() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
