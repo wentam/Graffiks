@@ -41,7 +41,7 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
   }
 
   if (GLX_EXT_swap_control && _use_vsync) {
-    glXSwapIntervalEXT(display, win, 0);
+    glXSwapIntervalEXT(display, win, 1);
   }
 
   graffiks_setup(init, update, finish);

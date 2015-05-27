@@ -42,7 +42,7 @@ void _set_size(int width, int height) {
 }
 
 void _draw_frame() {
-  _limit_fps(60);
+  _limit_fps(250);
 
   // update
   _call_update(delta_time_smoothed);
@@ -109,7 +109,10 @@ void _limit_fps(int fps) {
   int frame_delta_time = frame_end_time - frame_start_time;
   if (frame_delta_time < ms_per_frame) {
     _sleep_ms(ms_per_frame - frame_delta_time);
+    //    frame_delta_time += ms_per_frame - frame_delta_time;
   }
+
+  //  printf("framerate: %f\n", 1000.0f / frame_delta_time);
 
   _ms(&frame_start_time);
 }
