@@ -13,8 +13,7 @@ int _use_vsync = 1;
 
 void init_graffiks_xorg(int window_width, int window_height, char *window_title,
                         void (*init)(int *width, int *height),
-                        void (*update)(float time_step), void (*draw)(void),
-                        void (*finish)(void)) {
+                        void (*update)(float time_step), void (*finish)(void)) {
 
   display = XOpenDisplay(NULL);
   root = DefaultRootWindow(display);
@@ -45,7 +44,7 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
     glXSwapIntervalEXT(display, win, 0);
   }
 
-  graffiks_setup(init, update, draw, finish);
+  graffiks_setup(init, update, finish);
   _set_size(window_width, window_height);
 
   _init_graffiks();
