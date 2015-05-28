@@ -1,4 +1,5 @@
 #include "gl_helper.h"
+#include <stdlib.h>
 
 void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
                      float center_x, float center_y, float center_z, float up_x,
@@ -206,6 +207,111 @@ void set_matrix_rotation(float m[], float a, float x, float y, float z) {
 
 void vector_length(float *result, float x, float y, float z) {
   *result = sqrt(x * x + y * y + z * z);
+}
+
+void matrix_element_minor(float *result, float m[], int matrix_size, int index) {
+  int index_col_i = index / matrix_size;
+  int index_row_i = index - (matrix_size * index_col_i);
+
+  float *m2 =
+      malloc(sizeof(float) * ((matrix_size * matrix_size) - (matrix_size * 2 - 1)));
+
+  int m2_i = 0;
+  int j;
+  for (j = 0; j < matrix_size * matrix_size; j++) {
+    int col_i = j / matrix_size;
+    int row_i = j - (matrix_size * col_i);
+    if (col_i != index_col_i && row_i != index_row_i) {
+      m2[m2_i++] = m[j];
+    }
+  }
+
+  matrix_determinant(result, m2, matrix_size - 1);
+  free(m2);
+}
+
+void matrix_determinant(float *result, float m[], int matrix_size) {
+  if (matrix_size == 1) {
+    *result = m[0];
+    return;
+  }
+
+  float final_result = 0.0f;
+  short int alt = 0;
+  int i;
+  for (i = 0; i < matrix_size; i++) {
+    float result2;
+    matrix_element_minor(&result2, m, matrix_size, i * matrix_size);
+
+    if (alt == 0) {
+      final_result += m[i * matrix_size] * result2;
+      alt = 1;
+    } else {
+      final_result -= m[i * matrix_size] * result2;
+      alt = 0;
+    }
+  }
+
+  *result = final_result;
+}
+
+void adjugate_matrix(float m[], int matrix_size) {
+  // left side
+  int i;
+  for (i = 1; i < matrix_size; i++) {
+    float tmp = m[i * matrix_size];
+
+    m[i * matrix_size] = m[i];
+    m[i] = tmp;
+  }
+
+  // right side
+  int starting_elem = ((matrix_size - 1) * matrix_size) + 1;
+  for (i = starting_elem; i < (matrix_size * matrix_size) - 1; i++) {
+    int vi = i - (starting_elem - 1);
+    int si = (vi * matrix_size) + (matrix_size - 1);
+
+    float tmp = m[si];
+
+    m[si] = m[i];
+    m[i] = tmp;
+  }
+}
+
+void matrix_inverse(float result[], float m[], int matrix_size) {
+  float *matrix_of_minors = malloc(sizeof(float) * (matrix_size * matrix_size));
+
+  int i;
+  for (i = 0; i < matrix_size * matrix_size; i++) {
+    float r;
+    matrix_element_minor(&r, m, matrix_size, i);
+    matrix_of_minors[i] = r;
+  }
+
+  short int alt = 0;
+  for (i = 0; i < matrix_size * matrix_size; i++) {
+    if (alt == 0) {
+      alt = 1;
+    } else {
+      alt = 0;
+      matrix_of_minors[i] = -matrix_of_minors[i];
+    }
+  }
+
+  adjugate_matrix(matrix_of_minors, matrix_size);
+
+  float original_determinant;
+  matrix_determinant(&original_determinant, m, matrix_size);
+
+  for (i = 0; i < matrix_size * matrix_size; i++) {
+    matrix_of_minors[i] *= 1 / original_determinant;
+  }
+
+  for (i = 0; i < matrix_size * matrix_size; i++) {
+    result[i] = matrix_of_minors[i];
+  }
+
+  free(matrix_of_minors);
 }
 
 void multiply_matrices(float result[], float m1[], float m2[]) {

@@ -18,4 +18,8 @@ void translate_matrix(float matrix[], float x, float y, float z);
 void set_matrix_rotation(float m[], float a, float x, float y, float z);
 void vector_length(float *result, float x, float y, float z);
 void multiply_matrices(float result[], float m1[], float m2[]);
+void matrix_element_minor(float *result, float m[], int matrix_size, int index);
+void matrix_determinant(float *result, float m[], int matrix_size);
+void adjugate_matrix(float m[], int matrix_size);
+void matrix_inverse(float result[], float m[], int matrix_size);
 #endif
