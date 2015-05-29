@@ -25,6 +25,8 @@ void _init_graffiks() {
                   0, 0, 0,              // camera target
                   0, 1, 0);             // up vector
 
+  matrix_inverse(view_matrix_inverse, view_matrix, 4);
+
   _call_init(&renderer_width, &renderer_height);
   _ms(&frame_start_time);
 }

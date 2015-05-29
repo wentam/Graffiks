@@ -28,6 +28,7 @@ void _finish();
 
 // other internal stuff
 float view_matrix[16];
+float view_matrix_inverse[16];
 float projection_matrix[16];
 void _limit_fps(int fps);
 void _ms(long long int *ms);
