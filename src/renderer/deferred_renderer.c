@@ -210,6 +210,9 @@ const GLint DF_POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
 const GLint DF_POINT_LIGHT_UATTRIB_AMBIENT_TEX = 4;
 const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
 const GLint DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
+const GLint DF_POINT_LIGHT_UATTRIB_SPEC_INTENSITY = 7;
+const GLint DF_POINT_LIGHT_UATTRIB_SPEC_HARDNESS = 8;
+const GLint DF_POINT_LIGHT_UATTRIB_SPEC_COLOR = 9;
 
 void _light_pass_point_df(point_light *light) {
   glDepthMask(GL_FALSE);
@@ -227,12 +230,16 @@ void _light_pass_point_df(point_light *light) {
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, position_tex);
 
-  // assign textures to uniforms
   glUniform1i(DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
   glUniform1i(DF_POINT_LIGHT_UATTRIB_NORMALS_TEX, 1);
   glUniform1i(DF_POINT_LIGHT_UATTRIB_POSITION_TEX, 2);
   glUniform3f(DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
   glUniform2f(DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
+
+  glUniform1f(DF_POINT_LIGHT_UATTRIB_SPEC_INTENSITY, light->specularity_intensity);
+  glUniform1f(DF_POINT_LIGHT_UATTRIB_SPEC_HARDNESS, light->specularity_hardness);
+  glUniform3f(DF_POINT_LIGHT_UATTRIB_SPEC_COLOR, light->specularity_color_r,
+              light->specularity_color_g, light->specularity_color_b);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
   glEnableVertexAttribArray(DF_POINT_LIGHT_ATTRIB_POSITION);

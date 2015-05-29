@@ -22,9 +22,8 @@ void main() {
       v_diffuse_color = u_diffuse_color;
   }
 
-
   v_position = vec3((u_mv_matrix) * in_position);
-  v_normal = vec3(u_mv_matrix * vec4(in_normal, 0.0));
+  v_normal = normalize(vec3(u_mv_matrix * vec4(in_normal, 0.0)));
 
   gl_Position = (u_mvp_matrix) * in_position;
 }

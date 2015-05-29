@@ -12,7 +12,11 @@ typedef struct {
   float x;
   float y;
   float z;
-  float brightness;           // TODO unimplemented
+  float specularity_intensity;
+  float specularity_hardness;
+  float specularity_color_r;
+  float specularity_color_g;
+  float specularity_color_b;
   int attenuation_mode;       // TODO unimplemented
   float attenuation_strength; // TODO unimplemented
   float color_r;              // TODO unimplemented
