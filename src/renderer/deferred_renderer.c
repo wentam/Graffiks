@@ -7,7 +7,7 @@
 #include "lights.h"
 #include <GL/gl.h>
 
-GLuint color_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
+GLuint color_tex, specular_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *df_point_light_program;
 GLuint *df_geom_pass_program;
 GLuint *df_ambient_pass_program;
@@ -15,9 +15,17 @@ GLuint *df_ambient_pass_program;
 mesh *screen_mesh;
 
 void _init_renderer_df() {
-  // diffuse color (alpha is diffuse intensity)
+  // diffuse color
   glGenTextures(1, &color_tex);
   glBindTexture(GL_TEXTURE_2D, color_tex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, renderer_width, renderer_height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+  // specular r, g, b, hardness
+  glGenTextures(1, &specular_tex);
+  glBindTexture(GL_TEXTURE_2D, specular_tex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, renderer_width, renderer_height, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -61,11 +69,13 @@ void _init_renderer_df() {
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, normals_tex, 0);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, position_tex, 0);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, ambient_tex, 0);
+  glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, specular_tex, 0);
   glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_tex, 0);
 
-  GLuint attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
-                           GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-  glDrawBuffers(4, attachments);
+  GLuint attachments[5] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
+                           GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+                           GL_COLOR_ATTACHMENT4};
+  glDrawBuffers(5, attachments);
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
@@ -105,9 +115,10 @@ const GLint DF_GEOM_UATTRIB_MVP_MATRIX = 3;
 const GLint DF_GEOM_UATTRIB_MV_MATRIX = 4;
 const GLint DF_GEOM_UATTRIB_AMBIENT_COLOR = 5;
 const GLint DF_GEOM_UATTRIB_DIFFUSE_COLOR = 6;
-const GLint DF_GEOM_UATTRIB_DIFFUSE_INTENSITY = 7;
+const GLint DF_GEOM_UATTRIB_SPEC_HARDNESS = 7;
 const GLint DF_GEOM_UATTRIB_PER_VERTEX = 8;
 const GLint DF_GEOM_UATTRIB_LIGHT_POSITION = 9;
+const GLint DF_GEOM_UATTRIB_SPEC_COLOR = 10;
 
 void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
 
@@ -153,7 +164,9 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
   glUniform4f(DF_GEOM_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0], mat->diffuse_color[1],
               mat->diffuse_color[2], mat->diffuse_color[3]);
   glUniform3f(DF_GEOM_UATTRIB_LIGHT_POSITION, 0, 0, 5);
-  glUniform1f(DF_GEOM_UATTRIB_DIFFUSE_INTENSITY, mat->diffuse_intensity);
+  glUniform1f(DF_GEOM_UATTRIB_SPEC_HARDNESS, mat->specularity_hardness);
+  glUniform3f(DF_GEOM_UATTRIB_SPEC_COLOR, mat->specularity_color_r,
+              mat->specularity_color_g, mat->specularity_color_b);
 
   // add vertices
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
@@ -207,12 +220,9 @@ const GLint DF_POINT_LIGHT_ATTRIB_POSITION = 0;
 const GLint DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX = 1;
 const GLint DF_POINT_LIGHT_UATTRIB_NORMALS_TEX = 2;
 const GLint DF_POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
-const GLint DF_POINT_LIGHT_UATTRIB_AMBIENT_TEX = 4;
+const GLint DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX = 4;
 const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
 const GLint DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
-const GLint DF_POINT_LIGHT_UATTRIB_SPEC_INTENSITY = 7;
-const GLint DF_POINT_LIGHT_UATTRIB_SPEC_HARDNESS = 8;
-const GLint DF_POINT_LIGHT_UATTRIB_SPEC_COLOR = 9;
 
 void _light_pass_point_df(point_light *light) {
   glDepthMask(GL_FALSE);
@@ -229,17 +239,15 @@ void _light_pass_point_df(point_light *light) {
   glBindTexture(GL_TEXTURE_2D, normals_tex);
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, position_tex);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, specular_tex);
 
   glUniform1i(DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
   glUniform1i(DF_POINT_LIGHT_UATTRIB_NORMALS_TEX, 1);
   glUniform1i(DF_POINT_LIGHT_UATTRIB_POSITION_TEX, 2);
+  glUniform1i(DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX, 3);
   glUniform3f(DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
   glUniform2f(DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
-
-  glUniform1f(DF_POINT_LIGHT_UATTRIB_SPEC_INTENSITY, light->specularity_intensity);
-  glUniform1f(DF_POINT_LIGHT_UATTRIB_SPEC_HARDNESS, light->specularity_hardness);
-  glUniform3f(DF_POINT_LIGHT_UATTRIB_SPEC_COLOR, light->specularity_color_r,
-              light->specularity_color_g, light->specularity_color_b);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
   glEnableVertexAttribArray(DF_POINT_LIGHT_ATTRIB_POSITION);

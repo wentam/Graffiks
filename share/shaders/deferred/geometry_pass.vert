@@ -9,7 +9,6 @@ layout(location = 3) uniform mat4 u_mvp_matrix;
 layout(location = 4) uniform mat4 u_mv_matrix;
 layout(location = 5) uniform vec3 u_ambient_color;
 layout(location = 6) uniform vec4 u_diffuse_color;
-layout(location = 7) uniform float u_diffuse_intensity;
 layout(location = 8) uniform bool u_per_vertex;
 
 out vec4 v_diffuse_color;

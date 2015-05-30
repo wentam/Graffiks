@@ -8,9 +8,12 @@ material *create_material(renderer_flags flags) {
   diffuse_color[3] = 1;
 
   material *m = malloc(sizeof(material));
-  m->diffuse_intensity = 10;
   m->diffuse_color = diffuse_color;
   m->renderer = flags;
+  m->specularity_hardness = 5;
+  m->specularity_color_r = 1;
+  m->specularity_color_g = 1;
+  m->specularity_color_b = 1;
 
   return m;
 }
@@ -18,10 +21,6 @@ material *create_material(renderer_flags flags) {
 void free_material(material *m) {
   free(m->diffuse_color);
   free(m);
-}
-
-void set_diffuse_intensity(material *m, float intensity) {
-  m->diffuse_intensity = intensity;
 }
 
 void set_diffuse_color(material *m, float diffuse_color[]) {

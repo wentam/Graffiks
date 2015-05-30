@@ -4,8 +4,6 @@
 precision mediump float;
 
 layout(location = 100) uniform vec3 u_light_position;
-layout(location = 7) uniform float u_diffuse_intensity;
-layout(location = 9) uniform float specularity_intensity;
 layout(location = 10) uniform float specularity_hardness;
 layout(location = 11) uniform vec3 specularity_color;
 
@@ -26,8 +24,8 @@ void main() {
     specular = vec4(0.0,0.0,0.0,1.0);
     diffuse = vec4(0.0,0.0,0.0,1.0);
   } else {
-    specular = attenuation * vec4(specularity_color*specularity_intensity,1.0) * pow(max(0, dot(reflect(-light_vector, v_normal), view_direction)),specularity_hardness);
-    diffuse = attenuation * v_diffuse_color * max(dot(v_normal, light_vector), 0) * u_diffuse_intensity;
+    specular = attenuation * vec4(specularity_color,1.0) * pow(max(0, dot(reflect(-light_vector, v_normal), view_direction)),specularity_hardness);
+    diffuse = attenuation * v_diffuse_color * max(dot(v_normal, light_vector), 0);
   }
 
   /* combine target color with diffuse intensity and ambient color. set as result. */

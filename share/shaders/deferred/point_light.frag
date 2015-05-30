@@ -8,9 +8,7 @@ layout(location = 6) uniform vec2 u_renderer_size;
 layout(location = 1) uniform sampler2D color_tex;
 layout(location = 2) uniform sampler2D normals_tex;
 layout(location = 3) uniform sampler2D position_tex;
-layout(location = 7) uniform float specularity_intensity;
-layout(location = 8) uniform float specularity_hardness;
-layout(location = 9) uniform vec3 specularity_color;
+layout(location = 4) uniform sampler2D specular_tex;
 
 in vec3 v_position;
 
@@ -18,9 +16,13 @@ void main() {
   vec2 frag_coord = gl_FragCoord.xy / u_renderer_size;
 
   vec3 diffuse_color = texture(color_tex, frag_coord).rgb;
-  float diffuse_intensity = (texture(color_tex, frag_coord).a);
   vec3 position = texture(position_tex, frag_coord).rgb;
   vec3 normal = texture(normals_tex, frag_coord).rgb;
+  vec4 specular_i = texture(specular_tex, frag_coord).rgba;
+
+  vec3 specular_color = specular_i.rgb;
+  float specular_hardness = specular_i.a;
+
 
   float distance = length(u_light_position - position);
   vec3 light_vector = normalize(u_light_position - position);
@@ -34,8 +36,8 @@ void main() {
     specular = vec3(0.0,0.0,0.0);
     diffuse = vec3(0.0,0.0,0.0);
   } else {
-    specular = attenuation * (specularity_color*specularity_intensity) * pow(max(0, dot(reflect(-light_vector, normal), view_direction)),specularity_hardness);
-    diffuse = attenuation * diffuse_color * max(dot(normal, light_vector), 0) * diffuse_intensity;
+    specular = attenuation * specular_color * pow(max(0, dot(reflect(-light_vector, normal), view_direction)),specular_hardness);
+    diffuse = attenuation * diffuse_color * max(dot(normal, light_vector), 0);
   }
 
   gl_FragColor = vec4(specular+diffuse, 1.0);
