@@ -1,6 +1,5 @@
 #ifndef GOVERNOR_H
 #define GOVERNOR_H
-#include <GLES2/gl2.h>
 #include <sys/time.h>
 #include <stdlib.h>
 #include "gl_helper.h"
@@ -9,6 +8,7 @@
 
 #ifdef ANDROID
 #include <android/log.h>
+#include <GLES2/gl2.h>
 #endif
 
 #include <math.h>
