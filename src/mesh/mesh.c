@@ -1,10 +1,11 @@
 #include <GL/glew.h>
 #include "graffiks/mesh/mesh.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 mesh *create_mesh(float **vertices, int ***indicies, int index_count, float **normals) {
-  float system_vertices[(index_count * 3) * 3];
-  float system_normals[(index_count * 3) * 3];
+  float *system_vertices = malloc(sizeof(float) * ((index_count * 3) * 3));
+  float *system_normals = malloc(sizeof(float) * ((index_count * 3) * 3));
   _generate_mesh(system_vertices, system_normals, vertices, indicies, index_count,
                  normals);
 
@@ -12,11 +13,16 @@ mesh *create_mesh(float **vertices, int ***indicies, int index_count, float **no
 
   glGenBuffers(1, &m->triangle_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(system_vertices), system_vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((index_count * 3) * 3), system_vertices,
+               GL_STATIC_DRAW);
 
   glGenBuffers(1, &m->normal_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(system_normals), system_normals, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((index_count * 3) * 3), system_normals,
+               GL_STATIC_DRAW);
+
+  free(system_vertices);
+  free(system_normals);
   return m;
 }
 
