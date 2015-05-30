@@ -25,6 +25,7 @@ const GLint FW_POINT_LIGHT_UATTRIB_PER_VERTEX = 8;
 const GLint FW_POINT_LIGHT_UATTRIB_SPEC_HARDNESS = 10;
 const GLint FW_POINT_LIGHT_UATTRIB_SPEC_COLOR = 11;
 const GLint FW_POINT_LIGHT_UATTRIB_LIGHT_POSITION = 100;
+const GLint FW_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS = 101;
 
 void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
 
@@ -65,6 +66,7 @@ void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
   glUniform4f(FW_POINT_LIGHT_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0],
               mat->diffuse_color[1], mat->diffuse_color[2], mat->diffuse_color[3]);
   glUniform3f(FW_POINT_LIGHT_UATTRIB_LIGHT_POSITION, l->x, l->y, l->z);
+  glUniform1f(FW_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS, l->brightness);
   glUniform1f(FW_POINT_LIGHT_UATTRIB_SPEC_HARDNESS, mat->specularity_hardness);
   glUniform3f(FW_POINT_LIGHT_UATTRIB_SPEC_COLOR, mat->specularity_color_r,
               mat->specularity_color_g, mat->specularity_color_b);

@@ -11,9 +11,9 @@ material *create_material(renderer_flags flags) {
   m->diffuse_color = diffuse_color;
   m->renderer = flags;
   m->specularity_hardness = 5;
-  m->specularity_color_r = 1;
-  m->specularity_color_g = 1;
-  m->specularity_color_b = 1;
+  m->specularity_color_r = 0.2;
+  m->specularity_color_g = 0.2;
+  m->specularity_color_b = 0.2;
 
   return m;
 }

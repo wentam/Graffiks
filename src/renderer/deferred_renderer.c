@@ -223,6 +223,7 @@ const GLint DF_POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
 const GLint DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX = 4;
 const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
 const GLint DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
+const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS = 7;
 
 void _light_pass_point_df(point_light *light) {
   glDepthMask(GL_FALSE);
@@ -248,6 +249,7 @@ void _light_pass_point_df(point_light *light) {
   glUniform1i(DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX, 3);
   glUniform3f(DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
   glUniform2f(DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
+  glUniform1f(DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS, light->brightness);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
   glEnableVertexAttribArray(DF_POINT_LIGHT_ATTRIB_POSITION);

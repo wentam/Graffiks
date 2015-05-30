@@ -13,6 +13,7 @@ point_light *add_point_light() {
   l->x = 0;
   l->y = 0;
   l->z = 0;
+  l->brightness = 10;
   l->attenuation_mode = GRAFFIKS_LIGHT_ATTENUATION_LINEAR;
   l->attenuation_strength = 1;
 

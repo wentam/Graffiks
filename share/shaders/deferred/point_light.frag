@@ -9,6 +9,7 @@ layout(location = 1) uniform sampler2D color_tex;
 layout(location = 2) uniform sampler2D normals_tex;
 layout(location = 3) uniform sampler2D position_tex;
 layout(location = 4) uniform sampler2D specular_tex;
+layout(location = 7) uniform float light_brightness;
 
 in vec3 v_position;
 
@@ -38,6 +39,8 @@ void main() {
   } else {
     specular = attenuation * specular_color * pow(max(0, dot(reflect(-light_vector, normal), view_direction)),specular_hardness);
     diffuse = attenuation * diffuse_color * max(dot(normal, light_vector), 0);
+    specular *= light_brightness;
+    diffuse *= light_brightness;
   }
 
   gl_FragColor = vec4(specular+diffuse, 1.0);

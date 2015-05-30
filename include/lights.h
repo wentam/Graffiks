@@ -12,6 +12,7 @@ typedef struct {
   float x;
   float y;
   float z;
+  float brightness;
   int attenuation_mode;       // TODO unimplemented
   float attenuation_strength; // TODO unimplemented
   float color_r;              // TODO unimplemented
