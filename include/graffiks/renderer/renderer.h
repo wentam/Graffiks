@@ -1,6 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
-#include "object/object.h"
+#include "graffiks/object/object.h"
 #include <stddef.h>
 #include <sys/types.h>
 #include <stdlib.h>

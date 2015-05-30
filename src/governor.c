@@ -1,8 +1,8 @@
-#include "governor.h"
-#include "renderer/renderer.h"
-#include "renderer/deferred_renderer.h"
-#include "renderer/forward_renderer.h"
-#include "lights.h"
+#include "graffiks/governor.h"
+#include "graffiks/renderer/renderer.h"
+#include "graffiks/renderer/deferred_renderer.h"
+#include "graffiks/renderer/forward_renderer.h"
+#include "graffiks/lights.h"
 #include <time.h>
 
 // stuff for calculating update time

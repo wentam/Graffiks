@@ -1,6 +1,6 @@
 #ifndef FORWARD_RENDERER_H
 #define FORWARD_RENDERER_H
-#include "object/object.h"
+#include "graffiks/object/object.h"
 
 void _init_renderer_fw();
 void _draw_from_queue_fw();

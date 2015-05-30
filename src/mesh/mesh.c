@@ -1,4 +1,5 @@
-#include "mesh/mesh.h"
+#include <GL/glew.h>
+#include "graffiks/mesh/mesh.h"
 #include <stdlib.h>
 
 mesh *create_mesh(float **vertices, int ***indicies, int index_count, float **normals) {

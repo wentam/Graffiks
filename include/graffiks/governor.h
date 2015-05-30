@@ -2,9 +2,9 @@
 #define GOVERNOR_H
 #include <sys/time.h>
 #include <stdlib.h>
-#include "gl_helper.h"
-#include "graffiks.h"
-#include "driver/driver-linux.h"
+#include "graffiks/gl_helper.h"
+#include "graffiks/graffiks.h"
+#include "graffiks/driver/driver-linux.h"
 
 #ifdef ANDROID
 #include <android/log.h>

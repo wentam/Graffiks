@@ -1,4 +1,4 @@
-#include "mesh/plane_mesh.h"
+#include "graffiks/mesh/plane_mesh.h"
 
 mesh *create_plane(float width, float height) {
   float verts[4][3] = {

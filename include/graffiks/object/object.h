@@ -1,7 +1,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 #include <stdlib.h>
-#include "mesh/mesh.h"
+#include "graffiks/mesh/mesh.h"
 
 typedef struct mat material;
 

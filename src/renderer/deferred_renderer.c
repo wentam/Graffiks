@@ -1,11 +1,11 @@
 #include <GL/glew.h>
-#include "renderer/deferred_renderer.h"
-#include "governor.h"
-#include "material/material.h"
-#include "mesh/plane_mesh.h"
-#include "mesh/mesh.h"
-#include "renderer/renderer.h"
-#include "lights.h"
+#include "graffiks/renderer/deferred_renderer.h"
+#include "graffiks/governor.h"
+#include "graffiks/material/material.h"
+#include "graffiks/mesh/plane_mesh.h"
+#include "graffiks/mesh/mesh.h"
+#include "graffiks/renderer/renderer.h"
+#include "graffiks/lights.h"
 
 GLuint color_tex, specular_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *df_point_light_program;

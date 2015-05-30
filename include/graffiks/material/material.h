@@ -1,6 +1,6 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
-#include "renderer/renderer.h"
+#include "graffiks/renderer/renderer.h"
 
 typedef struct mat {
   float *diffuse_color;

@@ -1,9 +1,9 @@
 #include <GL/glew.h>
-#include "renderer/forward_renderer.h"
-#include "governor.h"
-#include "material/material.h"
-#include "lights.h"
-#include "renderer/renderer.h"
+#include "graffiks/renderer/forward_renderer.h"
+#include "graffiks/governor.h"
+#include "graffiks/material/material.h"
+#include "graffiks/lights.h"
+#include "graffiks/renderer/renderer.h"
 
 GLuint *fw_point_light_program;
 GLuint *fw_ambient_light_program;

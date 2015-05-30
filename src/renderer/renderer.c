@@ -1,7 +1,7 @@
 #include <GL/glew.h>
-#include "renderer/renderer.h"
-#include "renderer/deferred_renderer.h"
-#include "renderer/forward_renderer.h"
+#include "graffiks/renderer/renderer.h"
+#include "graffiks/renderer/deferred_renderer.h"
+#include "graffiks/renderer/forward_renderer.h"
 
 renderer_flags enabled_renderers = 0;
 render_queue_item **render_queue;

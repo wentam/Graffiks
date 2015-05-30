@@ -1,5 +1,5 @@
-#include "governor.h"
-#include "graffiks.h"
+#include "graffiks/governor.h"
+#include "graffiks/graffiks.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/X.h>

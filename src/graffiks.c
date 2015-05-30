@@ -1,4 +1,4 @@
-#include "graffiks.h"
+#include "graffiks/graffiks.h"
 
 void (*init_func)(int *width, int *height);
 void (*update_func)(float time_step);

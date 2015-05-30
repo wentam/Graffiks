@@ -1,4 +1,4 @@
-#include "gl_helper.h"
+#include "graffiks/gl_helper.h"
 #include <stdlib.h>
 
 void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,

@@ -1,4 +1,4 @@
-#include "mesh/cube_mesh.h"
+#include "graffiks/mesh/cube_mesh.h"
 
 mesh *create_cube(float scale) {
   float verts[8][3] = {{scale, -scale, -scale},

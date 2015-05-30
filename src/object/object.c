@@ -1,7 +1,7 @@
-#include "object/object.h"
+#include "graffiks/object/object.h"
 #include <stdlib.h>
-#include "material/material.h"
-#include "renderer/renderer.h"
+#include "graffiks/material/material.h"
+#include "graffiks/renderer/renderer.h"
 
 object *create_object(mesh **meshes, material **mats, int mesh_count) {
   object *o = malloc(sizeof(object));

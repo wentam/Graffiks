@@ -1,4 +1,4 @@
-#include "material/material.h"
+#include "graffiks/material/material.h"
 
 material *create_material(renderer_flags flags) {
   float *diffuse_color = malloc(sizeof(float) * 4);

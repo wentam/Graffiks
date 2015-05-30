@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <GL/glxew.h>
-#include "driver/driver-linux.h"
+#include "graffiks/driver/driver-linux.h"
 
 Window root;
 GLint att[] = {GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, GLX_SAMPLE_BUFFERS, 1,

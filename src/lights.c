@@ -1,4 +1,4 @@
-#include "lights.h"
+#include "graffiks/lights.h"
 #include <stdlib.h>
 
 const int GRAFFIKS_LIGHT_ATTENUATION_LINEAR = 0x01;
