@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include "renderer/renderer.h"
 #include "renderer/deferred_renderer.h"
 #include "renderer/forward_renderer.h"

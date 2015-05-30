@@ -1,6 +1,11 @@
 #ifndef MESH_H
 #define MESH_H
+
+#include <GL/gl.h>
+
+#ifdef ANDROID
 #include <GLES2/gl2.h>
+#endif
 
 typedef enum { false, true } bool;
 

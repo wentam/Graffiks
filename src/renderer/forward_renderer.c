@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include "renderer/forward_renderer.h"
 #include "governor.h"
 #include "material/material.h"

@@ -1,5 +1,6 @@
 #ifndef DEFERRED_RENDERER_H
 #define DEFERRED_RENDERER_H
+#include <GL/gl.h>
 #include "object/object.h"
 #include "lights.h"
 
