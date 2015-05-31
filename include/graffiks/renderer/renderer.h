@@ -19,7 +19,7 @@ typedef enum {
   GRAFFIKS_RENDERER_FORWARD = 0x02
 } renderer_flags;
 
-renderer_flags enabled_renderers;
+extern renderer_flags enabled_renderers;
 
 typedef struct {
   mesh *mesh;

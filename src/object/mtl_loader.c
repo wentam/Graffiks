@@ -98,7 +98,7 @@ named_material_array *load_mtl(renderer_flags flags, char *filepath) {
       char *ptr;
       strtok_r(mtl_data[i], " ", &ptr);
       char *material_name = strtok_r(NULL, " ", &ptr);
-      char *material_name_heap = malloc(sizeof(char) * strlen(material_name));
+      char *material_name_heap = malloc(sizeof(char) * (strlen(material_name) + 1));
       strcpy(material_name_heap, material_name);
 
       material_count++;

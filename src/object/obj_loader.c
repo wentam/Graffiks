@@ -293,7 +293,7 @@ object *load_obj(renderer_flags flags, char *filepath) {
       char *mtl_file = strtok_r(NULL, " ", &ptr);
       mtl_file[strlen(mtl_file) - 1] = 0;
 
-      char *filepath_heap = malloc(sizeof(char) * strlen(filepath));
+      char *filepath_heap = malloc(sizeof(char) * (strlen(filepath) + 1));
       strcpy(filepath_heap, filepath);
 
       char *mtl_path = dirname(filepath_heap);
