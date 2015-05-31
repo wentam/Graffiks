@@ -16,22 +16,30 @@ file(GLOB base_SRC
   "src/renderer/*.c"
 )
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  add_definitions(-DLINUX)
-  set(DRIVER src/driver/driver-linux.c)
-  set(OS linux)
-endif()
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS}/)
-
-add_library(graffiks SHARED ${base_SRC} ${DRIVER})
-
 find_library(GLU_LIB GLU)
 find_library(GL_LIB GL)
 find_library(GLEW_LIB GLEW)
 find_library(C_LIB c)
 find_library(M_LIB m)
 find_library(X11_LIB X11)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  add_definitions(-DLINUX)
+  set(DRIVER src/driver/driver-linux.c)
+  set(OS linux)
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(C_LIB "")
+  set(M_LIB "")
+  set(X11_LIB "")
+  set(OS windows)
+endif()
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS}/)
+
+add_library(graffiks SHARED ${base_SRC} ${DRIVER})
+
 target_link_libraries(graffiks ${C_LIB} ${M_LIB} ${X11_LIB} ${GL_LIB} ${GLU_LIB} ${GLEW_LIB})
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share/
