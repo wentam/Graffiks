@@ -154,6 +154,7 @@ int _resize_face_groups(face_group ***f, int previous_size, int size) {
     for (i = previous_size; i < size; i++) {
       (*f)[i] = malloc(sizeof(face_group));
       (*f)[i]->faces = NULL;
+      (*f)[i]->mat = NULL;
       (*f)[i]->face_count = 0;
     }
   }
@@ -328,6 +329,11 @@ object *load_obj(renderer_flags flags, char *filepath) {
   for (i = 0; i < allocated_face_group_count; i++) {
     object_meshes[i] =
         create_mesh(verts, face_groups[i]->faces, face_groups[i]->face_count, normals);
+
+    if (face_groups[i]->mat == NULL) {
+      face_groups[i]->mat = create_material(flags);
+    }
+
     object_mats[i] = face_groups[i]->mat;
   }
   object *o = create_object(object_meshes, object_mats, allocated_face_group_count);
