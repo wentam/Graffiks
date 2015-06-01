@@ -38,7 +38,8 @@ void set_mesh_vertex_colors(mesh *m, float colors[][4], int ***indicies,
   m->use_vertex_color = true;
 
   // flatten the colors 2d array
-  float colors_flat[(index_count * 3) * 4];
+  int colors_flat_size = index_count * 3 * 4 * sizeof(float);
+  float* colors_flat = malloc(colors_flat_size);
 
   int current_vertex_index = 0;
   int i;
@@ -59,13 +60,17 @@ void set_mesh_vertex_colors(mesh *m, float colors[][4], int ***indicies,
   // create buffer
   glGenBuffers(1, &m->vertex_color_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->vertex_color_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(colors_flat), colors_flat, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, colors_flat_size, colors_flat, GL_STATIC_DRAW);
+  free(colors_flat);
 }
 
 mesh *create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count,
                      float normals[][3]) {
-  float system_vertices[(index_count * 3) * 3];
-  float system_normals[(index_count * 3) * 3];
+  int system_vertices_size = index_count * 3 * 3 * sizeof(float);
+  float* system_vertices = malloc(system_vertices_size);
+  int system_normals_size = index_count * 3 * 3 * sizeof(float);
+  float* system_normals = malloc(system_normals_size);
+
   _generate_mesh_st(system_vertices, system_normals, vertices, indicies, index_count,
                     normals);
 
@@ -73,11 +78,15 @@ mesh *create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count,
 
   glGenBuffers(1, &m->triangle_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(system_vertices), system_vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, system_vertices_size, system_vertices, GL_STATIC_DRAW);
 
   glGenBuffers(1, &m->normal_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(system_normals), system_normals, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, system_normals_size, system_normals, GL_STATIC_DRAW);
+
+  free(system_vertices);
+  free(system_normals);
+
   return m;
 }
 
@@ -100,8 +109,8 @@ base_mesh *create_base_mesh(float **vertices, int ***indicies, int index_count,
 
 mesh *create_mesh_with_instances(base_mesh *bmesh, double instances[][3],
                                  int instance_count, bool use_z) {
-  float system_vertices[bmesh->vertex_count * instance_count];
-  float system_normals[bmesh->normal_count * instance_count];
+  float* system_vertices = malloc(bmesh->vertex_count * instance_count * sizeof(float));
+  float* system_normals = malloc(bmesh->vertex_count * instance_count * sizeof(float));
 
   int start_index = 0;
   int start_index_normal = 0;
@@ -159,6 +168,9 @@ mesh *create_mesh_with_instances(base_mesh *bmesh, double instances[][3],
   /*glBufferData(GL_ARRAY_BUFFER,
    * sizeof(float)*(bmesh->normal_count*instance_count), system_normals,
    * GL_DYNAMIC_DRAW);*/
+
+  free(system_vertices);
+  free(system_normals);
 
   return smesh;
 }

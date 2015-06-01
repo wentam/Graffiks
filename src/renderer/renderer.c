@@ -64,7 +64,7 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
   AAsset_close(asset);
 #endif
 
-#ifdef LINUX
+#ifndef ANDROID
   // read shader
   char *shader;
   long shader_file_size;
@@ -100,13 +100,14 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
     GLint info_log_length;
     glGetShaderiv(shader_ref, GL_INFO_LOG_LENGTH, &info_log_length);
 
-    GLchar info[info_log_length + 1];
+    GLchar* info = malloc((info_log_length + 1) * sizeof(GLchar));
     glGetShaderInfoLog(shader_ref, info_log_length, NULL, info);
 
     printf("Error compiling shader (%s) %s", shader_filepath, info);
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_ERROR, "Graffiks", "%s", info);
 #endif
+    free(info);
   }
 
   return shader_ref;

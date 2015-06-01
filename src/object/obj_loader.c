@@ -311,7 +311,7 @@ object *load_obj(renderer_flags flags, char *filepath) {
       strcpy(filepath_heap, filepath);
 
       char *mtl_path = dirname(filepath_heap);
-      char mtl_filepath[strlen(mtl_path) + 2 + strlen(mtl_file)];
+      char *mtl_filepath = malloc(strlen(mtl_path) + 2 + strlen(mtl_file) * sizeof(char));
       strcpy(mtl_filepath, mtl_path);
       strcat(mtl_filepath, "/");
       strcat(mtl_filepath, mtl_file);
@@ -320,6 +320,7 @@ object *load_obj(renderer_flags flags, char *filepath) {
 
       mats = load_mtl(flags, mtl_filepath);
 
+      free(mtl_filepath);
       #ifdef _WIN32
       free(mtl_path);
       #endif
