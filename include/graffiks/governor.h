@@ -10,6 +10,10 @@
 #include "graffiks/driver/driver-linux.h"
 #endif
 
+#ifdef _WIN32
+#include "graffiks/driver/driver-windows.h"
+#endif
+
 #ifdef ANDROID
 #include <android/log.h>
 #include <GLES2/gl2.h>

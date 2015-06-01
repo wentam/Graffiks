@@ -67,14 +67,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			0, 0, 0
 		};
  
-		HDC ourWindowHandleToDeviceContext = GetDC(hWnd);
+		hdc = GetDC(hWnd);
  
 		int  letWindowsChooseThisPixelFormat;
-		letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd); 
-		SetPixelFormat(ourWindowHandleToDeviceContext,letWindowsChooseThisPixelFormat, &pfd);
+		letWindowsChooseThisPixelFormat = ChoosePixelFormat(hdc, &pfd); 
+		SetPixelFormat(hdc,letWindowsChooseThisPixelFormat, &pfd);
  
-		HGLRC ourOpenGLRenderingContext = wglCreateContext(ourWindowHandleToDeviceContext);
-		wglMakeCurrent (ourWindowHandleToDeviceContext, ourOpenGLRenderingContext);
+		HGLRC ourOpenGLRenderingContext = wglCreateContext(hdc);
+		wglMakeCurrent (hdc, ourOpenGLRenderingContext);
  
           GLenum err = glewInit();
           if (GLEW_OK != err) {
@@ -85,6 +85,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
     case WM_QUIT:
+    case WM_CLOSE:
         quit = 1;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

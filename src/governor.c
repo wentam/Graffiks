@@ -75,6 +75,10 @@ void _draw_frame() {
   glXSwapBuffers(display, win);
 #endif
 
+#ifdef _WIN32
+  SwapBuffers(hdc);
+#endif
+
   // figure out how much time the next update should handle
   // we use a moving average with an extra "smooth" pass to make the framerate more
   // consistant
