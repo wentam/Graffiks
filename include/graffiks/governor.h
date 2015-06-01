@@ -1,10 +1,14 @@
 #ifndef GOVERNOR_H
 #define GOVERNOR_H
-#include <sys/time.h>
+
 #include <stdlib.h>
 #include "graffiks/gl_helper.h"
 #include "graffiks/graffiks.h"
+
+#ifndef _WIN32
+#include <sys/time.h>
 #include "graffiks/driver/driver-linux.h"
+#endif
 
 #ifdef ANDROID
 #include <android/log.h>

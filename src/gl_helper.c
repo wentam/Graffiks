@@ -1,5 +1,7 @@
 #include "graffiks/gl_helper.h"
+#define _USE_MATH_DEFINES
 #include <stdlib.h>
+#include <math.h>
 
 void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
                      float center_x, float center_y, float center_z, float up_x,

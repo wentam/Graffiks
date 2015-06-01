@@ -5,6 +5,10 @@
 #include "graffiks/lights.h"
 #include <time.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // stuff for calculating update time
 #define MOVING_AVERAGE_PERIOD 60
 #define SMOOTH_FACTOR 0.1
@@ -67,7 +71,7 @@ void _draw_frame() {
     }
   }
 
-#ifndef ANDROID
+#ifdef LINUX
   glXSwapBuffers(display, win);
 #endif
 
@@ -119,6 +123,16 @@ void _limit_fps(int fps) {
   _ms(&frame_start_time);
 }
 
+#ifdef _WIN32
+void _sleep_ms(int ms) {
+  Sleep(ms * 1000);
+}
+
+void _ms(long long int *ms) {
+  *ms = GetTickCount64();
+}
+#endif
+#ifndef _WIN32
 void _sleep_ms(int ms) {
   struct timespec req = {0};
   req.tv_sec = 0;
@@ -132,3 +146,5 @@ void _ms(long long int *ms) {
   gettimeofday(&tp, NULL);
   (*ms) = llround((tp.tv_sec * 1000.0) + (tp.tv_usec / 1000.0));
 }
+#endif
+

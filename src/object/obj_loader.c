@@ -1,6 +1,20 @@
 #include "graffiks/object/obj_loader.h"
 #include "graffiks/object/mtl_loader.h"
+
+#ifndef _WIN32
 #include <libgen.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+
+char* dirname(const char* path) {
+  char* out = malloc(strlen(path) + 1);
+  _splitpath(path, NULL, out, NULL, NULL);
+  return out;
+}
+
+#endif
 
 int _string_starts_with(char *pre, char *str) {
   size_t lenpre = strlen(pre);
@@ -305,6 +319,7 @@ object *load_obj(renderer_flags flags, char *filepath) {
       free(filepath_heap);
 
       mats = load_mtl(flags, mtl_filepath);
+      free(mtl_path);
     }
   }
 
