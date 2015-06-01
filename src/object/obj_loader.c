@@ -12,6 +12,10 @@
 char* dirname(const char* path) {
   char* out = malloc(strlen(path) + 1);
   _splitpath(path, NULL, out, NULL, NULL);
+  if(out[0] == '\0') {
+      out[0] = '.';
+      out[1] = '\0';
+  }
   return out;
 }
 

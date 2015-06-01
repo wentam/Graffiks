@@ -73,6 +73,9 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
   strcpy(true_filepath, RESOURCE_PATH);
   strcat(true_filepath, shader_filepath);
   FILE *shader_fp = fopen(true_filepath, "r");
+  if(!shader_fp){
+    printf("Unable to open resource file: %s\n", true_filepath);
+  }
   free(true_filepath);
 
   fseek(shader_fp, 0, SEEK_END);

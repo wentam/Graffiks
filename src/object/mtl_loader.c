@@ -38,6 +38,9 @@ char **_read_mtl_data(char *filepath, int *line_count_output) {
   int line_count = _resize_mtl_data(&mtl_data, 0, 64);
 
   FILE *obj_fp = fopen(filepath, "r");
+  if(!obj_fp){
+      printf("Unable to open mtl file: %s\n", filepath);
+  }
   int current_line = 0;
 
   while (fgets(mtl_data[current_line], sizeof(char) * 256, obj_fp)) {
