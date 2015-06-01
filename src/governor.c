@@ -125,7 +125,7 @@ void _limit_fps(int fps) {
 
 #ifdef _WIN32
 void _sleep_ms(int ms) {
-  Sleep(ms * 1000);
+  Sleep(ms);
 }
 
 void _ms(long long int *ms) {

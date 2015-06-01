@@ -78,7 +78,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
  
           GLenum err = glewInit();
           if (GLEW_OK != err) {
-            /*fprintf(stderr, "glew error: %s\n", glewGetErrorString(err));*/
+            printf("glew error: %s\n", glewGetErrorString(err));
           }
 
           setup = 1;
