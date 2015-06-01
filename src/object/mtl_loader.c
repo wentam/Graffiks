@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define strtok_r strtok_s
+#endif
+
 int _string_starts_with_(char *pre, char *str) {
   size_t lenpre = strlen(pre);
   size_t lenstr = strlen(str);

@@ -7,6 +7,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#define strtok_r strtok_s
 
 char* dirname(const char* path) {
   char* out = malloc(strlen(path) + 1);
