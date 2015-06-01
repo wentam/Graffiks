@@ -16,9 +16,20 @@ file(GLOB base_SRC
   "src/renderer/*.c"
 )
 
-find_library(GLU_LIB GLU)
-find_library(GL_LIB GL)
-find_library(GLEW_LIB GLEW)
+find_package(OpenGL REQUIRED)
+include_directories(${OpenGL_INCLUDE_DIRS})
+link_directories(${OpenGL_LIBRARY_DIRS})
+add_definitions(${OpenGL_DEFINITIONS})
+if(NOT OPENGL_FOUND)
+    message(ERROR " OPENGL not found!")
+endif(NOT OPENGL_FOUND)
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+if(NOT GLEW_FOUND)
+  message(ERROR, " GLEW not found!")
+endif(NOT GLEW_FOUND)
+
 find_library(C_LIB c)
 find_library(M_LIB m)
 find_library(X11_LIB X11)
@@ -40,7 +51,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS}/)
 
 add_library(graffiks SHARED ${base_SRC} ${DRIVER})
 
-target_link_libraries(graffiks ${C_LIB} ${M_LIB} ${X11_LIB} ${GL_LIB} ${GLU_LIB} ${GLEW_LIB})
+target_link_libraries(graffiks ${C_LIB} ${M_LIB} ${X11_LIB} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share/
     DESTINATION "share/graffiks"
