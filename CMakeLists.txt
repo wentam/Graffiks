@@ -45,6 +45,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(M_LIB "")
   set(X11_LIB "")
   set(DRIVER src/driver/driver-windows.c)
+  add_definitions(-DGRAFFIKS_BUILD_SHARED)
   set(OS windows)
 endif()
 

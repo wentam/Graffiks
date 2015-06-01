@@ -17,11 +17,23 @@
 
 #include <math.h>
 
+#ifndef DLL_EXPORT
+# ifdef _WIN32
+#  ifdef GRAFFIKS_BUILD_SHARED
+#   define DLL_EXPORT __declspec(dllexport)
+#  else
+#   define DLL_EXPORT __declspec(dllimport)
+#  endif
+# else
+#  define DLL_EXPORT
+# endif
+#endif
+
 int renderer_width;
 int renderer_height;
 
 // put the camera where you want it
-void set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
+DLL_EXPORT void set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
                                        float tz, float ux, float uy, float uz);
 
 // to be controlled by a driver such as driver-jni-android.c

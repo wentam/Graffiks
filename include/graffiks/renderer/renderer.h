@@ -14,6 +14,18 @@
 #include <android/log.h>
 #endif
 
+#ifndef DLL_EXPORT
+# ifdef _WIN32
+#  ifdef GRAFFIKS_BUILD_SHARED
+#   define DLL_EXPORT __declspec(dllexport)
+#  else
+#   define DLL_EXPORT __declspec(dllimport)
+#  endif
+# else
+#  define DLL_EXPORT
+# endif
+#endif
+
 typedef enum {
   GRAFFIKS_RENDERER_DEFERRED = 0x01,
   GRAFFIKS_RENDERER_FORWARD = 0x02
@@ -30,9 +42,9 @@ typedef struct {
 extern render_queue_item **render_queue;
 extern int render_queue_size;
 
-void init_renderers(renderer_flags flags);
-void terminate_renderers(renderer_flags flags);
-void _clear(renderer_flags flags);
-GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_filepath);
+DLL_EXPORT void init_renderers(renderer_flags flags);
+DLL_EXPORT void terminate_renderers(renderer_flags flags);
+DLL_EXPORT void _clear(renderer_flags flags);
+DLL_EXPORT GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_filepath);
 
 #endif

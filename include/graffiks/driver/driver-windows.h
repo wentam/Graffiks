@@ -4,7 +4,19 @@
 #include <GL/glew.h>
 #include <GL/GL.h>
 
-void init_graffiks_windows(int window_width, int window_height, char *window_title,
+#ifndef DLL_EXPORT
+# ifdef _WIN32
+#  ifdef GRAFFIKS_BUILD_SHARED
+#   define DLL_EXPORT __declspec(dllexport)
+#  else
+#   define DLL_EXPORT __declspec(dllimport)
+#  endif
+# else
+#  define DLL_EXPORT
+# endif
+#endif
+
+DLL_EXPORT void init_graffiks_windows(int window_width, int window_height, char *window_title,
                         void (*init)(int *width, int *height),
                         void (*update)(float time_step), void (*finish)(void),
                         HINSTANCE hInstance);
