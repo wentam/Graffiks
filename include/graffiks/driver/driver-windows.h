@@ -1,8 +1,6 @@
 #include "graffiks/governor.h"
 #include "graffiks/graffiks.h"
 #include <windows.h>
-#include <GL/glew.h>
-#include <GL/GL.h>
 
 #ifndef DLL_EXPORT
 # ifdef _WIN32
