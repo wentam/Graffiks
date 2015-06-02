@@ -1,11 +1,14 @@
 #include <windows.h>
 #include <GL/glew.h>
+#include <GL/wglew.h>
 #include <GL/GL.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "graffiks/driver/driver-windows.h"
 
 int quit = 0;
 int setup = 0;
+int _use_vsync = 1;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -31,6 +34,9 @@ void init_graffiks_windows(int window_width, int window_height, char *window_tit
             DispatchMessage( &msg );
         if(1 == setup) {
             setup = 2;
+            if (WGL_EXT_swap_control && _use_vsync) {
+              wglSwapIntervalEXT(1);
+            }
             graffiks_setup(init, update, finish);
             _set_size(window_width, window_height);
 
@@ -94,6 +100,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
  
 }
 
-void use_vsync(int vsync) { /* I dunno */ }
+void use_vsync(int vsync) { _use_vsync = vsync; }
 
 void set_antialiasing_samples(int samples) { /* I dunno */ }
