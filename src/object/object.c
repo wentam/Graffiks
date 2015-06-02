@@ -24,6 +24,8 @@ object *create_object(mesh **meshes, material **mats, int mesh_count) {
 
 void show_object(object *o) {
   // add all meshes to render_queue
+  // TODO: Showing an object twice in a row puts it in the queue twice. This shouldn't
+  // happen.
   int i;
   for (i = 0; i < o->mesh_count; i++) {
     render_queue_size++;
@@ -66,6 +68,7 @@ void remove_object(object *o) {
   for (i = 0; i < o->mesh_count; i++) {
     free_mesh(o->meshes[i]);
   }
+  free(o->meshes);
 
   for (i = 0; i < o->mesh_count; i++) {
     free_material(o->mats[i]);
