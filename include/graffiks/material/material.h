@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_MATERIAL_H
 #define GFKS_MATERIAL_H
 #include "graffiks/renderer/renderer.h"

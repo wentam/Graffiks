@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_PLANE_MESH_H
 #define GFKS_PLANE_MESH_H
 

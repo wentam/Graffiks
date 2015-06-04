@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_OBJ_LOADER_H
 #define GFKS_OBJ_LOADER_H
 

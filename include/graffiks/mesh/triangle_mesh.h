@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_TRIANGLE_MESH_H
 #define GFKS_TRIANGLE_MESH_H
 

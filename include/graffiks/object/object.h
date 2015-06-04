@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_OBJECT_H
 #define GFKS_OBJECT_H
 #include <stdlib.h>

@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_DRIVER_WINDOWS_H
 #define GFKS_DRIVER_WINDOWS_H
 
