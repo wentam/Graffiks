@@ -1,0 +1,81 @@
+.TH "include/graffiks/lights.h" 3 "Thu Jun 4 2015" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/lights.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdbool\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_point_light\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "float \fBgfks_get_point_light_x\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "\fIReturns the position of the light on the x axis\&. \fP"
+.ti -1c
+.RI "float \fBgfks_get_point_light_y\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "\fIReturns the position of the light on the y axis\&. \fP"
+.ti -1c
+.RI "float \fBgfks_get_point_light_z\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "\fIReturns the position of the light on the z axis\&. \fP"
+.ti -1c
+.RI "float \fBgfks_get_point_light_brightness\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "\fIReturns the brightness of the light\&. \fP"
+.ti -1c
+.RI "void \fBgfks_set_point_light_location\fP (\fBgfks_point_light\fP *l, float x, float y, float z)"
+.br
+.RI "\fISets the position of a light\&. \fP"
+.ti -1c
+.RI "void \fBgfks_set_point_light_brightness\fP (\fBgfks_point_light\fP *l, float brightness)"
+.br
+.RI "\fISets the brightness of a light\&. \fP"
+.ti -1c
+.RI "\fBgfks_point_light\fP * \fBgfks_add_point_light\fP ()"
+.br
+.ti -1c
+.RI "void \fBgfks_remove_point_light\fP (\fBgfks_point_light\fP *light)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_ambient_light\fP (float r, float g, float b)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "float \fBgfks_ambient_color\fP [3]"
+.br
+.RI "\fIThe color of the ambient light\&. \fP"
+.ti -1c
+.RI "const int \fBGFKS_LIGHT_ATTENUATION_LINEAR\fP"
+.br
+.ti -1c
+.RI "const int \fBGFKS_LIGHT_ATTENUATION_QUADRATIC\fP"
+.br
+.ti -1c
+.RI "const int \fBGFKS_LIGHT_ATTENUATION_CONSTANT\fP"
+.br
+.ti -1c
+.RI "\fBgfks_point_light\fP ** \fBgfks_point_lights\fP"
+.br
+.ti -1c
+.RI "int \fBgfks_point_light_count\fP"
+.br
+.in -1c
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.
