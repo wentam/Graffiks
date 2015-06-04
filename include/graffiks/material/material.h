@@ -25,6 +25,19 @@ typedef struct mat {
 
 DLL_EXPORT gfks_material *gfks_create_material(gfks_renderer_flags flags);
 DLL_EXPORT void gfks_free_material(gfks_material *m);
-DLL_EXPORT void gfks_set_diffuse_color(gfks_material *m, float diffuse_color[]);
 
+void gfks_set_material_diffuse_color_rgba(gfks_material *m, float r, float g, float b,
+                                          float a);
+void gfks_set_material_specularity_hardness(gfks_material *m, float hardness);
+void gfks_set_material_specularity_rgb(gfks_material *m, float r, float g, float b);
+
+float gfks_get_material_specularity_hardness(gfks_material *m);
+float gfks_get_material_specularity_color_r(gfks_material *m);
+float gfks_get_material_specularity_color_g(gfks_material *m);
+float gfks_get_material_specularity_color_b(gfks_material *m);
+
+float gfks_get_material_diffuse_color_r(gfks_material *m);
+float gfks_get_material_diffuse_color_g(gfks_material *m);
+float gfks_get_material_diffuse_color_b(gfks_material *m);
+float gfks_get_material_diffuse_color_a(gfks_material *m);
 #endif

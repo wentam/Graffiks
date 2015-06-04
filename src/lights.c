@@ -23,6 +23,21 @@ gfks_point_light *gfks_add_point_light() {
   return l;
 }
 
+float gfks_get_point_light_x(gfks_point_light *l) { return l->x; }
+float gfks_get_point_light_y(gfks_point_light *l) { return l->y; }
+float gfks_get_point_light_z(gfks_point_light *l) { return l->z; }
+float gfks_get_point_light_brightness(gfks_point_light *l) { return l->brightness; }
+
+void gfks_set_point_light_location(gfks_point_light *l, float x, float y, float z) {
+  l->x = x;
+  l->y = y;
+  l->z = z;
+}
+
+void gfks_set_point_light_brightness(gfks_point_light *l, float brightness) {
+  l->brightness = brightness;
+}
+
 void gfks_set_ambient_light(float r, float g, float b) {
   gfks_ambient_color[0] = r;
   gfks_ambient_color[1] = g;

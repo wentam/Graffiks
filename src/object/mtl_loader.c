@@ -120,8 +120,7 @@ gfks_named_material_array *gfks_load_mtl(gfks_renderer_flags flags, char *filepa
       float G = atof(strtok_r(NULL, " ", &ptr));
       float B = atof(strtok_r(NULL, " ", &ptr));
 
-      float color[] = {R, G, B, 1.0};
-      gfks_set_diffuse_color(mats[material_count - 1]->mat, color);
+      gfks_set_material_diffuse_color_rgba(mats[material_count - 1]->mat, R, G, B, 1.0);
     }
   }
 

@@ -32,6 +32,14 @@ typedef struct {
   float color_b;              // TODO unimplemented
 } gfks_point_light;
 
+float gfks_get_point_light_x(gfks_point_light *l);
+float gfks_get_point_light_y(gfks_point_light *l);
+float gfks_get_point_light_z(gfks_point_light *l);
+float gfks_get_point_light_brightness(gfks_point_light *l);
+
+void gfks_set_point_light_location(gfks_point_light *l, float x, float y, float z);
+void gfks_set_point_light_brightness(gfks_point_light *l, float brightness);
+
 gfks_point_light **gfks_point_lights;
 extern int gfks_point_light_count;
 

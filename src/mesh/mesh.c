@@ -27,6 +27,28 @@ gfks_mesh *gfks_create_mesh(float **vertices, int ***indicies, int index_count,
   return m;
 }
 
+float gfks_get_mesh_x(gfks_mesh *m) { return m->location_x; }
+float gfks_get_mesh_y(gfks_mesh *m) { return m->location_y; }
+float gfks_get_mesh_z(gfks_mesh *m) { return m->location_z; }
+
+float gfks_get_mesh_angle(gfks_mesh *m) { return m->angle; }
+float gfks_get_mesh_angle_x(gfks_mesh *m) { return m->rot_x; }
+float gfks_get_mesh_angle_y(gfks_mesh *m) { return m->rot_y; }
+float gfks_get_mesh_angle_z(gfks_mesh *m) { return m->rot_z; }
+
+void gfks_set_mesh_location(gfks_mesh *m, float x, float y, float z) {
+  m->location_x = x;
+  m->location_y = y;
+  m->location_z = z;
+}
+
+void gfks_set_mesh_rotation(gfks_mesh *m, float angle, float x, float y, float z) {
+  m->angle = angle;
+  m->rot_x = x;
+  m->rot_y = y;
+  m->rot_z = z;
+}
+
 // colors:
 // [
 // [0..1,0..1,0..1,0..1] ([r,g,b,a])

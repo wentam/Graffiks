@@ -30,6 +30,19 @@ typedef struct {
   float rot_z;
 } gfks_object;
 
+float gfks_get_object_x(gfks_object *o);
+float gfks_get_object_y(gfks_object *o);
+float gfks_get_object_z(gfks_object *o);
+
+float gfks_get_object_angle(gfks_object *o);
+float gfks_get_object_angle_x(gfks_object *o);
+float gfks_get_object_angle_y(gfks_object *o);
+float gfks_get_object_angle_z(gfks_object *o);
+
+void gfks_set_object_location(gfks_object *o, float x, float y, float z);
+
+void gfks_set_object_rotation(gfks_object *o, float angle, float x, float y, float z);
+
 // there must be an equal number of materials and meshes.
 DLL_EXPORT gfks_object *gfks_create_object(gfks_mesh **meshes, gfks_material **mats,
                                            int mesh_count);

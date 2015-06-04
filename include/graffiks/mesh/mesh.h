@@ -63,6 +63,18 @@ DLL_EXPORT void gfks_set_mesh_vertex_colors(gfks_mesh *m, float colors[][4],
 DLL_EXPORT void gfks_free_mesh(gfks_mesh *mesh);
 DLL_EXPORT void gfks_free_base_mesh(gfks_base_mesh *mesh);
 
+float gfks_get_mesh_x(gfks_mesh *m);
+float gfks_get_mesh_y(gfks_mesh *m);
+float gfks_get_mesh_z(gfks_mesh *m);
+
+float gfks_get_mesh_angle(gfks_mesh *m);
+float gfks_get_mesh_angle_x(gfks_mesh *m);
+float gfks_get_mesh_angle_y(gfks_mesh *m);
+float gfks_get_mesh_angle_z(gfks_mesh *m);
+
+void gfks_set_mesh_location(gfks_mesh *m, float x, float y, float z);
+void gfks_set_mesh_rotation(gfks_mesh *m, float angle, float x, float y, float z);
+
 // internal stuff
 DLL_EXPORT gfks_mesh *_gfks_allocate_mesh(int index_count);
 DLL_EXPORT void _gfks_generate_mesh(float output_vertices[], float output_normals[],

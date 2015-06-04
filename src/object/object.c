@@ -23,6 +23,28 @@ gfks_object *gfks_create_object(gfks_mesh **meshes, gfks_material **mats,
   return o;
 }
 
+float gfks_get_object_x(gfks_object *o) { return o->location_x; }
+float gfks_get_object_y(gfks_object *o) { return o->location_y; }
+float gfks_get_object_z(gfks_object *o) { return o->location_z; }
+
+float gfks_get_object_angle(gfks_object *o) { return o->angle; }
+float gfks_get_object_angle_x(gfks_object *o) { return o->rot_x; }
+float gfks_get_object_angle_y(gfks_object *o) { return o->rot_y; }
+float gfks_get_object_angle_z(gfks_object *o) { return o->rot_z; }
+
+void gfks_set_object_location(gfks_object *o, float x, float y, float z) {
+  o->location_x = x;
+  o->location_y = y;
+  o->location_z = z;
+}
+
+void gfks_set_object_rotation(gfks_object *o, float angle, float x, float y, float z) {
+  o->angle = angle;
+  o->rot_x = x;
+  o->rot_y = y;
+  o->rot_z = z;
+}
+
 void gfks_show_object(gfks_object *o) {
   // add all meshes to render_queue
   // TODO: Showing an object twice in a row puts it in the queue twice. This shouldn't
