@@ -12,7 +12,7 @@ int _use_vsync = 1;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-void gfks_init_graffiks_windows(int window_width, int window_height, char *window_title,
+void gfks_init_windows(int window_width, int window_height, char *window_title,
                                 void (*init)(int *width, int *height),
                                 void (*update)(float time_step), void (*finish)(void),
                                 HINSTANCE hInstance) {
@@ -41,7 +41,7 @@ void gfks_init_graffiks_windows(int window_width, int window_height, char *windo
       gfks_setup(init, update, finish);
       _gfks_set_size(window_width, window_height);
 
-      _gfks_init_graffiks();
+      _gfks_init();
     }
     if (2 == setup)
       _gfks_draw_frame();
