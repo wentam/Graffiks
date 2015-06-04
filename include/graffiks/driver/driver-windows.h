@@ -2,7 +2,7 @@
 #define GFKS_DRIVER_WINDOWS_H
 
 #include "graffiks/governor.h"
-#include "graffiks/graffiks.h"
+#include "graffiks/dt_callbacks.h"
 #include <windows.h>
 
 #ifndef DLL_EXPORT

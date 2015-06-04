@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include "graffiks/gl_helper.h"
-#include "graffiks/graffiks.h"
+#include "graffiks/dt_callbacks.h"
 
 #ifndef _WIN32
 #include <sys/time.h>

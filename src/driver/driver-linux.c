@@ -44,7 +44,7 @@ void gfks_init_xorg(int window_width, int window_height, char *window_title,
     glXSwapIntervalEXT(display, win, 1);
   }
 
-  gfks_setup(init, update, finish);
+  gfks_set_dt_callbacks(init, update, finish);
   _gfks_set_size(window_width, window_height);
 
   _gfks_init();

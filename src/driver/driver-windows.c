@@ -13,9 +13,9 @@ int _use_vsync = 1;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 void gfks_init_windows(int window_width, int window_height, char *window_title,
-                                void (*init)(int *width, int *height),
-                                void (*update)(float time_step), void (*finish)(void),
-                                HINSTANCE hInstance) {
+                       void (*init)(int *width, int *height),
+                       void (*update)(float time_step), void (*finish)(void),
+                       HINSTANCE hInstance) {
   wchar_t w_window_title[255];
   mbstowcs(w_window_title, window_title, 255);
   MSG msg = {0};
@@ -38,7 +38,7 @@ void gfks_init_windows(int window_width, int window_height, char *window_title,
       if (WGL_EXT_swap_control && _use_vsync) {
         wglSwapIntervalEXT(1);
       }
-      gfks_setup(init, update, finish);
+      gfks_set_dt_callbacks(init, update, finish);
       _gfks_set_size(window_width, window_height);
 
       _gfks_init();

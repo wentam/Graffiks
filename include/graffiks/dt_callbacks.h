@@ -16,11 +16,9 @@
 #endif
 #endif
 
-// To use the engine, call graffiks_setup with functions pointers for init, update, and
-// draw
-// See other header files to see what functions are avaiable for drawing.
-DLL_EXPORT void gfks_setup(void (*init)(int *width, int *height),
-                           void (*update)(float time_step), void (*finish)(void));
+DLL_EXPORT void gfks_set_dt_callbacks(void (*init)(int *width, int *height),
+                                      void (*update)(float time_step),
+                                      void (*finish)(void));
 
 DLL_EXPORT void gfks_set_draw_callback(void (*draw)(void));
 

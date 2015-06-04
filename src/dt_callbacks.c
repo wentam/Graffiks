@@ -1,4 +1,4 @@
-#include "graffiks/graffiks.h"
+#include "graffiks/dt_callbacks.h"
 
 void (*init_func)(int *width, int *height);
 void (*update_func)(float time_step);
@@ -7,8 +7,8 @@ void (*finish_func)(void);
 
 int draw_callback_set = 0;
 
-void gfks_setup(void (*init)(int *width, int *height), void (*update)(float time_step),
-                void (*finish)(void)) {
+void gfks_set_dt_callbacks(void (*init)(int *width, int *height),
+                           void (*update)(float time_step), void (*finish)(void)) {
   init_func = init;
   update_func = update;
   finish_func = finish;

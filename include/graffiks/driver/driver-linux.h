@@ -2,7 +2,7 @@
 #define GFKS_DRIVER_LINUX_H
 
 #include "graffiks/governor.h"
-#include "graffiks/graffiks.h"
+#include "graffiks/dt_callbacks.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/X.h>
