@@ -2,17 +2,7 @@
 
 #ifndef GFKS_DRIVER_LINUX_H
 #define GFKS_DRIVER_LINUX_H
-
-#include "graffiks/governor.h"
-#include "graffiks/dt_callbacks.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-
-#include <GL/gl.h>
 #include <GL/glx.h>
-#include <GL/glu.h>
 
 Display *display;
 Window win;

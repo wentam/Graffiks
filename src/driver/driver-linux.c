@@ -1,6 +1,15 @@
 #include <GL/glew.h>
 #include <GL/glxew.h>
 #include "graffiks/driver/driver-linux.h"
+#include "graffiks/governor.h"
+#include "graffiks/dt_callbacks.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <X11/X.h>
+#include <X11/Xlib.h>
+
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 Window root;
 GLint att[] = {GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, GLX_SAMPLE_BUFFERS, 1,
