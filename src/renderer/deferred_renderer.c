@@ -108,17 +108,17 @@ void _gfks_debug_show_fbo() {
   glBlitFramebuffer(0, 0, 640, 480, 0, 0, 640, 480, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-const GLint DF_GEOM_ATTRIB_POSITION = 0;
-const GLint DF_GEOM_ATTRIB_NORMAL = 1;
-const GLint DF_GEOM_ATTRIB_DIFFUSE_COLOR = 2;
-const GLint DF_GEOM_UATTRIB_MVP_MATRIX = 3;
-const GLint DF_GEOM_UATTRIB_MV_MATRIX = 4;
-const GLint DF_GEOM_UATTRIB_AMBIENT_COLOR = 5;
-const GLint DF_GEOM_UATTRIB_DIFFUSE_COLOR = 6;
-const GLint DF_GEOM_UATTRIB_SPEC_HARDNESS = 7;
-const GLint DF_GEOM_UATTRIB_PER_VERTEX = 8;
-const GLint DF_GEOM_UATTRIB_LIGHT_POSITION = 9;
-const GLint DF_GEOM_UATTRIB_SPEC_COLOR = 10;
+const GLint GFKS_DF_GEOM_ATTRIB_POSITION = 0;
+const GLint GFKS_DF_GEOM_ATTRIB_NORMAL = 1;
+const GLint GFKS_DF_GEOM_ATTRIB_DIFFUSE_COLOR = 2;
+const GLint GFKS_DF_GEOM_UATTRIB_MVP_MATRIX = 3;
+const GLint GFKS_DF_GEOM_UATTRIB_MV_MATRIX = 4;
+const GLint GFKS_DF_GEOM_UATTRIB_AMBIENT_COLOR = 5;
+const GLint GFKS_DF_GEOM_UATTRIB_DIFFUSE_COLOR = 6;
+const GLint GFKS_DF_GEOM_UATTRIB_SPEC_HARDNESS = 7;
+const GLint GFKS_DF_GEOM_UATTRIB_PER_VERTEX = 8;
+const GLint GFKS_DF_GEOM_UATTRIB_LIGHT_POSITION = 9;
+const GLint GFKS_DF_GEOM_UATTRIB_SPEC_COLOR = 10;
 
 void _gfks_df_draw_mesh_geom_pass(gfks_object *o, gfks_mesh *m, gfks_material *mat) {
 
@@ -161,74 +161,74 @@ void _gfks_df_draw_mesh_geom_pass(gfks_object *o, gfks_mesh *m, gfks_material *m
                          model_view_matrix);
 
   // send our data to the shader program
-  glUniformMatrix4fv(DF_GEOM_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
+  glUniformMatrix4fv(GFKS_DF_GEOM_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
                      model_view_projection_matrix);
-  glUniformMatrix4fv(DF_GEOM_UATTRIB_MV_MATRIX, 1, GL_FALSE, model_view_matrix);
-  glUniform3f(DF_GEOM_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0], gfks_ambient_color[1],
-              gfks_ambient_color[2]);
-  glUniform4f(DF_GEOM_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0], mat->diffuse_color[1],
-              mat->diffuse_color[2], mat->diffuse_color[3]);
-  glUniform3f(DF_GEOM_UATTRIB_LIGHT_POSITION, 0, 0, 5);
-  glUniform1f(DF_GEOM_UATTRIB_SPEC_HARDNESS, mat->specularity_hardness);
-  glUniform3f(DF_GEOM_UATTRIB_SPEC_COLOR, mat->specularity_color_r,
+  glUniformMatrix4fv(GFKS_DF_GEOM_UATTRIB_MV_MATRIX, 1, GL_FALSE, model_view_matrix);
+  glUniform3f(GFKS_DF_GEOM_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0],
+              gfks_ambient_color[1], gfks_ambient_color[2]);
+  glUniform4f(GFKS_DF_GEOM_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0],
+              mat->diffuse_color[1], mat->diffuse_color[2], mat->diffuse_color[3]);
+  glUniform3f(GFKS_DF_GEOM_UATTRIB_LIGHT_POSITION, 0, 0, 5);
+  glUniform1f(GFKS_DF_GEOM_UATTRIB_SPEC_HARDNESS, mat->specularity_hardness);
+  glUniform3f(GFKS_DF_GEOM_UATTRIB_SPEC_COLOR, mat->specularity_color_r,
               mat->specularity_color_g, mat->specularity_color_b);
 
   // add vertices
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
-  glEnableVertexAttribArray(DF_GEOM_ATTRIB_POSITION);
-  glVertexAttribPointer(DF_GEOM_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(GFKS_DF_GEOM_ATTRIB_POSITION);
+  glVertexAttribPointer(GFKS_DF_GEOM_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   // add normals
   glBindBuffer(GL_ARRAY_BUFFER, m->normal_buffer);
-  glEnableVertexAttribArray(DF_GEOM_ATTRIB_NORMAL);
-  glVertexAttribPointer(DF_GEOM_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(GFKS_DF_GEOM_ATTRIB_NORMAL);
+  glVertexAttribPointer(GFKS_DF_GEOM_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   // add colors if m->use_vertex_color
   if (m->use_vertex_color) {
-    glUniform1i(DF_GEOM_UATTRIB_PER_VERTEX, 1);
+    glUniform1i(GFKS_DF_GEOM_UATTRIB_PER_VERTEX, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, m->vertex_color_buffer);
-    glEnableVertexAttribArray(DF_GEOM_ATTRIB_DIFFUSE_COLOR);
-    glVertexAttribPointer(DF_GEOM_ATTRIB_DIFFUSE_COLOR, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFKS_DF_GEOM_ATTRIB_DIFFUSE_COLOR);
+    glVertexAttribPointer(GFKS_DF_GEOM_ATTRIB_DIFFUSE_COLOR, 4, GL_FLOAT, GL_FALSE, 0, 0);
   } else {
-    glUniform1i(DF_GEOM_UATTRIB_PER_VERTEX, 0);
+    glUniform1i(GFKS_DF_GEOM_UATTRIB_PER_VERTEX, 0);
   }
 
   // draw it!
   glDrawArrays(GL_TRIANGLES, 0, m->vertex_count / 3);
 
   // disable arrays
-  glDisableVertexAttribArray(DF_GEOM_ATTRIB_POSITION);
-  glDisableVertexAttribArray(DF_GEOM_ATTRIB_NORMAL);
+  glDisableVertexAttribArray(GFKS_DF_GEOM_ATTRIB_POSITION);
+  glDisableVertexAttribArray(GFKS_DF_GEOM_ATTRIB_NORMAL);
 }
 
-const GLint DF_AMBIENT_ATTRIB_POSITION = 0;
-const GLint DF_AMBIENT_UATTRIB_AMBIENT_COLOR = 1;
+const GLint GFKS_DF_AMBIENT_ATTRIB_POSITION = 0;
+const GLint GFKS_DF_AMBIENT_UATTRIB_AMBIENT_COLOR = 1;
 
 void _gfks_ambient_pass_df() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glDepthMask(GL_FALSE);
   glUseProgram(*df_ambient_pass_program);
 
-  glUniform3f(DF_AMBIENT_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0],
+  glUniform3f(GFKS_DF_AMBIENT_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0],
               gfks_ambient_color[1], gfks_ambient_color[2]);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
-  glEnableVertexAttribArray(DF_AMBIENT_ATTRIB_POSITION);
-  glVertexAttribPointer(DF_AMBIENT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(GFKS_DF_AMBIENT_ATTRIB_POSITION);
+  glVertexAttribPointer(GFKS_DF_AMBIENT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glDrawArrays(GL_TRIANGLES, 0, screen_mesh->vertex_count / 3);
   glDepthMask(GL_TRUE);
 }
 
-const GLint DF_POINT_LIGHT_ATTRIB_POSITION = 0;
-const GLint DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX = 1;
-const GLint DF_POINT_LIGHT_UATTRIB_NORMALS_TEX = 2;
-const GLint DF_POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
-const GLint DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX = 4;
-const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
-const GLint DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
-const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS = 7;
+const GLint GFKS_DF_POINT_LIGHT_ATTRIB_POSITION = 0;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX = 1;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_NORMALS_TEX = 2;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_POSITION_TEX = 3;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX = 4;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
+const GLint GFKS_DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS = 7;
 
 void _gfks_light_pass_point_df(gfks_point_light *light) {
   glDepthMask(GL_FALSE);
@@ -248,17 +248,17 @@ void _gfks_light_pass_point_df(gfks_point_light *light) {
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, specular_tex);
 
-  glUniform1i(DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
-  glUniform1i(DF_POINT_LIGHT_UATTRIB_NORMALS_TEX, 1);
-  glUniform1i(DF_POINT_LIGHT_UATTRIB_POSITION_TEX, 2);
-  glUniform1i(DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX, 3);
-  glUniform3f(DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
-  glUniform2f(DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
-  glUniform1f(DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS, light->brightness);
+  glUniform1i(GFKS_DF_POINT_LIGHT_UATTRIB_DIFFUSE_TEX, 0);
+  glUniform1i(GFKS_DF_POINT_LIGHT_UATTRIB_NORMALS_TEX, 1);
+  glUniform1i(GFKS_DF_POINT_LIGHT_UATTRIB_POSITION_TEX, 2);
+  glUniform1i(GFKS_DF_POINT_LIGHT_UATTRIB_SPECULAR_TEX, 3);
+  glUniform3f(GFKS_DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION, light->x, light->y, light->z);
+  glUniform2f(GFKS_DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE, renderer_width, renderer_height);
+  glUniform1f(GFKS_DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS, light->brightness);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
-  glEnableVertexAttribArray(DF_POINT_LIGHT_ATTRIB_POSITION);
-  glVertexAttribPointer(DF_POINT_LIGHT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(GFKS_DF_POINT_LIGHT_ATTRIB_POSITION);
+  glVertexAttribPointer(GFKS_DF_POINT_LIGHT_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glDrawArrays(GL_TRIANGLES, 0, screen_mesh->vertex_count / 3);
   glDisable(GL_BLEND);
@@ -270,7 +270,7 @@ void _gfks_geom_pass_df() {
 
   int i;
   for (i = 0; i < gfks_render_queue_size; i++) {
-    if (gfks_render_queue[i]->material->renderer & GRAFFIKS_RENDERER_DEFERRED) {
+    if (gfks_render_queue[i]->material->renderer & GFKS_RENDERER_DEFERRED) {
       _gfks_df_draw_mesh_geom_pass(gfks_render_queue[i]->parent_object,
                                    gfks_render_queue[i]->mesh,
                                    gfks_render_queue[i]->material);

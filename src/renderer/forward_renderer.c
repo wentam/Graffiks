@@ -170,7 +170,7 @@ void _gfks_draw_from_queue_fw() {
   int i;
   for (i = 0; i < gfks_render_queue_size; i++) {
 
-    if (gfks_render_queue[i]->material->renderer & GRAFFIKS_RENDERER_FORWARD) {
+    if (gfks_render_queue[i]->material->renderer & GFKS_RENDERER_FORWARD) {
       glUseProgram(*fw_ambient_light_program);
       glDisable(GL_BLEND);
       _gfks_draw_mesh_ambient_light(gfks_render_queue[i]->parent_object,

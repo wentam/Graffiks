@@ -8,35 +8,35 @@ gfks_render_queue_item **gfks_render_queue;
 int gfks_render_queue_size = 0;
 
 void gfks_init_renderers(gfks_renderer_flags flags) {
-  if (flags & GRAFFIKS_RENDERER_DEFERRED) {
+  if (flags & GFKS_RENDERER_DEFERRED) {
     _gfks_init_renderer_df();
-    gfks_enabled_renderers |= GRAFFIKS_RENDERER_DEFERRED;
+    gfks_enabled_renderers |= GFKS_RENDERER_DEFERRED;
   }
 
-  if (flags & GRAFFIKS_RENDERER_FORWARD) {
+  if (flags & GFKS_RENDERER_FORWARD) {
     _gfks_init_renderer_fw();
-    gfks_enabled_renderers |= GRAFFIKS_RENDERER_FORWARD;
+    gfks_enabled_renderers |= GFKS_RENDERER_FORWARD;
   }
 }
 
 void gfks_terminate_renderers(gfks_renderer_flags flags) {
-  if (flags & GRAFFIKS_RENDERER_DEFERRED) {
+  if (flags & GFKS_RENDERER_DEFERRED) {
     _gfks_terminate_renderer_df();
-    gfks_enabled_renderers &= ~GRAFFIKS_RENDERER_DEFERRED;
+    gfks_enabled_renderers &= ~GFKS_RENDERER_DEFERRED;
   }
 
-  if (flags & GRAFFIKS_RENDERER_FORWARD) {
+  if (flags & GFKS_RENDERER_FORWARD) {
     _gfks_terminate_renderer_fw();
-    gfks_enabled_renderers &= ~GRAFFIKS_RENDERER_FORWARD;
+    gfks_enabled_renderers &= ~GFKS_RENDERER_FORWARD;
   }
 }
 
 void _gfks_clear(gfks_renderer_flags flags) {
-  if (flags & GRAFFIKS_RENDERER_DEFERRED) {
+  if (flags & GFKS_RENDERER_DEFERRED) {
     _gfks_clear_df();
   }
 
-  if (flags & GRAFFIKS_RENDERER_FORWARD) {
+  if (flags & GFKS_RENDERER_FORWARD) {
     _gfks_clear_fw();
   }
 }

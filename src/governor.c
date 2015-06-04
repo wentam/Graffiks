@@ -97,13 +97,13 @@ void _gfks_draw_frame() {
   _gfks_call_draw();
 
   if (gfks_render_queue_size > 0) {
-    if (gfks_enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
+    if (gfks_enabled_renderers & GFKS_RENDERER_DEFERRED) {
       _gfks_geom_pass_df();
       _gfks_ambient_pass_df();
       _gfks_light_pass_df();
     }
 
-    if (gfks_enabled_renderers & GRAFFIKS_RENDERER_FORWARD) {
+    if (gfks_enabled_renderers & GFKS_RENDERER_FORWARD) {
       _gfks_draw_from_queue_fw();
     }
   }

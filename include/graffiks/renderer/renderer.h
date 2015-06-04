@@ -27,8 +27,8 @@
 #endif
 
 typedef enum {
-  GRAFFIKS_RENDERER_DEFERRED = 0x01,
-  GRAFFIKS_RENDERER_FORWARD = 0x02
+  GFKS_RENDERER_DEFERRED = 0x01,
+  GFKS_RENDERER_FORWARD = 0x02
 } gfks_renderer_flags;
 
 extern gfks_renderer_flags gfks_enabled_renderers;
