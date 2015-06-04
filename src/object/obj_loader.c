@@ -151,12 +151,14 @@ void _gfks_free_faces(int ****faces, int size) {
   free(*faces);
 }
 
+/// \cond INTERNAL
 typedef struct {
   int ***faces;
   int face_count;
   int allocated_face_count;
   gfks_material *mat;
 } face_group;
+/// \endcond
 
 int _gfks_resize_face_groups(face_group ***f, int previous_size, int size) {
   if (previous_size > size) {
