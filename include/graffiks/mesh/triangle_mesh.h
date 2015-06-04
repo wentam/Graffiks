@@ -1,3 +1,6 @@
+#ifndef GFKS_TRIANGLE_MESH_H
+#define GFKS_TRIANGLE_MESH_H
+
 #include "graffiks/mesh/mesh.h"
 
 #ifndef DLL_EXPORT
@@ -13,3 +16,5 @@
 #endif
 
 DLL_EXPORT gfks_mesh *gfks_create_triangle(float scale);
+
+#endif

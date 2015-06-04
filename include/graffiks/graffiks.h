@@ -1,5 +1,5 @@
-#ifndef GRAFFIKS_H
-#define GRAFFIKS_H
+#ifndef GFKS_GRAFFIKS_H
+#define GFKS_GRAFFIKS_H
 #ifdef ANDROID
 #include <android/log.h>
 #endif

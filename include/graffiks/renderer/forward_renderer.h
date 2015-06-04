@@ -1,5 +1,5 @@
-#ifndef FORWARD_RENDERER_H
-#define FORWARD_RENDERER_H
+#ifndef GFKS_FORWARD_RENDERER_H
+#define GFKS_FORWARD_RENDERER_H
 #include "graffiks/object/object.h"
 
 #ifndef DLL_EXPORT

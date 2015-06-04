@@ -1,3 +1,6 @@
+#ifndef GFKS_DRIVER_WINDOWS_H
+#define GFKS_DRIVER_WINDOWS_H
+
 #include "graffiks/governor.h"
 #include "graffiks/graffiks.h"
 #include <windows.h>
@@ -24,3 +27,5 @@ DLL_EXPORT void gfks_init_windows(int window_width, int window_height, char *win
 void gfks_use_vsync(int vsync);
 
 void gfks_set_antialiasing_samples(int samples);
+
+#endif

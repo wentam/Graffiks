@@ -1,3 +1,6 @@
+#ifndef GFKS_OBJ_LOADER_H
+#define GFKS_OBJ_LOADER_H
+
 #include "graffiks/mesh/mesh.h"
 #include <stdio.h>
 #include <string.h>
@@ -18,3 +21,5 @@
 #endif
 
 DLL_EXPORT gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath);
+
+#endif

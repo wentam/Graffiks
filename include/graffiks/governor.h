@@ -1,5 +1,5 @@
-#ifndef GOVERNOR_H
-#define GOVERNOR_H
+#ifndef GFKS_GOVERNOR_H
+#define GFKS_GOVERNOR_H
 
 #include <stdlib.h>
 #include "graffiks/gl_helper.h"

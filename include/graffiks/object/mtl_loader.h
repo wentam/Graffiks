@@ -1,3 +1,6 @@
+#ifndef GFKS_MTL_LOADER_H
+#define GFKS_MTL_LOADER_H
+
 #include "graffiks/material/material.h"
 
 #ifndef DLL_EXPORT
@@ -27,3 +30,5 @@ DLL_EXPORT gfks_named_material_array *gfks_load_mtl(gfks_renderer_flags flags,
 
 // does not free the materials contained within
 DLL_EXPORT void gfks_free_named_mats(gfks_named_material_array *n);
+
+#endif

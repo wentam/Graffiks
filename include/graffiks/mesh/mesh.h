@@ -1,5 +1,5 @@
-#ifndef MESH_H
-#define MESH_H
+#ifndef GFKS_MESH_H
+#define GFKS_MESH_H
 
 #ifdef _WIN32
 #include <windows.h>

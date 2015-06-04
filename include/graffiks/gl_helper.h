@@ -1,5 +1,5 @@
-#ifndef GL_HELPER_H
-#define GL_HELPER_H
+#ifndef GFKS_GL_HELPER_H
+#define GFKS_GL_HELPER_H
 #include <math.h>
 #ifdef ANDROID
 #include <android/log.h>

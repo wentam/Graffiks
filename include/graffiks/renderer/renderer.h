@@ -1,5 +1,5 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef GFKS_RENDERER_H
+#define GFKS_RENDERER_H
 #include "graffiks/object/object.h"
 #include <stddef.h>
 #include <sys/types.h>

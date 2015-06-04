@@ -1,5 +1,5 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#ifndef GFKS_MATERIAL_H
+#define GFKS_MATERIAL_H
 #include "graffiks/renderer/renderer.h"
 
 #ifndef DLL_EXPORT

@@ -1,5 +1,5 @@
-#ifndef LIGHTS_H
-#define LIGHTS_H
+#ifndef GFKS_LIGHTS_H
+#define GFKS_LIGHTS_H
 #include <stdbool.h>
 
 #ifndef DLL_EXPORT

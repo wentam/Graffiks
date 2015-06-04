@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef GFKS_OBJECT_H
+#define GFKS_OBJECT_H
 #include <stdlib.h>
 #include "graffiks/mesh/mesh.h"
 

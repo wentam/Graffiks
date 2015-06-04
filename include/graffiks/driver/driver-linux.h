@@ -1,3 +1,6 @@
+#ifndef GFKS_DRIVER_LINUX_H
+#define GFKS_DRIVER_LINUX_H
+
 #include "graffiks/governor.h"
 #include "graffiks/graffiks.h"
 #include <stdio.h>
@@ -19,3 +22,5 @@ void gfks_init_xorg(int window_width, int window_height, char *window_title,
 void gfks_use_vsync(int vsync);
 
 void gfks_set_antialiasing_samples(int samples);
+
+#endif
