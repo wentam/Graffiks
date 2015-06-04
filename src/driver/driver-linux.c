@@ -1,13 +1,12 @@
 #include <GL/glew.h>
 #include <GL/glxew.h>
-#include "graffiks/driver/driver-linux.h"
+#include "graffiks/driver.h"
 #include "graffiks/governor.h"
 #include "graffiks/dt_callbacks.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
-
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -20,7 +19,7 @@ XSetWindowAttributes swa;
 GLXContext glc;
 int _use_vsync = 1;
 
-void gfks_init_xorg(int window_width, int window_height, char *window_title,
+void gfks_init(int window_width, int window_height, char *window_title,
                     void (*init)(int *width, int *height),
                     void (*update)(float time_step), void (*finish)(void)) {
 

@@ -4,7 +4,7 @@
 #include <GL/GL.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "graffiks/driver/driver-windows.h"
+#include "graffiks/driver.h"
 
 int quit = 0;
 int setup = 0;
@@ -12,10 +12,10 @@ int _use_vsync = 1;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-void gfks_init_windows(int window_width, int window_height, char *window_title,
-                       void (*init)(int *width, int *height),
-                       void (*update)(float time_step), void (*finish)(void),
-                       HINSTANCE hInstance) {
+void gfks_init(int window_width, int window_height, char *window_title,
+               void (*init)(int *width, int *height), void (*update)(float time_step),
+               void (*finish)(void)) {
+  HINSTANCE hInstance = GetModuleHandle(NULL);
   wchar_t w_window_title[255];
   mbstowcs(w_window_title, window_title, 255);
   MSG msg = {0};
