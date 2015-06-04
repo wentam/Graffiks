@@ -6,7 +6,7 @@
 #include "graffiks/mesh/mesh.h"
 #include <stdio.h>
 #include <string.h>
-#include "graffiks/object/object.h"
+#include "graffiks/object.h"
 #include "graffiks/material.h"
 #include "graffiks/renderer/renderer.h"
 

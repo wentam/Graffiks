@@ -1,7 +1,7 @@
 #ifndef GFKS_DEFERRED_RENDERER_H
 #define GFKS_DEFERRED_RENDERER_H
 #include <GL/gl.h>
-#include "graffiks/object/object.h"
+#include "graffiks/object.h"
 #include "graffiks/lights.h"
 
 #ifndef DLL_EXPORT

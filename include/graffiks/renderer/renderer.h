@@ -1,6 +1,6 @@
 #ifndef GFKS_RENDERER_H
 #define GFKS_RENDERER_H
-#include "graffiks/object/object.h"
+#include "graffiks/object.h"
 #include <stddef.h>
 #include <sys/types.h>
 #include <stdlib.h>

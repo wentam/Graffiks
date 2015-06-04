@@ -1,4 +1,4 @@
-#include "graffiks/object/mtl_loader.h"
+#include "graffiks/model_loaders/mtl_loader.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

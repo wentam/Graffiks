@@ -1,6 +1,6 @@
 #ifndef GFKS_FORWARD_RENDERER_H
 #define GFKS_FORWARD_RENDERER_H
-#include "graffiks/object/object.h"
+#include "graffiks/object.h"
 
 #ifndef DLL_EXPORT
 #ifdef _WIN32

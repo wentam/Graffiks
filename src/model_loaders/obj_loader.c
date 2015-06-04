@@ -1,5 +1,5 @@
-#include "graffiks/object/obj_loader.h"
-#include "graffiks/object/mtl_loader.h"
+#include "graffiks/model_loaders/obj_loader.h"
+#include "graffiks/model_loaders/mtl_loader.h"
 
 #ifndef _WIN32
 #include <libgen.h>

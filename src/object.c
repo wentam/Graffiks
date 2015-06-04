@@ -1,4 +1,4 @@
-#include "graffiks/object/object.h"
+#include "graffiks/object.h"
 #include <stdlib.h>
 #include "graffiks/material.h"
 #include "graffiks/renderer/renderer.h"

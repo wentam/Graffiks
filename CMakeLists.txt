@@ -10,7 +10,7 @@ add_definitions(-DRESOURCE_PATH="${CMAKE_INSTALL_PREFIX}/share/graffiks/")
 file(GLOB base_SRC
   "src/*.c"
   "src/mesh/*.c"
-  "src/object/*.c"
+  "src/model_loaders/*.c"
   "src/renderer/*.c"
 )
 
