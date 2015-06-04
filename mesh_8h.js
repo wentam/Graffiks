@@ -6,9 +6,6 @@ var mesh_8h =
       [ "false", "mesh_8h.html#af6a258d8f3ee5206d682d799316314b1ae9de385ef6fe9bf3360d1038396b884c", null ],
       [ "true", "mesh_8h.html#af6a258d8f3ee5206d682d799316314b1a08f175a5505a10b9ed657defeb050e4b", null ]
     ] ],
-    [ "_gfks_allocate_mesh", "mesh_8h.html#a75b56aeb438bf38869ea85ee682d695a", null ],
-    [ "_gfks_generate_mesh", "mesh_8h.html#afe0d16ebc4a4be739293c9bb272a4bd7", null ],
-    [ "_gfks_generate_mesh_st", "mesh_8h.html#a6f121cbc083204680e90c9cd754d122b", null ],
     [ "gfks_create_base_mesh", "mesh_8h.html#a2b2bf436ab13e9540860651b095e2c8c", null ],
     [ "gfks_create_mesh", "mesh_8h.html#a70d5b833186d1318e94003e341b8c6a2", null ],
     [ "gfks_create_mesh_st", "mesh_8h.html#a6a2aea332f2b68fd85fb6e7ce25dc6c7", null ],

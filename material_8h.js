@@ -1,7 +1,6 @@
 var material_8h =
 [
-    [ "mat", "structmat.html", "structmat" ],
-    [ "gfks_material", "material_8h.html#ad9bc862049d68a87faeae52a5875f290", null ],
+    [ "gfks_material", "structgfks__material.html", "structgfks__material" ],
     [ "gfks_create_material", "material_8h.html#ab52be43990ffa82209016a50d905ba1d", null ],
     [ "gfks_free_material", "material_8h.html#ae39cbba445484e4d649032a385af8d3c", null ],
     [ "gfks_get_material_diffuse_color_a", "material_8h.html#a427a047bf139de73d155ad15d076f93b", null ],

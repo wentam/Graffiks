@@ -1,7 +1,6 @@
 var object_8h =
 [
     [ "gfks_object", "structgfks__object.html", "structgfks__object" ],
-    [ "gfks_material", "object_8h.html#a6f9358fb80a0dc78625e2d44f8301baf", null ],
     [ "gfks_create_object", "object_8h.html#a4414ca8f563dadca5e7aa12ab19c244f", null ],
     [ "gfks_get_object_angle", "object_8h.html#aaa392300f55c652a32b9be8751594733", null ],
     [ "gfks_get_object_angle_x", "object_8h.html#a4477fc920661416d4126c4baf027ddf9", null ],
