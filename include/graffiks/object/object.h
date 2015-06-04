@@ -17,7 +17,9 @@
 #endif
 #endif
 
+/// \cond INTERNAL
 typedef struct mat gfks_material;
+/// \endcond
 
 typedef struct {
   gfks_mesh **meshes;

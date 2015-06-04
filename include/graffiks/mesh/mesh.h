@@ -77,7 +77,7 @@ float gfks_get_mesh_angle_z(gfks_mesh *m);
 void gfks_set_mesh_location(gfks_mesh *m, float x, float y, float z);
 void gfks_set_mesh_rotation(gfks_mesh *m, float angle, float x, float y, float z);
 
-// internal stuff
+/// \cond INTERNAL
 DLL_EXPORT gfks_mesh *_gfks_allocate_mesh(int index_count);
 DLL_EXPORT void _gfks_generate_mesh(float output_vertices[], float output_normals[],
                                     float **vertices, int ***indicies, int index_count,
@@ -85,4 +85,5 @@ DLL_EXPORT void _gfks_generate_mesh(float output_vertices[], float output_normal
 DLL_EXPORT void _gfks_generate_mesh_st(float output_vertices[], float output_normals[],
                                        float vertices[][3], int indicies[][3][3],
                                        int index_count, float normals[][3]);
+/// \endcond
 #endif
