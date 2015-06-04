@@ -1,13 +1,13 @@
 #include "graffiks/material/material.h"
 
-material *create_material(renderer_flags flags) {
+gfks_material *gfks_create_material(gfks_renderer_flags flags) {
   float *diffuse_color = malloc(sizeof(float) * 4);
   diffuse_color[0] = 1;
   diffuse_color[1] = 1;
   diffuse_color[2] = 1;
   diffuse_color[3] = 1;
 
-  material *m = malloc(sizeof(material));
+  gfks_material *m = malloc(sizeof(gfks_material));
   m->diffuse_color = diffuse_color;
   m->renderer = flags;
   m->specularity_hardness = 5;
@@ -18,12 +18,12 @@ material *create_material(renderer_flags flags) {
   return m;
 }
 
-void free_material(material *m) {
+void gfks_free_material(gfks_material *m) {
   free(m->diffuse_color);
   free(m);
 }
 
-void set_diffuse_color(material *m, float diffuse_color[]) {
+void gfks_set_diffuse_color(gfks_material *m, float diffuse_color[]) {
   float *dc = malloc(sizeof(float) * 4);
   int i;
   for (i = 0; i < 4; i++) {

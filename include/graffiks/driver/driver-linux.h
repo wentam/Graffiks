@@ -12,10 +12,10 @@
 Display *display;
 Window win;
 
-void init_graffiks_xorg(int window_width, int window_height, char *window_title,
-                        void (*init)(int *width, int *height),
-                        void (*update)(float time_step), void (*finish)(void));
+void gfks_init_xorg(int window_width, int window_height, char *window_title,
+                    void (*init)(int *width, int *height),
+                    void (*update)(float time_step), void (*finish)(void));
 
-void use_vsync(int vsync);
+void gfks_use_vsync(int vsync);
 
-void set_antialiasing_samples(int samples);
+void gfks_set_antialiasing_samples(int samples);

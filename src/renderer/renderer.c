@@ -3,41 +3,41 @@
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/renderer/forward_renderer.h"
 
-renderer_flags enabled_renderers = 0;
-render_queue_item **render_queue;
-int render_queue_size = 0;
+gfks_renderer_flags gfks_enabled_renderers = 0;
+gfks_render_queue_item **gfks_render_queue;
+int gfks_render_queue_size = 0;
 
-void init_renderers(renderer_flags flags) {
+void gfks_init_renderers(gfks_renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
-    _init_renderer_df();
-    enabled_renderers |= GRAFFIKS_RENDERER_DEFERRED;
+    _gfks_init_renderer_df();
+    gfks_enabled_renderers |= GRAFFIKS_RENDERER_DEFERRED;
   }
 
   if (flags & GRAFFIKS_RENDERER_FORWARD) {
-    _init_renderer_fw();
-    enabled_renderers |= GRAFFIKS_RENDERER_FORWARD;
+    _gfks_init_renderer_fw();
+    gfks_enabled_renderers |= GRAFFIKS_RENDERER_FORWARD;
   }
 }
 
-void terminate_renderers(renderer_flags flags) {
+void gfks_terminate_renderers(gfks_renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
-    _terminate_renderer_df();
-    enabled_renderers &= ~GRAFFIKS_RENDERER_DEFERRED;
+    _gfks_terminate_renderer_df();
+    gfks_enabled_renderers &= ~GRAFFIKS_RENDERER_DEFERRED;
   }
 
   if (flags & GRAFFIKS_RENDERER_FORWARD) {
-    _terminate_renderer_fw();
-    enabled_renderers &= ~GRAFFIKS_RENDERER_FORWARD;
+    _gfks_terminate_renderer_fw();
+    gfks_enabled_renderers &= ~GRAFFIKS_RENDERER_FORWARD;
   }
 }
 
-void _clear(renderer_flags flags) {
+void _gfks_clear(gfks_renderer_flags flags) {
   if (flags & GRAFFIKS_RENDERER_DEFERRED) {
-    _clear_df();
+    _gfks_clear_df();
   }
 
   if (flags & GRAFFIKS_RENDERER_FORWARD) {
-    _clear_fw();
+    _gfks_clear_fw();
   }
 }
 
@@ -46,7 +46,7 @@ JNIEnv *env;
 jobject asset_manager;
 #endif
 
-GLuint _create_shader(char *shader_filepath, int shader_type) {
+GLuint _gfks_create_shader(char *shader_filepath, int shader_type) {
 #ifdef ANDROID
   AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
   if (mgr == NULL) {
@@ -73,7 +73,7 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
   strcpy(true_filepath, RESOURCE_PATH);
   strcat(true_filepath, shader_filepath);
   FILE *shader_fp = fopen(true_filepath, "r");
-  if(!shader_fp){
+  if (!shader_fp) {
     printf("Unable to open resource file: %s\n", true_filepath);
   }
   free(true_filepath);
@@ -103,7 +103,7 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
     GLint info_log_length;
     glGetShaderiv(shader_ref, GL_INFO_LOG_LENGTH, &info_log_length);
 
-    GLchar* info = malloc((info_log_length + 1) * sizeof(GLchar));
+    GLchar *info = malloc((info_log_length + 1) * sizeof(GLchar));
     glGetShaderInfoLog(shader_ref, info_log_length, NULL, info);
 
     printf("Error compiling shader (%s) %s", shader_filepath, info);
@@ -116,10 +116,12 @@ GLuint _create_shader(char *shader_filepath, int shader_type) {
   return shader_ref;
 }
 
-GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_filepath) {
-  GLuint vertex_shader_ref = _create_shader(vertex_shader_filepath, GL_VERTEX_SHADER);
+GLuint *_gfks_create_program(char *vertex_shader_filepath,
+                             char *fragment_shader_filepath) {
+  GLuint vertex_shader_ref =
+      _gfks_create_shader(vertex_shader_filepath, GL_VERTEX_SHADER);
   GLuint fragment_shader_ref =
-      _create_shader(fragment_shader_filepath, GL_FRAGMENT_SHADER);
+      _gfks_create_shader(fragment_shader_filepath, GL_FRAGMENT_SHADER);
 
   GLuint *program = malloc(sizeof(GLuint));
   *program = glCreateProgram();
@@ -133,7 +135,7 @@ GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_file
 }
 
 #ifdef ANDROID
-void _set_material_sys(JNIEnv *e, jobject a) {
+void _gfks_set_material_sys(JNIEnv *e, jobject a) {
   env = e;
   asset_manager = a;
 }

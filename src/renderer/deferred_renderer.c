@@ -12,9 +12,9 @@ GLuint *df_point_light_program;
 GLuint *df_geom_pass_program;
 GLuint *df_ambient_pass_program;
 
-mesh *screen_mesh;
+gfks_mesh *screen_mesh;
 
-void _init_renderer_df() {
+void _gfks_init_renderer_df() {
   // diffuse color
   glGenTextures(1, &color_tex);
   glBindTexture(GL_TEXTURE_2D, color_tex);
@@ -79,26 +79,26 @@ void _init_renderer_df() {
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-  df_ambient_pass_program = _create_program("/shaders/deferred/ambient_light.vert",
-                                            "/shaders/deferred/ambient_light.frag");
-  df_point_light_program = _create_program("/shaders/deferred/point_light.vert",
-                                           "/shaders/deferred/point_light.frag");
-  df_geom_pass_program = _create_program("/shaders/deferred/geometry_pass.vert",
-                                         "/shaders/deferred/geometry_pass.frag");
+  df_ambient_pass_program = _gfks_create_program("/shaders/deferred/ambient_light.vert",
+                                                 "/shaders/deferred/ambient_light.frag");
+  df_point_light_program = _gfks_create_program("/shaders/deferred/point_light.vert",
+                                                "/shaders/deferred/point_light.frag");
+  df_geom_pass_program = _gfks_create_program("/shaders/deferred/geometry_pass.vert",
+                                              "/shaders/deferred/geometry_pass.frag");
 
-  screen_mesh = create_plane(2, 2);
+  screen_mesh = gfks_create_plane(2, 2);
 };
 
-void _clear_df() {
+void _gfks_clear_df() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void _terminate_renderer_df() { glDeleteFramebuffers(1, &fbo); }
+void _gfks_terminate_renderer_df() { glDeleteFramebuffers(1, &fbo); }
 
-void _debug_show_fbo() {
+void _gfks_debug_show_fbo() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glDrawBuffer(GL_BACK);
 
@@ -120,7 +120,7 @@ const GLint DF_GEOM_UATTRIB_PER_VERTEX = 8;
 const GLint DF_GEOM_UATTRIB_LIGHT_POSITION = 9;
 const GLint DF_GEOM_UATTRIB_SPEC_COLOR = 10;
 
-void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
+void _gfks_df_draw_mesh_geom_pass(gfks_object *o, gfks_mesh *m, gfks_material *mat) {
 
   // draw into first pass buffers
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
@@ -138,29 +138,34 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
   float model_view_matrix[16];
   float model_view_projection_matrix[16];
 
-  create_identity_matrix(object_model_matrix);
-  create_identity_matrix(mesh_model_matrix);
+  gfks_create_identity_matrix(object_model_matrix);
+  gfks_create_identity_matrix(mesh_model_matrix);
 
-  translate_matrix(object_model_matrix, o->location_x, o->location_y, o->location_z);
-  translate_matrix(mesh_model_matrix, m->location_x, m->location_y, m->location_z);
+  gfks_translate_matrix(object_model_matrix, o->location_x, o->location_y, o->location_z);
+  gfks_translate_matrix(mesh_model_matrix, m->location_x, m->location_y, m->location_z);
 
-  set_matrix_rotation(object_rotation_matrix, o->angle, o->rot_x, o->rot_y, o->rot_z);
-  set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
+  gfks_set_matrix_rotation(object_rotation_matrix, o->angle, o->rot_x, o->rot_y,
+                           o->rot_z);
+  gfks_set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
 
-  multiply_matrices(local_model_rotation_matrix, mesh_model_matrix, mesh_rotation_matrix);
-  multiply_matrices(model_rotation_matrix, object_model_matrix, object_rotation_matrix);
-  multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
-                    local_model_rotation_matrix);
+  gfks_multiply_matrices(local_model_rotation_matrix, mesh_model_matrix,
+                         mesh_rotation_matrix);
+  gfks_multiply_matrices(model_rotation_matrix, object_model_matrix,
+                         object_rotation_matrix);
+  gfks_multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
+                         local_model_rotation_matrix);
 
-  multiply_matrices(model_view_matrix, view_matrix, combined_model_rotation_matrix);
-  multiply_matrices(model_view_projection_matrix, projection_matrix, model_view_matrix);
+  gfks_multiply_matrices(model_view_matrix, gfks_view_matrix,
+                         combined_model_rotation_matrix);
+  gfks_multiply_matrices(model_view_projection_matrix, gfks_projection_matrix,
+                         model_view_matrix);
 
   // send our data to the shader program
   glUniformMatrix4fv(DF_GEOM_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
                      model_view_projection_matrix);
   glUniformMatrix4fv(DF_GEOM_UATTRIB_MV_MATRIX, 1, GL_FALSE, model_view_matrix);
-  glUniform3f(DF_GEOM_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
-              ambient_color[2]);
+  glUniform3f(DF_GEOM_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0], gfks_ambient_color[1],
+              gfks_ambient_color[2]);
   glUniform4f(DF_GEOM_UATTRIB_DIFFUSE_COLOR, mat->diffuse_color[0], mat->diffuse_color[1],
               mat->diffuse_color[2], mat->diffuse_color[3]);
   glUniform3f(DF_GEOM_UATTRIB_LIGHT_POSITION, 0, 0, 5);
@@ -200,13 +205,13 @@ void _df_draw_mesh_geom_pass(object *o, mesh *m, material *mat) {
 const GLint DF_AMBIENT_ATTRIB_POSITION = 0;
 const GLint DF_AMBIENT_UATTRIB_AMBIENT_COLOR = 1;
 
-void _ambient_pass_df() {
+void _gfks_ambient_pass_df() {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glDepthMask(GL_FALSE);
   glUseProgram(*df_ambient_pass_program);
 
-  glUniform3f(DF_AMBIENT_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
-              ambient_color[2]);
+  glUniform3f(DF_AMBIENT_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0],
+              gfks_ambient_color[1], gfks_ambient_color[2]);
 
   glBindBuffer(GL_ARRAY_BUFFER, screen_mesh->triangle_buffer);
   glEnableVertexAttribArray(DF_AMBIENT_ATTRIB_POSITION);
@@ -225,7 +230,7 @@ const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_POSTION = 5;
 const GLint DF_POINT_LIGHT_UATTRIB_RENDERER_SIZE = 6;
 const GLint DF_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS = 7;
 
-void _light_pass_point_df(point_light *light) {
+void _gfks_light_pass_point_df(gfks_point_light *light) {
   glDepthMask(GL_FALSE);
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
@@ -260,30 +265,31 @@ void _light_pass_point_df(point_light *light) {
   glDepthMask(GL_TRUE);
 }
 
-void _geom_pass_df() {
+void _gfks_geom_pass_df() {
   glUseProgram(*df_geom_pass_program);
 
   int i;
-  for (i = 0; i < render_queue_size; i++) {
-    if (render_queue[i]->material->renderer & GRAFFIKS_RENDERER_DEFERRED) {
-      _df_draw_mesh_geom_pass(render_queue[i]->parent_object, render_queue[i]->mesh,
-                              render_queue[i]->material);
+  for (i = 0; i < gfks_render_queue_size; i++) {
+    if (gfks_render_queue[i]->material->renderer & GRAFFIKS_RENDERER_DEFERRED) {
+      _gfks_df_draw_mesh_geom_pass(gfks_render_queue[i]->parent_object,
+                                   gfks_render_queue[i]->mesh,
+                                   gfks_render_queue[i]->material);
     }
   }
 }
 
-void _light_pass_df() {
+void _gfks_light_pass_df() {
   glUseProgram(*df_point_light_program);
 
   int i;
-  for (i = 0; i < point_light_count; i++) {
-    _light_pass_point_df(point_lights[i]);
+  for (i = 0; i < gfks_point_light_count; i++) {
+    _gfks_light_pass_point_df(gfks_point_lights[i]);
   }
 }
 
-void _draw_object_df(object *o) {
+void _gfks_draw_object_df(gfks_object *o) {
   int i;
   for (i = 0; i < o->mesh_count; i++) {
-    _df_draw_mesh_geom_pass(o, o->meshes[i], o->mats[i]);
+    _gfks_df_draw_mesh_geom_pass(o, o->meshes[i], o->mats[i]);
   }
 }

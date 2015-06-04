@@ -7,13 +7,13 @@
 #define strtok_r strtok_s
 #endif
 
-int _string_starts_with_(char *pre, char *str) {
+int _gfks_string_starts_with_(char *pre, char *str) {
   size_t lenpre = strlen(pre);
   size_t lenstr = strlen(str);
   return lenstr < lenpre ? 0 : strncmp(pre, str, lenpre) == 0;
 }
 
-int _resize_mtl_data(char ***mtl_data, int previous_size, int size) {
+int _gfks_resize_mtl_data(char ***mtl_data, int previous_size, int size) {
   if (previous_size > size) {
     int i;
     for (i = previous_size - 1; i >= size; i--) {
@@ -33,13 +33,13 @@ int _resize_mtl_data(char ***mtl_data, int previous_size, int size) {
   return size;
 }
 
-char **_read_mtl_data(char *filepath, int *line_count_output) {
+char **_gfks_read_mtl_data(char *filepath, int *line_count_output) {
   char **mtl_data = NULL;
-  int line_count = _resize_mtl_data(&mtl_data, 0, 64);
+  int line_count = _gfks_resize_mtl_data(&mtl_data, 0, 64);
 
   FILE *obj_fp = fopen(filepath, "r");
-  if(!obj_fp){
-      printf("Unable to open mtl file: %s\n", filepath);
+  if (!obj_fp) {
+    printf("Unable to open mtl file: %s\n", filepath);
   }
   int current_line = 0;
 
@@ -47,19 +47,19 @@ char **_read_mtl_data(char *filepath, int *line_count_output) {
     current_line++;
 
     if (current_line >= line_count) {
-      line_count = _resize_mtl_data(&mtl_data, line_count, line_count + 64);
+      line_count = _gfks_resize_mtl_data(&mtl_data, line_count, line_count + 64);
     }
   }
 
   fclose(obj_fp);
 
-  line_count = _resize_mtl_data(&mtl_data, line_count, current_line);
+  line_count = _gfks_resize_mtl_data(&mtl_data, line_count, current_line);
 
   *line_count_output = line_count;
   return mtl_data;
 }
 
-int _resize_named_mats(named_material ***n, int previous_size, int size) {
+int _gfks_resize_named_mats(gfks_named_material ***n, int previous_size, int size) {
   if (previous_size > size) {
     int i;
     for (i = previous_size - 1; i > size; i--) {
@@ -67,12 +67,12 @@ int _resize_named_mats(named_material ***n, int previous_size, int size) {
     }
   }
 
-  *n = realloc(*n, size * sizeof(named_material *));
+  *n = realloc(*n, size * sizeof(gfks_named_material *));
 
   if (size > previous_size) {
     int i;
     for (i = previous_size; i < size; i++) {
-      (*n)[i] = malloc(sizeof(named_material));
+      (*n)[i] = malloc(sizeof(gfks_named_material));
       (*n)[i]->name = "";
     }
   }
@@ -80,7 +80,7 @@ int _resize_named_mats(named_material ***n, int previous_size, int size) {
   return size;
 }
 
-void free_named_mats(named_material_array *n) {
+void gfks_free_named_mats(gfks_named_material_array *n) {
   int i;
   for (i = 0; i < n->number_of_mats; i++) {
     free(n->mats[i]->name);
@@ -91,17 +91,17 @@ void free_named_mats(named_material_array *n) {
   free(n);
 }
 
-named_material_array *load_mtl(renderer_flags flags, char *filepath) {
+gfks_named_material_array *gfks_load_mtl(gfks_renderer_flags flags, char *filepath) {
   int line_count;
-  char **mtl_data = _read_mtl_data(filepath, &line_count);
+  char **mtl_data = _gfks_read_mtl_data(filepath, &line_count);
 
-  named_material **mats = NULL;
+  gfks_named_material **mats = NULL;
   int allocated_mats = 0;
   int material_count = 0;
 
   int i;
   for (i = 0; i < line_count; i++) {
-    if (_string_starts_with_("newmtl", mtl_data[i])) {
+    if (_gfks_string_starts_with_("newmtl", mtl_data[i])) {
       char *ptr;
       strtok_r(mtl_data[i], " ", &ptr);
       char *material_name = strtok_r(NULL, " ", &ptr);
@@ -109,10 +109,10 @@ named_material_array *load_mtl(renderer_flags flags, char *filepath) {
       strcpy(material_name_heap, material_name);
 
       material_count++;
-      allocated_mats = _resize_named_mats(&mats, allocated_mats, material_count);
-      mats[material_count - 1]->mat = create_material(flags);
+      allocated_mats = _gfks_resize_named_mats(&mats, allocated_mats, material_count);
+      mats[material_count - 1]->mat = gfks_create_material(flags);
       mats[material_count - 1]->name = material_name_heap;
-    } else if (_string_starts_with_("Kd", mtl_data[i])) {
+    } else if (_gfks_string_starts_with_("Kd", mtl_data[i])) {
       char *ptr;
       strtok_r(mtl_data[i], " ", &ptr);
 
@@ -121,11 +121,11 @@ named_material_array *load_mtl(renderer_flags flags, char *filepath) {
       float B = atof(strtok_r(NULL, " ", &ptr));
 
       float color[] = {R, G, B, 1.0};
-      set_diffuse_color(mats[material_count - 1]->mat, color);
+      gfks_set_diffuse_color(mats[material_count - 1]->mat, color);
     }
   }
 
-  named_material_array *arr = malloc(sizeof(named_material_array));
+  gfks_named_material_array *arr = malloc(sizeof(gfks_named_material_array));
   arr->mats = mats;
   arr->number_of_mats = material_count;
 

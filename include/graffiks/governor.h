@@ -22,35 +22,36 @@
 #include <math.h>
 
 #ifndef DLL_EXPORT
-# ifdef _WIN32
-#  ifdef GRAFFIKS_BUILD_SHARED
-#   define DLL_EXPORT __declspec(dllexport)
-#  else
-#   define DLL_EXPORT __declspec(dllimport)
-#  endif
-# else
-#  define DLL_EXPORT
-# endif
+#ifdef _WIN32
+#ifdef GRAFFIKS_BUILD_SHARED
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT __declspec(dllimport)
+#endif
+#else
+#define DLL_EXPORT
+#endif
 #endif
 
 int renderer_width;
 int renderer_height;
 
 // put the camera where you want it
-DLL_EXPORT void set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
-                                       float tz, float ux, float uy, float uz);
+DLL_EXPORT void gfks_set_camera_location_target_and_up(float x, float y, float z,
+                                                       float tx, float ty, float tz,
+                                                       float ux, float uy, float uz);
 
 // to be controlled by a driver such as driver-jni-android.c
-void _init_graffiks();
-void _set_size();
-void _draw_frame();
-void _finish();
+void _gfks_init();
+void _gfks_set_size();
+void _gfks_draw_frame();
+void _gfks_finish();
 
 // other internal stuff
-float view_matrix[16];
-float view_matrix_inverse[16];
-float projection_matrix[16];
-void _limit_fps(int fps);
-void _ms(long long int *ms);
-void _sleep_ms(int ms);
+float gfks_view_matrix[16];
+float gfks_view_matrix_inverse[16];
+float gfks_projection_matrix[16];
+void _gfks_limit_fps(int fps);
+void _gfks_ms(long long int *ms);
+void _gfks_sleep_ms(int ms);
 #endif

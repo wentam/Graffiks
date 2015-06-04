@@ -9,25 +9,25 @@
 #include <windows.h>
 #define strtok_r strtok_s
 
-char* dirname(const char* path) {
-  char* out = malloc(strlen(path) + 1);
+char *dirname(const char *path) {
+  char *out = malloc(strlen(path) + 1);
   _splitpath(path, NULL, out, NULL, NULL);
-  if(out[0] == '\0') {
-      out[0] = '.';
-      out[1] = '\0';
+  if (out[0] == '\0') {
+    out[0] = '.';
+    out[1] = '\0';
   }
   return out;
 }
 
 #endif
 
-int _string_starts_with(char *pre, char *str) {
+int _gfks_string_starts_with(char *pre, char *str) {
   size_t lenpre = strlen(pre);
   size_t lenstr = strlen(str);
   return lenstr < lenpre ? 0 : strncmp(pre, str, lenpre) == 0;
 }
 
-int _resize_obj_data(char ***obj_data, int previous_size, int size) {
+int _gfks_resize_obj_data(char ***obj_data, int previous_size, int size) {
   if (previous_size > size) {
     int i;
     for (i = previous_size - 1; i >= size; i--) {
@@ -47,7 +47,7 @@ int _resize_obj_data(char ***obj_data, int previous_size, int size) {
   return size;
 }
 
-void _free_obj_data(char ***obj_data, int size) {
+void _gfks_free_obj_data(char ***obj_data, int size) {
   int i;
   for (i = 0; i < size; i++) {
     free((*obj_data)[i]);
@@ -56,9 +56,9 @@ void _free_obj_data(char ***obj_data, int size) {
   free(*obj_data);
 }
 
-char **_read_obj_data(char *filepath, int *line_count_output) {
+char **_gfks_read_obj_data(char *filepath, int *line_count_output) {
   char **obj_data = NULL;
-  int line_count = _resize_obj_data(&obj_data, 0, 64);
+  int line_count = _gfks_resize_obj_data(&obj_data, 0, 64);
 
   FILE *obj_fp = fopen(filepath, "r");
   int current_line = 0;
@@ -67,19 +67,19 @@ char **_read_obj_data(char *filepath, int *line_count_output) {
     current_line++;
 
     if (current_line >= line_count) {
-      line_count = _resize_obj_data(&obj_data, line_count, line_count + 64);
+      line_count = _gfks_resize_obj_data(&obj_data, line_count, line_count + 64);
     }
   }
 
   fclose(obj_fp);
 
-  line_count = _resize_obj_data(&obj_data, line_count, current_line);
+  line_count = _gfks_resize_obj_data(&obj_data, line_count, current_line);
 
   *line_count_output = line_count;
   return obj_data;
 }
 
-int _resize_2d_int_array(float ***array, int previous_size, int size, int size2) {
+int _gfks_resize_2d_int_array(float ***array, int previous_size, int size, int size2) {
   if (previous_size > size) {
     // we're shrinking, so free stuff
     int i;
@@ -101,7 +101,7 @@ int _resize_2d_int_array(float ***array, int previous_size, int size, int size2)
   return size;
 }
 
-void _free_2d_int_array(float ***array, int size) {
+void _gfks_free_2d_int_array(float ***array, int size) {
   int i;
   for (i = 0; i < size; i++) {
     free((*array)[i]);
@@ -110,7 +110,7 @@ void _free_2d_int_array(float ***array, int size) {
   free(*array);
 }
 
-int _resize_faces(int ****faces, int previous_size, int size) {
+int _gfks_resize_faces(int ****faces, int previous_size, int size) {
   if (previous_size > size) {
     int i;
     for (i = previous_size - 1; i >= size; i--) {
@@ -138,7 +138,7 @@ int _resize_faces(int ****faces, int previous_size, int size) {
   return size;
 }
 
-void _free_faces(int ****faces, int size) {
+void _gfks_free_faces(int ****faces, int size) {
   int i;
   for (i = 0; i < size; i++) {
     free((*faces)[i][0]);
@@ -155,10 +155,10 @@ typedef struct {
   int ***faces;
   int face_count;
   int allocated_face_count;
-  material *mat;
+  gfks_material *mat;
 } face_group;
 
-int _resize_face_groups(face_group ***f, int previous_size, int size) {
+int _gfks_resize_face_groups(face_group ***f, int previous_size, int size) {
   if (previous_size > size) {
     int i;
     for (i = previous_size - 1; i >= size; i--) {
@@ -181,7 +181,7 @@ int _resize_face_groups(face_group ***f, int previous_size, int size) {
   return size;
 }
 
-void _free_face_groups(face_group ***f, int size) {
+void _gfks_free_face_groups(face_group ***f, int size) {
   int i;
   for (i = 0; i < size; i++) {
     free((*f)[i]);
@@ -195,9 +195,9 @@ void _free_face_groups(face_group ***f, int size) {
 // * triangulated faces
 // * usemtl statements and mtllib statement before all usemtl statements
 // not all 3d software exports these by default.
-object *load_obj(renderer_flags flags, char *filepath) {
+gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
   int line_count;
-  char **obj_data = _read_obj_data(filepath, &line_count);
+  char **obj_data = _gfks_read_obj_data(filepath, &line_count);
   float **verts = NULL;
   int vertex_count = 0;
   int allocated_vertex_count;
@@ -210,10 +210,10 @@ object *load_obj(renderer_flags flags, char *filepath) {
   int normal_count = 0;
   int allocated_normal_count;
 
-  named_material_array *mats = NULL;
+  gfks_named_material_array *mats = NULL;
 
-  allocated_vertex_count = _resize_2d_int_array(&verts, 0, 64, 3);
-  allocated_normal_count = _resize_2d_int_array(&normals, 0, 64, 3);
+  allocated_vertex_count = _gfks_resize_2d_int_array(&verts, 0, 64, 3);
+  allocated_normal_count = _gfks_resize_2d_int_array(&normals, 0, 64, 3);
 
   int i;
   for (i = 0; i < line_count; i++) {
@@ -224,8 +224,8 @@ object *load_obj(renderer_flags flags, char *filepath) {
       vertex_count++;
 
       if (vertex_count > allocated_vertex_count) {
-        allocated_vertex_count = _resize_2d_int_array(&verts, allocated_vertex_count,
-                                                      allocated_vertex_count + 64, 3);
+        allocated_vertex_count = _gfks_resize_2d_int_array(
+            &verts, allocated_vertex_count, allocated_vertex_count + 64, 3);
       }
 
       verts[vertex_count - 1][0] = atof(strtok_r(NULL, " ", &ptr));
@@ -243,9 +243,9 @@ object *load_obj(renderer_flags flags, char *filepath) {
       face_groups[fi]->face_count++;
 
       if (face_groups[fi]->face_count > face_groups[fi]->allocated_face_count) {
-        face_groups[fi]->allocated_face_count =
-            _resize_faces(&face_groups[fi]->faces, face_groups[fi]->allocated_face_count,
-                          face_groups[fi]->allocated_face_count + 64);
+        face_groups[fi]->allocated_face_count = _gfks_resize_faces(
+            &face_groups[fi]->faces, face_groups[fi]->allocated_face_count,
+            face_groups[fi]->allocated_face_count + 64);
       }
 
       int i2;
@@ -282,23 +282,23 @@ object *load_obj(renderer_flags flags, char *filepath) {
       normal_count++;
 
       if (normal_count > allocated_normal_count) {
-        allocated_normal_count = _resize_2d_int_array(&normals, allocated_normal_count,
-                                                      allocated_normal_count + 64, 3);
+        allocated_normal_count = _gfks_resize_2d_int_array(
+            &normals, allocated_normal_count, allocated_normal_count + 64, 3);
       }
 
       normals[normal_count - 1][0] = atof(strtok_r(NULL, " ", &ptr));
       normals[normal_count - 1][1] = atof(strtok_r(NULL, " ", &ptr));
       normals[normal_count - 1][2] = atof(strtok_r(NULL, " ", &ptr));
-    } else if (_string_starts_with("usemtl", obj_data[i])) {
+    } else if (_gfks_string_starts_with("usemtl", obj_data[i])) {
       char *ptr;
       strtok_r(obj_data[i], " ", &ptr);
       char *material_name = strtok_r(NULL, " ", &ptr);
 
       mat_count++;
       allocated_face_group_count =
-          _resize_face_groups(&face_groups, allocated_face_group_count, mat_count);
+          _gfks_resize_face_groups(&face_groups, allocated_face_group_count, mat_count);
       face_groups[mat_count - 1]->allocated_face_count =
-          _resize_faces(&face_groups[mat_count - 1]->faces, 0, 64);
+          _gfks_resize_faces(&face_groups[mat_count - 1]->faces, 0, 64);
 
       int i2;
       for (i2 = 0; i2 < mats->number_of_mats; i2++) {
@@ -306,7 +306,7 @@ object *load_obj(renderer_flags flags, char *filepath) {
           face_groups[mat_count - 1]->mat = mats->mats[i2]->mat;
         }
       }
-    } else if (_string_starts_with("mtllib", obj_data[i])) {
+    } else if (_gfks_string_starts_with("mtllib", obj_data[i])) {
       char *ptr = NULL;
       strtok_r(obj_data[i], " ", &ptr);
       char *mtl_file = strtok_r(NULL, " ", &ptr);
@@ -323,54 +323,56 @@ object *load_obj(renderer_flags flags, char *filepath) {
 
       free(filepath_heap);
 
-      mats = load_mtl(flags, mtl_filepath);
+      mats = gfks_load_mtl(flags, mtl_filepath);
 
       free(mtl_filepath);
-      #ifdef _WIN32
+#ifdef _WIN32
       free(mtl_path);
-      #endif
+#endif
     }
   }
 
   // shrink arrays to true size
   allocated_vertex_count =
-      _resize_2d_int_array(&verts, allocated_vertex_count, vertex_count, 3);
+      _gfks_resize_2d_int_array(&verts, allocated_vertex_count, vertex_count, 3);
 
   for (i = 0; i < mat_count; i++) {
     face_groups[i]->allocated_face_count =
-        _resize_faces(&face_groups[i]->faces, face_groups[i]->allocated_face_count,
-                      face_groups[i]->face_count);
+        _gfks_resize_faces(&face_groups[i]->faces, face_groups[i]->allocated_face_count,
+                           face_groups[i]->face_count);
   }
   allocated_normal_count =
-      _resize_2d_int_array(&normals, allocated_normal_count, normal_count, 3);
+      _gfks_resize_2d_int_array(&normals, allocated_normal_count, normal_count, 3);
 
   // free obj data
-  _free_obj_data(&obj_data, line_count);
+  _gfks_free_obj_data(&obj_data, line_count);
 
   // create object
-  mesh **object_meshes = malloc(sizeof(mesh *) * allocated_face_group_count);
-  material **object_mats = malloc(sizeof(material *) * allocated_face_group_count);
+  gfks_mesh **object_meshes = malloc(sizeof(gfks_mesh *) * allocated_face_group_count);
+  gfks_material **object_mats =
+      malloc(sizeof(gfks_material *) * allocated_face_group_count);
   for (i = 0; i < allocated_face_group_count; i++) {
-    object_meshes[i] =
-        create_mesh(verts, face_groups[i]->faces, face_groups[i]->face_count, normals);
+    object_meshes[i] = gfks_create_mesh(verts, face_groups[i]->faces,
+                                        face_groups[i]->face_count, normals);
 
     if (face_groups[i]->mat == NULL) {
-      face_groups[i]->mat = create_material(flags);
+      face_groups[i]->mat = gfks_create_material(flags);
     }
 
     object_mats[i] = face_groups[i]->mat;
   }
-  object *o = create_object(object_meshes, object_mats, allocated_face_group_count);
+  gfks_object *o =
+      gfks_create_object(object_meshes, object_mats, allocated_face_group_count);
 
   // free other stuff
-  _free_2d_int_array(&verts, allocated_vertex_count);
-  _free_2d_int_array(&normals, allocated_normal_count);
-  free_named_mats(mats);
+  _gfks_free_2d_int_array(&verts, allocated_vertex_count);
+  _gfks_free_2d_int_array(&normals, allocated_normal_count);
+  gfks_free_named_mats(mats);
 
   for (i = 0; i < mat_count; i++) {
-    _free_faces(&face_groups[i]->faces, face_groups[i]->allocated_face_count);
+    _gfks_free_faces(&face_groups[i]->faces, face_groups[i]->allocated_face_count);
   }
-  _free_face_groups(&face_groups, allocated_face_group_count);
+  _gfks_free_face_groups(&face_groups, allocated_face_group_count);
 
   return o;
 }

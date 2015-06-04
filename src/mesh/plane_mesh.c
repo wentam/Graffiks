@@ -1,6 +1,6 @@
 #include "graffiks/mesh/plane_mesh.h"
 
-mesh *create_plane(float width, float height) {
+gfks_mesh *gfks_create_plane(float width, float height) {
   float verts[4][3] = {
       {width / 2, -height / 2, 0},
       {-width / 2, -height / 2, 0},
@@ -14,6 +14,6 @@ mesh *create_plane(float width, float height) {
 
   float normals[1][3] = {{0, 0, 1}};
 
-  mesh *m = create_mesh_st(verts, faces, 2, normals);
+  gfks_mesh *m = gfks_create_mesh_st(verts, faces, 2, normals);
   return m;
 }

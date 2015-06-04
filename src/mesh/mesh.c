@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-mesh *create_mesh(float **vertices, int ***indicies, int index_count, float **normals) {
+gfks_mesh *gfks_create_mesh(float **vertices, int ***indicies, int index_count,
+                            float **normals) {
   float *system_vertices = malloc(sizeof(float) * ((index_count * 3) * 3));
   float *system_normals = malloc(sizeof(float) * ((index_count * 3) * 3));
-  _generate_mesh(system_vertices, system_normals, vertices, indicies, index_count,
-                 normals);
+  _gfks_generate_mesh(system_vertices, system_normals, vertices, indicies, index_count,
+                      normals);
 
-  mesh *m = _allocate_mesh(index_count);
+  gfks_mesh *m = _gfks_allocate_mesh(index_count);
 
   glGenBuffers(1, &m->triangle_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
@@ -32,14 +33,14 @@ mesh *create_mesh(float **vertices, int ***indicies, int index_count, float **no
 // ...
 // ]
 // colors MUST contain the same number of elements as there are vertices
-void set_mesh_vertex_colors(mesh *m, float colors[][4], int ***indicies,
-                            int index_count) {
+void gfks_set_mesh_vertex_colors(gfks_mesh *m, float colors[][4], int ***indicies,
+                                 int index_count) {
   // enable vertex coloring in mesh
   m->use_vertex_color = true;
 
   // flatten the colors 2d array
   int colors_flat_size = index_count * 3 * 4 * sizeof(float);
-  float* colors_flat = malloc(colors_flat_size);
+  float *colors_flat = malloc(colors_flat_size);
 
   int current_vertex_index = 0;
   int i;
@@ -64,17 +65,17 @@ void set_mesh_vertex_colors(mesh *m, float colors[][4], int ***indicies,
   free(colors_flat);
 }
 
-mesh *create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count,
-                     float normals[][3]) {
+gfks_mesh *gfks_create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count,
+                               float normals[][3]) {
   int system_vertices_size = index_count * 3 * 3 * sizeof(float);
-  float* system_vertices = malloc(system_vertices_size);
+  float *system_vertices = malloc(system_vertices_size);
   int system_normals_size = index_count * 3 * 3 * sizeof(float);
-  float* system_normals = malloc(system_normals_size);
+  float *system_normals = malloc(system_normals_size);
 
-  _generate_mesh_st(system_vertices, system_normals, vertices, indicies, index_count,
-                    normals);
+  _gfks_generate_mesh_st(system_vertices, system_normals, vertices, indicies, index_count,
+                         normals);
 
-  mesh *m = _allocate_mesh(index_count);
+  gfks_mesh *m = _gfks_allocate_mesh(index_count);
 
   glGenBuffers(1, &m->triangle_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
@@ -90,15 +91,15 @@ mesh *create_mesh_st(float vertices[][3], int indicies[][3][3], int index_count,
   return m;
 }
 
-base_mesh *create_base_mesh(float **vertices, int ***indicies, int index_count,
-                            float **normals) {
+gfks_base_mesh *gfks_create_base_mesh(float **vertices, int ***indicies, int index_count,
+                                      float **normals) {
   float *system_vertices = malloc(sizeof(float) * (index_count * 3 * 3));
   float *system_normals = malloc(sizeof(float) * (index_count * 3 * 3));
 
-  _generate_mesh(system_vertices, system_normals, vertices, indicies, index_count,
-                 normals);
+  _gfks_generate_mesh(system_vertices, system_normals, vertices, indicies, index_count,
+                      normals);
 
-  base_mesh *bmesh = malloc(sizeof(base_mesh));
+  gfks_base_mesh *bmesh = malloc(sizeof(gfks_base_mesh));
   bmesh->vertex_count = index_count * 3 * 3;
   bmesh->normal_count = index_count * 3 * 3;
   bmesh->vertices = system_vertices;
@@ -107,10 +108,10 @@ base_mesh *create_base_mesh(float **vertices, int ***indicies, int index_count,
   return bmesh;
 }
 
-mesh *create_mesh_with_instances(base_mesh *bmesh, double instances[][3],
-                                 int instance_count, bool use_z) {
-  float* system_vertices = malloc(bmesh->vertex_count * instance_count * sizeof(float));
-  float* system_normals = malloc(bmesh->vertex_count * instance_count * sizeof(float));
+gfks_mesh *gfks_create_mesh_with_instances(gfks_base_mesh *bmesh, double instances[][3],
+                                           int instance_count, bool use_z) {
+  float *system_vertices = malloc(bmesh->vertex_count * instance_count * sizeof(float));
+  float *system_normals = malloc(bmesh->vertex_count * instance_count * sizeof(float));
 
   int start_index = 0;
   int start_index_normal = 0;
@@ -143,7 +144,7 @@ mesh *create_mesh_with_instances(base_mesh *bmesh, double instances[][3],
     start_index_normal += bmesh->normal_count;
   }
 
-  mesh *smesh = malloc(sizeof(mesh));
+  gfks_mesh *smesh = malloc(sizeof(gfks_mesh));
   smesh->vertex_count = bmesh->vertex_count * instance_count;
   smesh->normal_count = bmesh->normal_count * instance_count;
   smesh->location_x = 0;
@@ -175,7 +176,7 @@ mesh *create_mesh_with_instances(base_mesh *bmesh, double instances[][3],
   return smesh;
 }
 
-void free_mesh(mesh *m) {
+void gfks_free_mesh(gfks_mesh *m) {
   glDeleteBuffers(1, &m->triangle_buffer);
   glDeleteBuffers(1, &m->normal_buffer);
   if (m->use_vertex_color) {
@@ -184,15 +185,15 @@ void free_mesh(mesh *m) {
   free(m);
 }
 
-void free_base_mesh(base_mesh *m) {
+void gfks_free_base_mesh(gfks_base_mesh *m) {
   free(m->vertices);
   free(m->normals);
   free(m);
 }
 
-mesh *_allocate_mesh(int index_count) {
+gfks_mesh *_gfks_allocate_mesh(int index_count) {
 
-  mesh *m = malloc(sizeof(mesh));
+  gfks_mesh *m = malloc(sizeof(gfks_mesh));
   m->use_vertex_color = false;
   m->vertex_count = (index_count * 3) * 3;
   m->normal_count = (index_count * 3) * 3;
@@ -207,8 +208,9 @@ mesh *_allocate_mesh(int index_count) {
   return m;
 }
 
-void _generate_mesh(float output_vertices[], float output_normals[], float **vertices,
-                    int ***indicies, int index_count, float **normals) {
+void _gfks_generate_mesh(float output_vertices[], float output_normals[],
+                         float **vertices, int ***indicies, int index_count,
+                         float **normals) {
 
   int current_vertex_index = 0;
   int current_normal_index = 0;
@@ -236,9 +238,9 @@ void _generate_mesh(float output_vertices[], float output_normals[], float **ver
   }
 }
 
-void _generate_mesh_st(float output_vertices[], float output_normals[],
-                       float vertices[][3], int indicies[][3][3], int index_count,
-                       float normals[][3]) {
+void _gfks_generate_mesh_st(float output_vertices[], float output_normals[],
+                            float vertices[][3], int indicies[][3][3], int index_count,
+                            float normals[][3]) {
 
   int current_vertex_index = 0;
   int current_normal_index = 0;
@@ -266,7 +268,7 @@ void _generate_mesh_st(float output_vertices[], float output_normals[],
   }
 }
 
-void _dm(float m[]) {
+void _gfks_dm(float m[]) {
   int i;
 #ifdef ANDROID
   __android_log_print(ANDROID_LOG_ERROR, "Graffiks", "--");

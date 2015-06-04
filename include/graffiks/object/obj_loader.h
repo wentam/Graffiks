@@ -6,15 +6,15 @@
 #include "graffiks/renderer/renderer.h"
 
 #ifndef DLL_EXPORT
-# ifdef _WIN32
-#  ifdef GRAFFIKS_BUILD_SHARED
-#   define DLL_EXPORT __declspec(dllexport)
-#  else
-#   define DLL_EXPORT __declspec(dllimport)
-#  endif
-# else
-#  define DLL_EXPORT
-# endif
+#ifdef _WIN32
+#ifdef GRAFFIKS_BUILD_SHARED
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT __declspec(dllimport)
+#endif
+#else
+#define DLL_EXPORT
+#endif
 #endif
 
-DLL_EXPORT object *load_obj(renderer_flags flags, char *filepath);
+DLL_EXPORT gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath);

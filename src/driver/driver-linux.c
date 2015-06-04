@@ -11,9 +11,9 @@ XSetWindowAttributes swa;
 GLXContext glc;
 int _use_vsync = 1;
 
-void init_graffiks_xorg(int window_width, int window_height, char *window_title,
-                        void (*init)(int *width, int *height),
-                        void (*update)(float time_step), void (*finish)(void)) {
+void gfks_init_xorg(int window_width, int window_height, char *window_title,
+                    void (*init)(int *width, int *height),
+                    void (*update)(float time_step), void (*finish)(void)) {
 
   display = XOpenDisplay(NULL);
   root = DefaultRootWindow(display);
@@ -44,17 +44,17 @@ void init_graffiks_xorg(int window_width, int window_height, char *window_title,
     glXSwapIntervalEXT(display, win, 1);
   }
 
-  graffiks_setup(init, update, finish);
-  _set_size(window_width, window_height);
+  gfks_setup(init, update, finish);
+  _gfks_set_size(window_width, window_height);
 
-  _init_graffiks();
+  _gfks_init();
 
   while (1) {
-    _draw_frame();
+    _gfks_draw_frame();
   }
 }
 
-void use_vsync(int vsync) { _use_vsync = vsync; }
+void gfks_use_vsync(int vsync) { _use_vsync = vsync; }
 
 // 0 for off. Does nothing after init_graffiks_xorg
-void set_antialiasing_samples(int samples) { att[7] = samples; }
+void gfks_set_antialiasing_samples(int samples) { att[7] = samples; }

@@ -8,12 +8,12 @@
 GLuint *fw_point_light_program;
 GLuint *fw_ambient_light_program;
 
-void _terminate_renderer_fw() {}
-void _init_renderer_fw() {
-  fw_point_light_program = _create_program("/shaders/forward/point_light.vert",
-                                           "/shaders/forward/point_light.frag");
-  fw_ambient_light_program = _create_program("/shaders/forward/ambient_light.vert",
-                                             "/shaders/forward/ambient_light.frag");
+void _gfks_terminate_renderer_fw() {}
+void _gfks_init_renderer_fw() {
+  fw_point_light_program = _gfks_create_program("/shaders/forward/point_light.vert",
+                                                "/shaders/forward/point_light.frag");
+  fw_ambient_light_program = _gfks_create_program("/shaders/forward/ambient_light.vert",
+                                                  "/shaders/forward/ambient_light.frag");
 }
 
 const GLint FW_POINT_LIGHT_ATTRIB_POSITION = 0;
@@ -28,7 +28,8 @@ const GLint FW_POINT_LIGHT_UATTRIB_SPEC_COLOR = 11;
 const GLint FW_POINT_LIGHT_UATTRIB_LIGHT_POSITION = 100;
 const GLint FW_POINT_LIGHT_UATTRIB_LIGHT_BRIGHTNESS = 101;
 
-void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
+void _gfks_draw_mesh_point_light(gfks_object *o, gfks_mesh *m, gfks_material *mat,
+                                 gfks_point_light *l) {
 
   // set up matrices
   float object_rotation_matrix[16];
@@ -43,22 +44,27 @@ void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
   float model_view_matrix[16];
   float model_view_projection_matrix[16];
 
-  create_identity_matrix(object_model_matrix);
-  create_identity_matrix(mesh_model_matrix);
+  gfks_create_identity_matrix(object_model_matrix);
+  gfks_create_identity_matrix(mesh_model_matrix);
 
-  translate_matrix(object_model_matrix, o->location_x, o->location_y, o->location_z);
-  translate_matrix(mesh_model_matrix, m->location_x, m->location_y, m->location_z);
+  gfks_translate_matrix(object_model_matrix, o->location_x, o->location_y, o->location_z);
+  gfks_translate_matrix(mesh_model_matrix, m->location_x, m->location_y, m->location_z);
 
-  set_matrix_rotation(object_rotation_matrix, o->angle, o->rot_x, o->rot_y, o->rot_z);
-  set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
+  gfks_set_matrix_rotation(object_rotation_matrix, o->angle, o->rot_x, o->rot_y,
+                           o->rot_z);
+  gfks_set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
 
-  multiply_matrices(local_model_rotation_matrix, mesh_model_matrix, mesh_rotation_matrix);
-  multiply_matrices(model_rotation_matrix, object_model_matrix, object_rotation_matrix);
-  multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
-                    local_model_rotation_matrix);
+  gfks_multiply_matrices(local_model_rotation_matrix, mesh_model_matrix,
+                         mesh_rotation_matrix);
+  gfks_multiply_matrices(model_rotation_matrix, object_model_matrix,
+                         object_rotation_matrix);
+  gfks_multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
+                         local_model_rotation_matrix);
 
-  multiply_matrices(model_view_matrix, view_matrix, combined_model_rotation_matrix);
-  multiply_matrices(model_view_projection_matrix, projection_matrix, model_view_matrix);
+  gfks_multiply_matrices(model_view_matrix, gfks_view_matrix,
+                         combined_model_rotation_matrix);
+  gfks_multiply_matrices(model_view_projection_matrix, gfks_projection_matrix,
+                         model_view_matrix);
 
   // send our data to the shader program
   glUniformMatrix4fv(FW_POINT_LIGHT_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
@@ -84,8 +90,6 @@ void _draw_mesh_point_light(object *o, mesh *m, material *mat, point_light *l) {
 
   // add colors if m->use_vertex_color
   if (m->use_vertex_color) {
-    glUniform1i(FW_POINT_LIGHT_UATTRIB_PER_VERTEX, 1);
-
     glBindBuffer(GL_ARRAY_BUFFER, m->vertex_color_buffer);
     glEnableVertexAttribArray(FW_POINT_LIGHT_ATTRIB_DIFFUSE_COLOR);
     glVertexAttribPointer(FW_POINT_LIGHT_ATTRIB_DIFFUSE_COLOR, 4, GL_FLOAT, GL_FALSE, 0,
@@ -107,7 +111,7 @@ const GLint FW_AMBIENT_LIGHT_UATTRIB_MVP_MATRIX = 1;
 const GLint FW_AMBIENT_LIGHT_UATTRIB_MV_MATRIX = 2;
 const GLint FW_AMBIENT_LIGHT_UATTRIB_AMBIENT_COLOR = 3;
 
-void _draw_mesh_ambient_light(object *o, mesh *m) {
+void _gfks_draw_mesh_ambient_light(gfks_object *o, gfks_mesh *m) {
 
   // set up matrices
   float object_rotation_matrix[16];
@@ -122,28 +126,33 @@ void _draw_mesh_ambient_light(object *o, mesh *m) {
   float model_view_matrix[16];
   float model_view_projection_matrix[16];
 
-  create_identity_matrix(object_model_matrix);
-  create_identity_matrix(mesh_model_matrix);
+  gfks_create_identity_matrix(object_model_matrix);
+  gfks_create_identity_matrix(mesh_model_matrix);
 
-  translate_matrix(object_model_matrix, o->location_x, o->location_y, o->location_z);
-  translate_matrix(mesh_model_matrix, m->location_x, m->location_y, m->location_z);
+  gfks_translate_matrix(object_model_matrix, o->location_x, o->location_y, o->location_z);
+  gfks_translate_matrix(mesh_model_matrix, m->location_x, m->location_y, m->location_z);
 
-  set_matrix_rotation(object_rotation_matrix, o->angle, o->rot_x, o->rot_y, o->rot_z);
-  set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
+  gfks_set_matrix_rotation(object_rotation_matrix, o->angle, o->rot_x, o->rot_y,
+                           o->rot_z);
+  gfks_set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
 
-  multiply_matrices(local_model_rotation_matrix, mesh_model_matrix, mesh_rotation_matrix);
-  multiply_matrices(model_rotation_matrix, object_model_matrix, object_rotation_matrix);
-  multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
-                    local_model_rotation_matrix);
+  gfks_multiply_matrices(local_model_rotation_matrix, mesh_model_matrix,
+                         mesh_rotation_matrix);
+  gfks_multiply_matrices(model_rotation_matrix, object_model_matrix,
+                         object_rotation_matrix);
+  gfks_multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
+                         local_model_rotation_matrix);
 
-  multiply_matrices(model_view_matrix, view_matrix, combined_model_rotation_matrix);
-  multiply_matrices(model_view_projection_matrix, projection_matrix, model_view_matrix);
+  gfks_multiply_matrices(model_view_matrix, gfks_view_matrix,
+                         combined_model_rotation_matrix);
+  gfks_multiply_matrices(model_view_projection_matrix, gfks_projection_matrix,
+                         model_view_matrix);
 
   glUniformMatrix4fv(FW_AMBIENT_LIGHT_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
                      model_view_projection_matrix);
   glUniformMatrix4fv(FW_AMBIENT_LIGHT_UATTRIB_MV_MATRIX, 1, GL_FALSE, model_view_matrix);
-  glUniform3f(FW_AMBIENT_LIGHT_UATTRIB_AMBIENT_COLOR, ambient_color[0], ambient_color[1],
-              ambient_color[2]);
+  glUniform3f(FW_AMBIENT_LIGHT_UATTRIB_AMBIENT_COLOR, gfks_ambient_color[0],
+              gfks_ambient_color[1], gfks_ambient_color[2]);
 
   glBindBuffer(GL_ARRAY_BUFFER, m->triangle_buffer);
   glEnableVertexAttribArray(FW_AMBIENT_LIGHT_ATTRIB_POSITION);
@@ -155,26 +164,28 @@ void _draw_mesh_ambient_light(object *o, mesh *m) {
   glDisableVertexAttribArray(FW_AMBIENT_LIGHT_ATTRIB_POSITION);
 }
 
-void _draw_from_queue_fw() {
+void _gfks_draw_from_queue_fw() {
 
   // TODO depth buffer pre-pass
   int i;
-  for (i = 0; i < render_queue_size; i++) {
+  for (i = 0; i < gfks_render_queue_size; i++) {
 
-    if (render_queue[i]->material->renderer & GRAFFIKS_RENDERER_FORWARD) {
+    if (gfks_render_queue[i]->material->renderer & GRAFFIKS_RENDERER_FORWARD) {
       glUseProgram(*fw_ambient_light_program);
       glDisable(GL_BLEND);
-      _draw_mesh_ambient_light(render_queue[i]->parent_object, render_queue[i]->mesh);
+      _gfks_draw_mesh_ambient_light(gfks_render_queue[i]->parent_object,
+                                    gfks_render_queue[i]->mesh);
 
       glUseProgram(*fw_point_light_program);
       int i2;
-      for (i2 = 0; i2 < point_light_count; i2++) {
+      for (i2 = 0; i2 < gfks_point_light_count; i2++) {
         glEnable(GL_BLEND);
         glBlendEquation(GL_FUNC_ADD);
         glBlendFunc(GL_ONE, GL_ONE);
 
-        _draw_mesh_point_light(render_queue[i]->parent_object, render_queue[i]->mesh,
-                               render_queue[i]->material, point_lights[i2]);
+        _gfks_draw_mesh_point_light(
+            gfks_render_queue[i]->parent_object, gfks_render_queue[i]->mesh,
+            gfks_render_queue[i]->material, gfks_point_lights[i2]);
       }
     }
   }
@@ -188,9 +199,9 @@ void _draw_from_queue_fw() {
 //     _draw_mesh_point_light(o, o->meshes[i], o->mats[i], point_lights[i2]);
 //     }
 // }
-void _draw_object_fw(object *o) {
+void _gfks_draw_object_fw(gfks_object *o) {
   int i2;
-  for (i2 = 0; i2 < point_light_count; i2++) {
+  for (i2 = 0; i2 < gfks_point_light_count; i2++) {
     if (i2 == 0) {
     } else {
       glEnable(GL_BLEND);
@@ -200,10 +211,10 @@ void _draw_object_fw(object *o) {
 
     int i;
     for (i = 0; i < o->mesh_count; i++) {
-      _draw_mesh_point_light(o, o->meshes[i], o->mats[i], point_lights[i2]);
+      _gfks_draw_mesh_point_light(o, o->meshes[i], o->mats[i], gfks_point_lights[i2]);
     }
   }
   glDisable(GL_BLEND);
 }
 
-void _clear_fw() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+void _gfks_clear_fw() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }

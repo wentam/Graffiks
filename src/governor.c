@@ -17,7 +17,44 @@ long long int last_frame_end_time = 0;
 float delta_time_smoothed = 16.6;
 float delta_time_moving_average = 16.6;
 
-void _init_graffiks() {
+#ifdef _WIN32
+void _sleep_ms(int ms) { Sleep(ms); }
+
+void _ms(long long int *ms) { *ms = GetTickCount64(); }
+#endif
+#ifndef _WIN32
+void _sleep_ms(int ms) {
+  struct timespec req = {0};
+  req.tv_sec = 0;
+  req.tv_nsec = ms * 1000000L;
+  nanosleep(&req, (struct timespec *)NULL);
+}
+
+void _ms(long long int *ms) {
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  (*ms) = llround((tp.tv_sec * 1000.0) + (tp.tv_usec / 1000.0));
+}
+#endif
+
+void _limit_fps(int fps) {
+  int ms_per_frame = 1000 / fps;
+
+  long long int frame_end_time;
+  _ms(&frame_end_time);
+
+  int frame_delta_time = frame_end_time - frame_start_time;
+  if (frame_delta_time < ms_per_frame) {
+    _sleep_ms(ms_per_frame - frame_delta_time);
+    //    frame_delta_time += ms_per_frame - frame_delta_time;
+  }
+
+  //  printf("framerate: %f\n", 1000.0f / frame_delta_time);
+
+  _ms(&frame_start_time);
+}
+
+void _gfks_init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
@@ -25,49 +62,49 @@ void _init_graffiks() {
   glDepthMask(GL_TRUE);
 
   // set up view matrix
-  set_view_matrix(view_matrix, 0, 0, 7, // camera location
-                  0, 0, 0,              // camera target
-                  0, 1, 0);             // up vector
+  gfks_set_view_matrix(gfks_view_matrix, 0, 0, 7, // camera location
+                       0, 0, 0,                   // camera target
+                       0, 1, 0);                  // up vector
 
-  matrix_inverse(view_matrix_inverse, view_matrix, 4);
+  gfks_matrix_inverse(gfks_view_matrix_inverse, gfks_view_matrix, 4);
 
-  _call_init(&renderer_width, &renderer_height);
+  _gfks_call_init(&renderer_width, &renderer_height);
   _ms(&frame_start_time);
 }
 
-void _set_size(int width, int height) {
+void _gfks_set_size(int width, int height) {
   glViewport(0, 0, width, height);
 
   float ratio = (float)width / height;
-  set_projection_matrix(projection_matrix, -ratio * 3, ratio * 3, // left, right
-                        3, -3,                                    // top, bottom
-                        4, 100);                                  // near, far
+  gfks_set_projection_matrix(gfks_projection_matrix, -ratio * 3, ratio * 3, // left, right
+                             3, -3,                                         // top, bottom
+                             4, 100);                                       // near, far
 
   renderer_width = width;
   renderer_height = height;
 }
 
-void _draw_frame() {
+void _gfks_draw_frame() {
   _limit_fps(250);
 
   // update
-  _call_update(delta_time_smoothed);
+  _gfks_call_update(delta_time_smoothed);
 
   // clear screen
-  _clear(enabled_renderers);
+  _gfks_clear(gfks_enabled_renderers);
 
   // draw
-  _call_draw();
+  _gfks_call_draw();
 
-  if (render_queue_size > 0) {
-    if (enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
-      _geom_pass_df();
-      _ambient_pass_df();
-      _light_pass_df();
+  if (gfks_render_queue_size > 0) {
+    if (gfks_enabled_renderers & GRAFFIKS_RENDERER_DEFERRED) {
+      _gfks_geom_pass_df();
+      _gfks_ambient_pass_df();
+      _gfks_light_pass_df();
     }
 
-    if (enabled_renderers & GRAFFIKS_RENDERER_FORWARD) {
-      _draw_from_queue_fw();
+    if (gfks_enabled_renderers & GRAFFIKS_RENDERER_FORWARD) {
+      _gfks_draw_from_queue_fw();
     }
   }
 
@@ -100,55 +137,12 @@ void _draw_frame() {
   last_frame_end_time = frame_end_time_;
 }
 
-void _finish() { _call_finish(); }
+void _gfks_finish() { _gfks_call_finish(); }
 
-void set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
-                                       float tz, float ux, float uy, float uz) {
+void gfks_set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
+                                            float tz, float ux, float uy, float uz) {
 
-  set_view_matrix(view_matrix, x, y, z, // camera location
-                  tx, ty, tz,           // camera target
-                  ux, uy, uz);          // up vector
+  gfks_set_view_matrix(gfks_view_matrix, x, y, z, // camera location
+                       tx, ty, tz,                // camera target
+                       ux, uy, uz);               // up vector
 }
-
-void _limit_fps(int fps) {
-  int ms_per_frame = 1000 / fps;
-
-  long long int frame_end_time;
-  _ms(&frame_end_time);
-
-  int frame_delta_time = frame_end_time - frame_start_time;
-  if (frame_delta_time < ms_per_frame) {
-    _sleep_ms(ms_per_frame - frame_delta_time);
-    //    frame_delta_time += ms_per_frame - frame_delta_time;
-  }
-
-  //  printf("framerate: %f\n", 1000.0f / frame_delta_time);
-
-  _ms(&frame_start_time);
-}
-
-#ifdef _WIN32
-void _sleep_ms(int ms) {
-  Sleep(ms);
-}
-
-void _ms(long long int *ms) {
-  *ms = GetTickCount64();
-}
-#endif
-#ifndef _WIN32
-void _sleep_ms(int ms) {
-  struct timespec req = {0};
-  req.tv_sec = 0;
-  req.tv_nsec = ms * 1000000L;
-  nanosleep(&req, (struct timespec *)NULL);
-}
-
-// current epoch in milliseconds
-void _ms(long long int *ms) {
-  struct timeval tp;
-  gettimeofday(&tp, NULL);
-  (*ms) = llround((tp.tv_sec * 1000.0) + (tp.tv_usec / 1000.0));
-}
-#endif
-

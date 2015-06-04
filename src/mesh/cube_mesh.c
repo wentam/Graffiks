@@ -1,6 +1,6 @@
 #include "graffiks/mesh/cube_mesh.h"
 
-mesh *create_cube(float scale) {
+gfks_mesh *gfks_create_cube(float scale) {
   float verts[8][3] = {{scale, -scale, -scale},
                        {scale, -scale, scale},
                        {-scale, -scale, scale},
@@ -28,6 +28,6 @@ mesh *create_cube(float scale) {
   float normals[6][3] = {
       {0, -1, 0}, {0, 1, 0}, {1, 0, 0}, {0, 0, 1}, {-1, 0, 0}, {0, 0, -1}};
 
-  mesh *m = create_mesh_st(verts, faces, 12, normals);
+  gfks_mesh *m = gfks_create_mesh_st(verts, faces, 12, normals);
   return m;
 }

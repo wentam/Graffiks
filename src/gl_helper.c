@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
-                     float center_x, float center_y, float center_z, float up_x,
-                     float up_y, float up_z) {
+void gfks_set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
+                          float center_x, float center_y, float center_z, float up_x,
+                          float up_y, float up_z) {
 
   // the view matrix looks like this:
   //   x   y   z   t
@@ -30,7 +30,7 @@ void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
 
   // normalize forward vector
   float vl = 0;
-  vector_length(&vl, forward_vector_x, forward_vector_y, forward_vector_z);
+  gfks_vector_length(&vl, forward_vector_x, forward_vector_y, forward_vector_z);
 
   float nf = 1.0 / vl;
   forward_vector_x *= nf;
@@ -43,7 +43,7 @@ void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
   float right_vector_z = forward_vector_x * up_y - forward_vector_y * up_x;
 
   // normalize the right vector
-  vector_length(&vl, right_vector_x, right_vector_y, right_vector_z);
+  gfks_vector_length(&vl, right_vector_x, right_vector_y, right_vector_z);
   float ns = 1.0 / vl;
   right_vector_x *= ns;
   right_vector_y *= ns;
@@ -85,11 +85,11 @@ void set_view_matrix(float matrix[], float eye_x, float eye_y, float eye_z,
 
   // now we'll translate.
   // we're moving the world and not the camera, so we invert all axes
-  translate_matrix(matrix, -eye_x, -eye_y, -eye_z);
+  gfks_translate_matrix(matrix, -eye_x, -eye_y, -eye_z);
 }
 
-void set_projection_matrix(float matrix[], float left, float right, float top,
-                           float bottom, float near, float far) {
+void gfks_set_projection_matrix(float matrix[], float left, float right, float top,
+                                float bottom, float near, float far) {
 
   float r_width = 1 / (right - left);
   float r_height = 1 / (top - bottom);
@@ -119,7 +119,7 @@ void set_projection_matrix(float matrix[], float left, float right, float top,
   matrix[15] = 0;
 }
 
-void create_identity_matrix(float m[]) {
+void gfks_create_identity_matrix(float m[]) {
   int i;
   for (i = 0; i < 16; i++) {
     m[i] = 0;
@@ -129,14 +129,14 @@ void create_identity_matrix(float m[]) {
   }
 }
 
-void translate_matrix(float matrix[], float x, float y, float z) {
+void gfks_translate_matrix(float matrix[], float x, float y, float z) {
   int i;
   for (i = 0; i < 4; i++) {
     matrix[12 + i] += matrix[i] * x + matrix[4 + i] * y + matrix[8 + i] * z;
   }
 }
 
-void set_matrix_rotation(float m[], float a, float x, float y, float z) {
+void gfks_set_matrix_rotation(float m[], float a, float x, float y, float z) {
   m[3] = 0;
   m[7] = 0;
   m[11] = 0;
@@ -181,7 +181,7 @@ void set_matrix_rotation(float m[], float a, float x, float y, float z) {
     m[10] = 1;
   } else {
     float length;
-    vector_length(&length, x, y, z);
+    gfks_vector_length(&length, x, y, z);
     if (length != 1.0) {
       float r_len = 1 / length;
       x *= r_len;
@@ -207,11 +207,11 @@ void set_matrix_rotation(float m[], float a, float x, float y, float z) {
   }
 }
 
-void vector_length(float *result, float x, float y, float z) {
+void gfks_vector_length(float *result, float x, float y, float z) {
   *result = sqrt(x * x + y * y + z * z);
 }
 
-void matrix_element_minor(float *result, float m[], int matrix_size, int index) {
+void gfks_matrix_element_minor(float *result, float m[], int matrix_size, int index) {
   int index_col_i = index / matrix_size;
   int index_row_i = index - (matrix_size * index_col_i);
 
@@ -228,11 +228,11 @@ void matrix_element_minor(float *result, float m[], int matrix_size, int index) 
     }
   }
 
-  matrix_determinant(result, m2, matrix_size - 1);
+  gfks_matrix_determinant(result, m2, matrix_size - 1);
   free(m2);
 }
 
-void matrix_determinant(float *result, float m[], int matrix_size) {
+void gfks_matrix_determinant(float *result, float m[], int matrix_size) {
   if (matrix_size == 1) {
     *result = m[0];
     return;
@@ -243,7 +243,7 @@ void matrix_determinant(float *result, float m[], int matrix_size) {
   int i;
   for (i = 0; i < matrix_size; i++) {
     float result2;
-    matrix_element_minor(&result2, m, matrix_size, i * matrix_size);
+    gfks_matrix_element_minor(&result2, m, matrix_size, i * matrix_size);
 
     if (alt == 0) {
       final_result += m[i * matrix_size] * result2;
@@ -257,7 +257,7 @@ void matrix_determinant(float *result, float m[], int matrix_size) {
   *result = final_result;
 }
 
-void adjugate_matrix(float m[], int matrix_size) {
+void gfks_adjugate_matrix(float m[], int matrix_size) {
   // left side
   int i;
   for (i = 1; i < matrix_size; i++) {
@@ -280,13 +280,13 @@ void adjugate_matrix(float m[], int matrix_size) {
   }
 }
 
-void matrix_inverse(float result[], float m[], int matrix_size) {
+void gfks_matrix_inverse(float result[], float m[], int matrix_size) {
   float *matrix_of_minors = malloc(sizeof(float) * (matrix_size * matrix_size));
 
   int i;
   for (i = 0; i < matrix_size * matrix_size; i++) {
     float r;
-    matrix_element_minor(&r, m, matrix_size, i);
+    gfks_matrix_element_minor(&r, m, matrix_size, i);
     matrix_of_minors[i] = r;
   }
 
@@ -300,10 +300,10 @@ void matrix_inverse(float result[], float m[], int matrix_size) {
     }
   }
 
-  adjugate_matrix(matrix_of_minors, matrix_size);
+  gfks_adjugate_matrix(matrix_of_minors, matrix_size);
 
   float original_determinant;
-  matrix_determinant(&original_determinant, m, matrix_size);
+  gfks_matrix_determinant(&original_determinant, m, matrix_size);
 
   for (i = 0; i < matrix_size * matrix_size; i++) {
     matrix_of_minors[i] *= 1 / original_determinant;
@@ -316,7 +316,7 @@ void matrix_inverse(float result[], float m[], int matrix_size) {
   free(matrix_of_minors);
 }
 
-void multiply_matrices(float result[], float m1[], float m2[]) {
+void gfks_multiply_matrices(float result[], float m1[], float m2[]) {
   int r;
   for (r = 0; r < 4; r++) {
     int c;

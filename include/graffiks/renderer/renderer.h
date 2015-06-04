@@ -15,36 +15,37 @@
 #endif
 
 #ifndef DLL_EXPORT
-# ifdef _WIN32
-#  ifdef GRAFFIKS_BUILD_SHARED
-#   define DLL_EXPORT __declspec(dllexport)
-#  else
-#   define DLL_EXPORT __declspec(dllimport)
-#  endif
-# else
-#  define DLL_EXPORT
-# endif
+#ifdef _WIN32
+#ifdef GRAFFIKS_BUILD_SHARED
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT __declspec(dllimport)
+#endif
+#else
+#define DLL_EXPORT
+#endif
 #endif
 
 typedef enum {
   GRAFFIKS_RENDERER_DEFERRED = 0x01,
   GRAFFIKS_RENDERER_FORWARD = 0x02
-} renderer_flags;
+} gfks_renderer_flags;
 
-extern renderer_flags enabled_renderers;
+extern gfks_renderer_flags gfks_enabled_renderers;
 
 typedef struct {
-  mesh *mesh;
-  material *material;
-  object *parent_object;
-} render_queue_item;
+  gfks_mesh *mesh;
+  gfks_material *material;
+  gfks_object *parent_object;
+} gfks_render_queue_item;
 
-extern render_queue_item **render_queue;
-extern int render_queue_size;
+extern gfks_render_queue_item **gfks_render_queue;
+extern int gfks_render_queue_size;
 
-DLL_EXPORT void init_renderers(renderer_flags flags);
-DLL_EXPORT void terminate_renderers(renderer_flags flags);
-DLL_EXPORT void _clear(renderer_flags flags);
-DLL_EXPORT GLuint *_create_program(char *vertex_shader_filepath, char *fragment_shader_filepath);
+DLL_EXPORT void gfks_init_renderers(gfks_renderer_flags flags);
+DLL_EXPORT void gfks_terminate_renderers(gfks_renderer_flags flags);
+DLL_EXPORT void _gfks_clear(gfks_renderer_flags flags);
+DLL_EXPORT GLuint *_gfks_create_program(char *vertex_shader_filepath,
+                                        char *fragment_shader_filepath);
 
 #endif
