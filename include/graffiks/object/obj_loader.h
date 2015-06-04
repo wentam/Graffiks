@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "graffiks/object/object.h"
-#include "graffiks/material/material.h"
+#include "graffiks/material.h"
 #include "graffiks/renderer/renderer.h"
 
 #ifndef DLL_EXPORT

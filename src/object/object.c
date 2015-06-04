@@ -1,6 +1,6 @@
 #include "graffiks/object/object.h"
 #include <stdlib.h>
-#include "graffiks/material/material.h"
+#include "graffiks/material.h"
 #include "graffiks/renderer/renderer.h"
 
 gfks_object *gfks_create_object(gfks_mesh **meshes, gfks_material **mats,

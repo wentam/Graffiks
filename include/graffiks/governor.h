@@ -7,12 +7,9 @@
 
 #ifndef _WIN32
 #include <sys/time.h>
-#include "graffiks/driver/driver-linux.h"
 #endif
 
-#ifdef _WIN32
-#include "graffiks/driver/driver-windows.h"
-#endif
+#include "graffiks/driver.h"
 
 #ifdef ANDROID
 #include <android/log.h>

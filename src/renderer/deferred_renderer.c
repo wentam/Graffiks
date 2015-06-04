@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/governor.h"
-#include "graffiks/material/material.h"
+#include "graffiks/material.h"
 #include "graffiks/mesh/plane_mesh.h"
 #include "graffiks/mesh/mesh.h"
 #include "graffiks/renderer/renderer.h"

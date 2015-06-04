@@ -1,7 +1,7 @@
 #ifndef GFKS_MTL_LOADER_H
 #define GFKS_MTL_LOADER_H
 
-#include "graffiks/material/material.h"
+#include "graffiks/material.h"
 
 #ifndef DLL_EXPORT
 #ifdef _WIN32

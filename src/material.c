@@ -1,4 +1,4 @@
-#include "graffiks/material/material.h"
+#include "graffiks/material.h"
 
 gfks_material *gfks_create_material(gfks_renderer_flags flags) {
   float *diffuse_color = malloc(sizeof(float) * 4);
