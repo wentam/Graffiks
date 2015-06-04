@@ -15,3 +15,5 @@ for more information
 #### Documentation
 
 Documentation is available [here](http://wentam.github.io/Graffiks/)
+
+Note that github sets very aggressive cache headers, so you probably need to clear your browser cache to see updates to the docs.
