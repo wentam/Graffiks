@@ -1,3 +1,4 @@
+/// \file lights.h
 #ifndef GFKS_LIGHTS_H
 #define GFKS_LIGHTS_H
 #include <stdbool.h>
@@ -14,6 +15,7 @@
 #endif
 #endif
 
+/// \brief The color of the ambient light
 extern float gfks_ambient_color[3]; // rgb
 
 extern const int GFKS_LIGHT_ATTENUATION_LINEAR;
@@ -32,12 +34,22 @@ typedef struct {
   float color_b;              // TODO unimplemented
 } gfks_point_light;
 
+/// \brief Returns the position of the light on the x axis
 float gfks_get_point_light_x(gfks_point_light *l);
+
+/// \brief Returns the position of the light on the y axis
 float gfks_get_point_light_y(gfks_point_light *l);
+
+/// \brief Returns the position of the light on the z axis
 float gfks_get_point_light_z(gfks_point_light *l);
+
+/// \brief Returns the brightness of the light
 float gfks_get_point_light_brightness(gfks_point_light *l);
 
+/// \brief Sets the position of a light
 void gfks_set_point_light_location(gfks_point_light *l, float x, float y, float z);
+
+/// \brief Sets the brightness of a light
 void gfks_set_point_light_brightness(gfks_point_light *l, float brightness);
 
 gfks_point_light **gfks_point_lights;
