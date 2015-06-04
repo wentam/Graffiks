@@ -11,3 +11,7 @@ for more information
     cmake .
     make
     sudo make install
+
+#### Documentation
+
+Documentation is available [here](http://wentam.github.io/Graffiks/)
