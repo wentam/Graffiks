@@ -35,22 +35,23 @@ typedef struct {
 } gfks_point_light;
 
 /// \brief Returns the position of the light on the x axis
-float gfks_get_point_light_x(gfks_point_light *l);
+DLL_EXPORT float gfks_get_point_light_x(gfks_point_light *l);
 
 /// \brief Returns the position of the light on the y axis
-float gfks_get_point_light_y(gfks_point_light *l);
+DLL_EXPORT float gfks_get_point_light_y(gfks_point_light *l);
 
 /// \brief Returns the position of the light on the z axis
-float gfks_get_point_light_z(gfks_point_light *l);
+DLL_EXPORT float gfks_get_point_light_z(gfks_point_light *l);
 
 /// \brief Returns the brightness of the light
-float gfks_get_point_light_brightness(gfks_point_light *l);
+DLL_EXPORT float gfks_get_point_light_brightness(gfks_point_light *l);
 
 /// \brief Sets the position of a light
-void gfks_set_point_light_location(gfks_point_light *l, float x, float y, float z);
+DLL_EXPORT void gfks_set_point_light_location(gfks_point_light *l, float x, float y,
+                                              float z);
 
 /// \brief Sets the brightness of a light
-void gfks_set_point_light_brightness(gfks_point_light *l, float brightness);
+DLL_EXPORT void gfks_set_point_light_brightness(gfks_point_light *l, float brightness);
 
 gfks_point_light **gfks_point_lights;
 extern int gfks_point_light_count;
