@@ -1,4 +1,4 @@
-#include "graffiks/mesh/cube_mesh.h"
+#include "graffiks/primitives.h"
 
 gfks_mesh *gfks_create_cube(float scale) {
   float verts[8][3] = {{scale, -scale, -scale},

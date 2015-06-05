@@ -2,6 +2,11 @@
 #include "graffiks/renderer/renderer.h"
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/renderer/forward_renderer.h"
+#include <stddef.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 gfks_renderer_flags gfks_enabled_renderers = 0;
 gfks_render_queue_item **gfks_render_queue;

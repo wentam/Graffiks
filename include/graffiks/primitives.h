@@ -1,9 +1,9 @@
 /// \file
 
-#ifndef GFKS_PLANE_MESH_H
-#define GFKS_PLANE_MESH_H
+#ifndef GFKS_PRIMITIVES_H
+#define GFKS_PRIMITIVES_H
 
-#include "graffiks/mesh/mesh.h"
+#include "graffiks/mesh.h"
 
 #ifndef DLL_EXPORT
 #ifdef _WIN32
@@ -17,6 +17,8 @@
 #endif
 #endif
 
+DLL_EXPORT gfks_mesh *gfks_create_cube(float scale);
 DLL_EXPORT gfks_mesh *gfks_create_plane(float width, float height);
+DLL_EXPORT gfks_mesh *gfks_create_triangle(float scale);
 
 #endif

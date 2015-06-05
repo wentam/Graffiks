@@ -3,7 +3,7 @@
 #ifndef GFKS_OBJ_LOADER_H
 #define GFKS_OBJ_LOADER_H
 
-#include "graffiks/mesh/mesh.h"
+#include "graffiks/mesh.h"
 #include <stdio.h>
 #include <string.h>
 #include "graffiks/object.h"

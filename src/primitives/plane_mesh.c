@@ -1,4 +1,4 @@
-#include "graffiks/mesh/plane_mesh.h"
+#include "graffiks/primitives.h"
 
 gfks_mesh *gfks_create_plane(float width, float height) {
   float verts[4][3] = {

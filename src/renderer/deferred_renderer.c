@@ -2,8 +2,8 @@
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/governor.h"
 #include "graffiks/material.h"
-#include "graffiks/mesh/plane_mesh.h"
-#include "graffiks/mesh/mesh.h"
+#include "graffiks/primitives.h"
+#include "graffiks/mesh.h"
 #include "graffiks/renderer/renderer.h"
 #include "graffiks/lights.h"
 

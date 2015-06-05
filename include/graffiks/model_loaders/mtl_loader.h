@@ -1,3 +1,5 @@
+/// \file
+
 #ifndef GFKS_MTL_LOADER_H
 #define GFKS_MTL_LOADER_H
 

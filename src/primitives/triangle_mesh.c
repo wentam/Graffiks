@@ -1,4 +1,4 @@
-#include "graffiks/mesh/triangle_mesh.h"
+#include "graffiks/primitives.h"
 
 gfks_mesh *gfks_create_triangle(float scale) {
   float verts[3][3] = {

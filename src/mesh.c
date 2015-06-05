@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include "graffiks/mesh/mesh.h"
+#include "graffiks/mesh.h"
 #include <stdlib.h>
 #include <stdio.h>
 

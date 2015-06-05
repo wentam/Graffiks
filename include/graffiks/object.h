@@ -3,7 +3,7 @@
 #ifndef GFKS_OBJECT_H
 #define GFKS_OBJECT_H
 #include <stdlib.h>
-#include "graffiks/mesh/mesh.h"
+#include "graffiks/mesh.h"
 
 #ifndef DLL_EXPORT
 #ifdef _WIN32
