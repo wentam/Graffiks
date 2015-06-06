@@ -1,6 +1,7 @@
 var searchData=
 [
   ['gfks_5fbase_5fmesh',['gfks_base_mesh',['../structgfks__base__mesh.html',1,'']]],
+  ['gfks_5fcamera',['gfks_camera',['../structgfks__camera.html',1,'']]],
   ['gfks_5fmaterial',['gfks_material',['../structgfks__material.html',1,'']]],
   ['gfks_5fmesh',['gfks_mesh',['../structgfks__mesh.html',1,'']]],
   ['gfks_5fnamed_5fmaterial',['gfks_named_material',['../structgfks__named__material.html',1,'']]],
