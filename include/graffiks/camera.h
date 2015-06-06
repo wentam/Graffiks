@@ -4,8 +4,6 @@
 #ifndef GFKS_CAMERA_H
 #define GFKS_CAMERA_H
 
-#include <stdbool.h>
-
 #ifndef DLL_EXPORT
 #ifdef _WIN32
 #ifdef GRAFFIKS_BUILD_SHARED
