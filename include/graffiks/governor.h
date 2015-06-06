@@ -45,8 +45,6 @@ void _gfks_draw_frame();
 void _gfks_finish();
 
 // other internal stuff
-float gfks_view_matrix[16];
-float gfks_view_matrix_inverse[16];
 float gfks_projection_matrix[16];
 void _gfks_limit_fps(int fps);
 void _gfks_ms(long long int *ms);

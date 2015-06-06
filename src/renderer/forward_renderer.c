@@ -4,6 +4,7 @@
 #include "graffiks/material.h"
 #include "graffiks/lights.h"
 #include "graffiks/renderer/renderer.h"
+#include "graffiks/camera.h"
 
 GLuint *fw_point_light_program;
 GLuint *fw_ambient_light_program;
@@ -55,16 +56,16 @@ void _gfks_draw_mesh_point_light(gfks_object *o, gfks_mesh *m, gfks_material *ma
   gfks_set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
 
   gfks_multiply_matrices(local_model_rotation_matrix, mesh_model_matrix,
-                         mesh_rotation_matrix);
+                         mesh_rotation_matrix, 4);
   gfks_multiply_matrices(model_rotation_matrix, object_model_matrix,
-                         object_rotation_matrix);
+                         object_rotation_matrix, 4);
   gfks_multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
-                         local_model_rotation_matrix);
+                         local_model_rotation_matrix, 4);
 
   gfks_multiply_matrices(model_view_matrix, gfks_view_matrix,
-                         combined_model_rotation_matrix);
+                         combined_model_rotation_matrix, 4);
   gfks_multiply_matrices(model_view_projection_matrix, gfks_projection_matrix,
-                         model_view_matrix);
+                         model_view_matrix, 4);
 
   // send our data to the shader program
   glUniformMatrix4fv(FW_POINT_LIGHT_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
@@ -137,16 +138,16 @@ void _gfks_draw_mesh_ambient_light(gfks_object *o, gfks_mesh *m) {
   gfks_set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
 
   gfks_multiply_matrices(local_model_rotation_matrix, mesh_model_matrix,
-                         mesh_rotation_matrix);
+                         mesh_rotation_matrix, 4);
   gfks_multiply_matrices(model_rotation_matrix, object_model_matrix,
-                         object_rotation_matrix);
+                         object_rotation_matrix, 4);
   gfks_multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
-                         local_model_rotation_matrix);
+                         local_model_rotation_matrix, 4);
 
   gfks_multiply_matrices(model_view_matrix, gfks_view_matrix,
-                         combined_model_rotation_matrix);
+                         combined_model_rotation_matrix, 4);
   gfks_multiply_matrices(model_view_projection_matrix, gfks_projection_matrix,
-                         model_view_matrix);
+                         model_view_matrix, 4);
 
   glUniformMatrix4fv(FW_AMBIENT_LIGHT_UATTRIB_MVP_MATRIX, 1, GL_FALSE,
                      model_view_projection_matrix);

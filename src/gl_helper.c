@@ -316,16 +316,51 @@ void gfks_matrix_inverse(float result[], float m[], int matrix_size) {
   free(matrix_of_minors);
 }
 
-void gfks_multiply_matrices(float result[], float m1[], float m2[]) {
+void gfks_rotate_vector_by_quaternion(float vec[3], float x, float y, float z, float w) {
+
+  float xy2 = x * y * 2;
+  float xz2 = x * z * 2;
+  float xw2 = x * w * 2;
+  float yw2 = y * w * 2;
+  float yz2 = y * z * 2;
+  float zw2 = z * w * 2;
+
+  float _2x2 = powf(2 * x, 2);
+  float _2y2 = powf(2 * y, 2);
+  float _2z2 = powf(2 * z, 2);
+
+  float Q[16];
+  Q[0] = 1.0f - _2y2 - _2z2;
+  Q[1] = xy2 + zw2;
+  Q[2] = xz2 - yw2;
+  Q[3] = xy2 - zw2;
+  Q[4] = 1.0f - _2x2 - _2z2;
+  Q[5] = yz2 + xw2;
+  Q[6] = xz2 + yw2;
+  Q[7] = yz2 - xw2;
+  Q[8] = 1.0f - _2x2 - _2y2;
+
+  float result[3];
+  result[0] = (vec[0] * Q[0]) + (vec[1] * Q[3]) + (vec[2] * Q[6]);
+  result[1] = (vec[0] * Q[1]) + (vec[1] * Q[4]) + (vec[2] * Q[7]);
+  result[2] = (vec[0] * Q[2]) + (vec[1] * Q[5]) + (vec[2] * Q[8]);
+
+  vec[0] = result[0];
+  vec[1] = result[1];
+  vec[2] = result[2];
+}
+
+void gfks_multiply_matrices(float result[], float m1[], float m2[], int matrix_size) {
   int r;
-  for (r = 0; r < 4; r++) {
+  for (r = 0; r < matrix_size; r++) {
     int c;
-    for (c = 0; c < 4; c++) {
+    for (c = 0; c < matrix_size; c++) {
       // result[r+(4*c)] = dot product of row r in m1 and column c
-      result[r + (4 * c)] = 0;
+      result[r + (matrix_size * c)] = 0;
       int i;
-      for (i = 0; i < 4; i++) {
-        result[r + (4 * c)] += m1[r + (i * 4)] * m2[i + (c * 4)];
+      for (i = 0; i < matrix_size; i++) {
+        result[r + (matrix_size * c)] +=
+            m1[r + (i * matrix_size)] * m2[i + (c * matrix_size)];
       }
     }
   }

@@ -6,6 +6,7 @@
 #include "graffiks/mesh.h"
 #include "graffiks/renderer/renderer.h"
 #include "graffiks/lights.h"
+#include "graffiks/camera.h"
 
 GLuint color_tex, specular_tex, normals_tex, position_tex, depth_tex, ambient_tex, fbo;
 GLuint *df_point_light_program;
@@ -149,16 +150,16 @@ void _gfks_df_draw_mesh_geom_pass(gfks_object *o, gfks_mesh *m, gfks_material *m
   gfks_set_matrix_rotation(mesh_rotation_matrix, m->angle, m->rot_x, m->rot_y, m->rot_z);
 
   gfks_multiply_matrices(local_model_rotation_matrix, mesh_model_matrix,
-                         mesh_rotation_matrix);
+                         mesh_rotation_matrix, 4);
   gfks_multiply_matrices(model_rotation_matrix, object_model_matrix,
-                         object_rotation_matrix);
+                         object_rotation_matrix, 4);
   gfks_multiply_matrices(combined_model_rotation_matrix, model_rotation_matrix,
-                         local_model_rotation_matrix);
+                         local_model_rotation_matrix, 4);
 
   gfks_multiply_matrices(model_view_matrix, gfks_view_matrix,
-                         combined_model_rotation_matrix);
+                         combined_model_rotation_matrix, 4);
   gfks_multiply_matrices(model_view_projection_matrix, gfks_projection_matrix,
-                         model_view_matrix);
+                         model_view_matrix, 4);
 
   // send our data to the shader program
   glUniformMatrix4fv(GFKS_DF_GEOM_UATTRIB_MVP_MATRIX, 1, GL_FALSE,

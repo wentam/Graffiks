@@ -30,10 +30,13 @@ DLL_EXPORT void gfks_create_identity_matrix(float m[]);
 DLL_EXPORT void gfks_translate_matrix(float matrix[], float x, float y, float z);
 DLL_EXPORT void gfks_set_matrix_rotation(float m[], float a, float x, float y, float z);
 DLL_EXPORT void gfks_vector_length(float *result, float x, float y, float z);
-DLL_EXPORT void gfks_multiply_matrices(float result[], float m1[], float m2[]);
+DLL_EXPORT void gfks_multiply_matrices(float result[], float m1[], float m2[],
+                                       int matrix_size);
 DLL_EXPORT void gfks_matrix_element_minor(float *result, float m[], int matrix_size,
                                           int index);
 DLL_EXPORT void gfks_matrix_determinant(float *result, float m[], int matrix_size);
 DLL_EXPORT void gfks_adjugate_matrix(float m[], int matrix_size);
 DLL_EXPORT void gfks_matrix_inverse(float result[], float m[], int matrix_size);
+DLL_EXPORT void gfks_rotate_vector_by_quaternion(float vec[3], float x, float y, float z,
+                                                 float w);
 #endif

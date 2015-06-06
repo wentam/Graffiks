@@ -3,6 +3,7 @@
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/renderer/forward_renderer.h"
 #include "graffiks/lights.h"
+#include "graffiks/camera.h"
 #include <time.h>
 
 #ifdef _WIN32
@@ -61,13 +62,6 @@ void _gfks_init() {
   glDepthFunc(GL_LEQUAL);
   glDepthMask(GL_TRUE);
 
-  // set up view matrix
-  gfks_set_view_matrix(gfks_view_matrix, 0, 0, 7, // camera location
-                       0, 0, 0,                   // camera target
-                       0, 1, 0);                  // up vector
-
-  gfks_matrix_inverse(gfks_view_matrix_inverse, gfks_view_matrix, 4);
-
   _gfks_call_init(&renderer_width, &renderer_height);
   _ms(&frame_start_time);
 }
@@ -95,6 +89,8 @@ void _gfks_draw_frame() {
 
   // draw
   _gfks_call_draw();
+
+  _gfks_update_view_matrix();
 
   if (gfks_render_queue_size > 0) {
     if (gfks_enabled_renderers & GFKS_RENDERER_DEFERRED) {
