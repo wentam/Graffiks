@@ -30,13 +30,9 @@
 #endif
 #endif
 
-// to be controlled by a driver such as driver-jni-android.c
+// to be controlled by a driver such as driver-linux.c
 void _gfks_init();
 void _gfks_draw_frame();
 void _gfks_finish();
 
-// other internal stuff
-void _gfks_limit_fps(int fps);
-void _gfks_ms(long long int *ms);
-void _gfks_sleep_ms(int ms);
 #endif

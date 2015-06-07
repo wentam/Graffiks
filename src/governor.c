@@ -19,26 +19,26 @@ float delta_time_smoothed = 16.6;
 float delta_time_moving_average = 16.6;
 
 #ifdef _WIN32
-void _sleep_ms(int ms) { Sleep(ms); }
+static void _sleep_ms(int ms) { Sleep(ms); }
 
-void _ms(long long int *ms) { *ms = GetTickCount64(); }
+static void _ms(long long int *ms) { *ms = GetTickCount64(); }
 #endif
 #ifndef _WIN32
-void _sleep_ms(int ms) {
+static void _sleep_ms(int ms) {
   struct timespec req = {0};
   req.tv_sec = 0;
   req.tv_nsec = ms * 1000000L;
   nanosleep(&req, (struct timespec *)NULL);
 }
 
-void _ms(long long int *ms) {
+static void _ms(long long int *ms) {
   struct timeval tp;
   gettimeofday(&tp, NULL);
   (*ms) = llround((tp.tv_sec * 1000.0) + (tp.tv_usec / 1000.0));
 }
 #endif
 
-void _limit_fps(int fps) {
+static void _limit_fps(int fps) {
   int ms_per_frame = 1000 / fps;
 
   long long int frame_end_time;
