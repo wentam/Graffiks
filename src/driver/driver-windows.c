@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "graffiks/driver.h"
+#include "graffiks/renderer/renderer.h"
 
 int quit = 0;
 int setup = 0;
@@ -39,7 +40,7 @@ void gfks_init(int window_width, int window_height, char *window_title,
         wglSwapIntervalEXT(1);
       }
       gfks_set_dt_callbacks(init, update, finish);
-      _gfks_set_size(window_width, window_height);
+      gfks_set_renderer_size(window_width, window_height);
 
       _gfks_init();
     }

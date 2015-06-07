@@ -30,9 +30,6 @@
 #endif
 #endif
 
-int renderer_width;
-int renderer_height;
-
 // put the camera where you want it
 DLL_EXPORT void gfks_set_camera_location_target_and_up(float x, float y, float z,
                                                        float tx, float ty, float tz,
@@ -40,12 +37,10 @@ DLL_EXPORT void gfks_set_camera_location_target_and_up(float x, float y, float z
 
 // to be controlled by a driver such as driver-jni-android.c
 void _gfks_init();
-void _gfks_set_size();
 void _gfks_draw_frame();
 void _gfks_finish();
 
 // other internal stuff
-float gfks_projection_matrix[16];
 void _gfks_limit_fps(int fps);
 void _gfks_ms(long long int *ms);
 void _gfks_sleep_ms(int ms);

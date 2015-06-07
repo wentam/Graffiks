@@ -2,6 +2,7 @@
 #include <GL/glxew.h>
 #include "graffiks/driver.h"
 #include "graffiks/governor.h"
+#include "graffiks/renderer/renderer.h"
 #include "graffiks/dt_callbacks.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,8 +21,8 @@ GLXContext glc;
 int _use_vsync = 1;
 
 void gfks_init(int window_width, int window_height, char *window_title,
-                    void (*init)(int *width, int *height),
-                    void (*update)(float time_step), void (*finish)(void)) {
+               void (*init)(int *width, int *height), void (*update)(float time_step),
+               void (*finish)(void)) {
 
   display = XOpenDisplay(NULL);
   root = DefaultRootWindow(display);
@@ -53,7 +54,7 @@ void gfks_init(int window_width, int window_height, char *window_title,
   }
 
   gfks_set_dt_callbacks(init, update, finish);
-  _gfks_set_size(window_width, window_height);
+  gfks_set_renderer_size(window_width, window_height);
 
   _gfks_init();
 

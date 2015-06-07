@@ -4,6 +4,7 @@
 #include "graffiks/renderer/forward_renderer.h"
 #include "graffiks/camera.h"
 #include "graffiks/driver.h"
+#include "graffiks/gl_helper.h"
 #include <stddef.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -139,6 +140,18 @@ GLuint *_gfks_create_program(char *vertex_shader_filepath,
   glLinkProgram(*program);
 
   return program;
+}
+
+void gfks_set_renderer_size(int width, int height) {
+  glViewport(0, 0, width, height);
+
+  float ratio = (float)width / height;
+  gfks_set_projection_matrix(gfks_projection_matrix, -ratio * 3, ratio * 3, // left, right
+                             3, -3,                                         // top, bottom
+                             4, 100);                                       // near, far
+
+  renderer_width = width;
+  renderer_height = height;
 }
 
 void gfks_draw_objects() {

@@ -66,18 +66,6 @@ void _gfks_init() {
   _ms(&frame_start_time);
 }
 
-void _gfks_set_size(int width, int height) {
-  glViewport(0, 0, width, height);
-
-  float ratio = (float)width / height;
-  gfks_set_projection_matrix(gfks_projection_matrix, -ratio * 3, ratio * 3, // left, right
-                             3, -3,                                         // top, bottom
-                             4, 100);                                       // near, far
-
-  renderer_width = width;
-  renderer_height = height;
-}
-
 void _gfks_draw_frame() {
   _limit_fps(250);
 

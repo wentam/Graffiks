@@ -29,7 +29,11 @@ typedef enum {
 } gfks_renderer_flags;
 
 /// \cond INTERNAL
+int renderer_width;
+int renderer_height;
+
 extern gfks_renderer_flags gfks_enabled_renderers;
+float gfks_projection_matrix[16];
 
 typedef struct {
   gfks_mesh *mesh;
@@ -45,6 +49,7 @@ DLL_EXPORT void gfks_init_renderers(gfks_renderer_flags flags);
 DLL_EXPORT void gfks_terminate_renderers(gfks_renderer_flags flags);
 
 /// \cond INTERNAL
+DLL_EXPORT void gfks_set_renderer_size(int width, int height);
 DLL_EXPORT void gfks_draw_objects();
 DLL_EXPORT void _gfks_clear(gfks_renderer_flags flags);
 DLL_EXPORT GLuint *_gfks_create_program(char *vertex_shader_filepath,
