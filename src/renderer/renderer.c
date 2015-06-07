@@ -2,6 +2,8 @@
 #include "graffiks/renderer/renderer.h"
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/renderer/forward_renderer.h"
+#include "graffiks/camera.h"
+#include "graffiks/driver.h"
 #include <stddef.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -137,6 +139,30 @@ GLuint *_gfks_create_program(char *vertex_shader_filepath,
   glLinkProgram(*program);
 
   return program;
+}
+
+void gfks_draw_objects() {
+  _gfks_update_view_matrix();
+
+  if (gfks_render_queue_size > 0) {
+    if (gfks_enabled_renderers & GFKS_RENDERER_DEFERRED) {
+      _gfks_geom_pass_df();
+      _gfks_ambient_pass_df();
+      _gfks_light_pass_df();
+    }
+
+    if (gfks_enabled_renderers & GFKS_RENDERER_FORWARD) {
+      _gfks_draw_from_queue_fw();
+    }
+  }
+
+#ifdef LINUX
+  glXSwapBuffers(display, win);
+#endif
+
+#ifdef _WIN32
+  SwapBuffers(hdc);
+#endif
 }
 
 #ifdef ANDROID

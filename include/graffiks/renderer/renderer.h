@@ -45,6 +45,7 @@ DLL_EXPORT void gfks_init_renderers(gfks_renderer_flags flags);
 DLL_EXPORT void gfks_terminate_renderers(gfks_renderer_flags flags);
 
 /// \cond INTERNAL
+DLL_EXPORT void gfks_draw_objects();
 DLL_EXPORT void _gfks_clear(gfks_renderer_flags flags);
 DLL_EXPORT GLuint *_gfks_create_program(char *vertex_shader_filepath,
                                         char *fragment_shader_filepath);

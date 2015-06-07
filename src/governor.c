@@ -90,27 +90,7 @@ void _gfks_draw_frame() {
   // draw
   _gfks_call_draw();
 
-  _gfks_update_view_matrix();
-
-  if (gfks_render_queue_size > 0) {
-    if (gfks_enabled_renderers & GFKS_RENDERER_DEFERRED) {
-      _gfks_geom_pass_df();
-      _gfks_ambient_pass_df();
-      _gfks_light_pass_df();
-    }
-
-    if (gfks_enabled_renderers & GFKS_RENDERER_FORWARD) {
-      _gfks_draw_from_queue_fw();
-    }
-  }
-
-#ifdef LINUX
-  glXSwapBuffers(display, win);
-#endif
-
-#ifdef _WIN32
-  SwapBuffers(hdc);
-#endif
+  gfks_draw_objects();
 
   // figure out how much time the next update should handle
   // we use a moving average with an extra "smooth" pass to make the framerate more
