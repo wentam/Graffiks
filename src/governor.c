@@ -114,11 +114,3 @@ void _gfks_draw_frame() {
 }
 
 void _gfks_finish() { _gfks_call_finish(); }
-
-void gfks_set_camera_location_target_and_up(float x, float y, float z, float tx, float ty,
-                                            float tz, float ux, float uy, float uz) {
-
-  gfks_set_view_matrix(gfks_view_matrix, x, y, z, // camera location
-                       tx, ty, tz,                // camera target
-                       ux, uy, uz);               // up vector
-}
