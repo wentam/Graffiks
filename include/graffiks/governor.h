@@ -30,11 +30,6 @@
 #endif
 #endif
 
-// put the camera where you want it
-DLL_EXPORT void gfks_set_camera_location_target_and_up(float x, float y, float z,
-                                                       float tx, float ty, float tz,
-                                                       float ux, float uy, float uz);
-
 // to be controlled by a driver such as driver-jni-android.c
 void _gfks_init();
 void _gfks_draw_frame();
