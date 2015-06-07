@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include "graffiks/renderer/forward_renderer.h"
-#include "graffiks/governor.h"
+#include "graffiks/dt_loop.h"
 #include "graffiks/material.h"
 #include "graffiks/lights.h"
 #include "graffiks/renderer/renderer.h"

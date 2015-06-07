@@ -13,9 +13,9 @@ int _use_vsync = 1;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-void gfks_init(int window_width, int window_height, char *window_title,
-               void (*init)(int *width, int *height), void (*update)(float time_step),
-               void (*finish)(void)) {
+void gfks_init_dt(int window_width, int window_height, char *window_title,
+                  void (*init)(int *width, int *height), void (*update)(float time_step),
+                  void (*finish)(void)) {
   HINSTANCE hInstance = GetModuleHandle(NULL);
   wchar_t w_window_title[255];
   mbstowcs(w_window_title, window_title, 255);

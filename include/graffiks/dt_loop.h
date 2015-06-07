@@ -9,7 +9,7 @@
 #include <sys/time.h>
 #endif
 
-#include "graffiks/driver.h"
+#include "graffiks/graffiks.h"
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -31,8 +31,7 @@
 #endif
 
 // to be controlled by a driver such as driver-linux.c
-void _gfks_init();
-void _gfks_draw_frame();
-void _gfks_finish();
+void _gfks_dt_start_loop();
+void _gfks_dt_finish();
 
 #endif

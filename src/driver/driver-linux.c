@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glxew.h>
-#include "graffiks/driver.h"
-#include "graffiks/governor.h"
+#include "graffiks/graffiks.h"
+#include "graffiks/dt_loop.h"
 #include "graffiks/renderer/renderer.h"
 #include "graffiks/dt_callbacks.h"
 #include <stdio.h>
@@ -20,10 +20,7 @@ XSetWindowAttributes swa;
 GLXContext glc;
 int _use_vsync = 1;
 
-void gfks_init(int window_width, int window_height, char *window_title,
-               void (*init)(int *width, int *height), void (*update)(float time_step),
-               void (*finish)(void)) {
-
+void gfks_init(int window_width, int window_height, char *window_title) {
   display = XOpenDisplay(NULL);
   root = DefaultRootWindow(display);
   vi = glXChooseVisual(display, 0, att);
@@ -53,14 +50,17 @@ void gfks_init(int window_width, int window_height, char *window_title,
     glXSwapIntervalEXT(display, win, 1);
   }
 
-  gfks_set_dt_callbacks(init, update, finish);
   gfks_set_renderer_size(window_width, window_height);
+}
 
-  _gfks_init();
+void gfks_init_dt(int window_width, int window_height, char *window_title,
+                  void (*init)(int *width, int *height), void (*update)(float time_step),
+                  void (*finish)(void)) {
+  gfks_init(window_width, window_height, window_title);
 
-  while (1) {
-    _gfks_draw_frame();
-  }
+  gfks_set_dt_callbacks(init, update, finish);
+
+  _gfks_dt_start_loop();
 }
 
 void gfks_use_vsync(int vsync) { _use_vsync = vsync; }

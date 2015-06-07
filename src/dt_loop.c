@@ -1,4 +1,4 @@
-#include "graffiks/governor.h"
+#include "graffiks/dt_loop.h"
 #include "graffiks/renderer/renderer.h"
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/renderer/forward_renderer.h"
@@ -55,19 +55,14 @@ static void _limit_fps(int fps) {
   _ms(&frame_start_time);
 }
 
-void _gfks_init() {
-  _gfks_call_init(&renderer_width, &renderer_height);
-  _ms(&frame_start_time);
-}
-
-void _gfks_draw_frame() {
+void _gfks_dt_draw_frame() {
   _limit_fps(250);
 
   // update
   _gfks_call_update(delta_time_smoothed);
 
   // clear screen
-  _gfks_clear(gfks_enabled_renderers);
+  gfks_clear(gfks_enabled_renderers);
 
   // draw
   _gfks_call_draw();
@@ -95,4 +90,13 @@ void _gfks_draw_frame() {
   last_frame_end_time = frame_end_time_;
 }
 
-void _gfks_finish() { _gfks_call_finish(); }
+void _gfks_dt_start_loop() {
+  _gfks_call_init(&renderer_width, &renderer_height);
+  _ms(&frame_start_time);
+
+  while (1) {
+    _gfks_dt_draw_frame();
+  }
+}
+
+void _gfks_dt_finish() { _gfks_call_finish(); }

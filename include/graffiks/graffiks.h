@@ -16,7 +16,7 @@
 #endif
 
 #ifdef _WIN32
-#include "graffiks/governor.h"
+#include "graffiks/dt_loop.h"
 #include "graffiks/dt_callbacks.h"
 #include <windows.h>
 #endif
@@ -34,9 +34,11 @@ Display *display;
 Window win;
 #endif
 
-DLL_EXPORT void gfks_init(int window_width, int window_height, char *window_title,
-                          void (*init)(int *width, int *height),
-                          void (*update)(float time_step), void (*finish)(void));
+DLL_EXPORT void gfks_init_dt(int window_width, int window_height, char *window_title,
+                             void (*init)(int *width, int *height),
+                             void (*update)(float time_step), void (*finish)(void));
+
+DLL_EXPORT void gfks_init(int window_width, int window_height, char *window_title);
 
 DLL_EXPORT void gfks_use_vsync(int vsync);
 

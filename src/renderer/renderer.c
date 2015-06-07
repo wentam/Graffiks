@@ -3,7 +3,7 @@
 #include "graffiks/renderer/deferred_renderer.h"
 #include "graffiks/renderer/forward_renderer.h"
 #include "graffiks/camera.h"
-#include "graffiks/driver.h"
+#include "graffiks/graffiks.h"
 #include "graffiks/gl_helper.h"
 #include <stddef.h>
 #include <sys/types.h>
@@ -45,7 +45,7 @@ void gfks_terminate_renderers(gfks_renderer_flags flags) {
   }
 }
 
-void _gfks_clear(gfks_renderer_flags flags) {
+void gfks_clear(gfks_renderer_flags flags) {
   if (flags & GFKS_RENDERER_DEFERRED) {
     _gfks_clear_df();
   }
