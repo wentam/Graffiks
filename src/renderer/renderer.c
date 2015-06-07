@@ -16,6 +16,12 @@ gfks_render_queue_item **gfks_render_queue;
 int gfks_render_queue_size = 0;
 
 void gfks_init_renderers(gfks_renderer_flags flags) {
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glDepthMask(GL_TRUE);
+
   if (flags & GFKS_RENDERER_DEFERRED) {
     _gfks_init_renderer_df();
     gfks_enabled_renderers |= GFKS_RENDERER_DEFERRED;
