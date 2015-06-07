@@ -56,12 +56,6 @@ void _limit_fps(int fps) {
 }
 
 void _gfks_init() {
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glDepthMask(GL_TRUE);
-
   _gfks_call_init(&renderer_width, &renderer_height);
   _ms(&frame_start_time);
 }
