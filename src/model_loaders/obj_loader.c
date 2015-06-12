@@ -79,7 +79,7 @@ char **_gfks_read_obj_data(char *filepath, int *line_count_output) {
   return obj_data;
 }
 
-int _gfks_resize_2d_int_array(float ***array, int previous_size, int size, int size2) {
+int _gfks_resize_2d_float_array(float ***array, int previous_size, int size, int size2) {
   if (previous_size > size) {
     // we're shrinking, so free stuff
     int i;
@@ -101,7 +101,7 @@ int _gfks_resize_2d_int_array(float ***array, int previous_size, int size, int s
   return size;
 }
 
-void _gfks_free_2d_int_array(float ***array, int size) {
+void _gfks_free_2d_float_array(float ***array, int size) {
   int i;
   for (i = 0; i < size; i++) {
     free((*array)[i]);
@@ -214,8 +214,8 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
 
   gfks_named_material_array *mats = NULL;
 
-  allocated_vertex_count = _gfks_resize_2d_int_array(&verts, 0, 64, 3);
-  allocated_normal_count = _gfks_resize_2d_int_array(&normals, 0, 64, 3);
+  allocated_vertex_count = _gfks_resize_2d_float_array(&verts, 0, 64, 3);
+  allocated_normal_count = _gfks_resize_2d_float_array(&normals, 0, 64, 3);
 
   int i;
   for (i = 0; i < line_count; i++) {
@@ -226,7 +226,7 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
       vertex_count++;
 
       if (vertex_count > allocated_vertex_count) {
-        allocated_vertex_count = _gfks_resize_2d_int_array(
+        allocated_vertex_count = _gfks_resize_2d_float_array(
             &verts, allocated_vertex_count, allocated_vertex_count + 64, 3);
       }
 
@@ -284,7 +284,7 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
       normal_count++;
 
       if (normal_count > allocated_normal_count) {
-        allocated_normal_count = _gfks_resize_2d_int_array(
+        allocated_normal_count = _gfks_resize_2d_float_array(
             &normals, allocated_normal_count, allocated_normal_count + 64, 3);
       }
 
@@ -336,7 +336,7 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
 
   // shrink arrays to true size
   allocated_vertex_count =
-      _gfks_resize_2d_int_array(&verts, allocated_vertex_count, vertex_count, 3);
+      _gfks_resize_2d_float_array(&verts, allocated_vertex_count, vertex_count, 3);
 
   for (i = 0; i < mat_count; i++) {
     face_groups[i]->allocated_face_count =
@@ -344,7 +344,7 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
                            face_groups[i]->face_count);
   }
   allocated_normal_count =
-      _gfks_resize_2d_int_array(&normals, allocated_normal_count, normal_count, 3);
+      _gfks_resize_2d_float_array(&normals, allocated_normal_count, normal_count, 3);
 
   // free obj data
   _gfks_free_obj_data(&obj_data, line_count);
@@ -367,8 +367,8 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
       gfks_create_object(object_meshes, object_mats, allocated_face_group_count);
 
   // free other stuff
-  _gfks_free_2d_int_array(&verts, allocated_vertex_count);
-  _gfks_free_2d_int_array(&normals, allocated_normal_count);
+  _gfks_free_2d_float_array(&verts, allocated_vertex_count);
+  _gfks_free_2d_float_array(&normals, allocated_normal_count);
   gfks_free_named_mats(mats);
 
   for (i = 0; i < mat_count; i++) {
