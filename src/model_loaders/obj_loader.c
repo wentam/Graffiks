@@ -212,10 +212,15 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
   int normal_count = 0;
   int allocated_normal_count;
 
+  float **uv = NULL; // tex coords
+  int uv_count = 0;
+  int allocated_uv_count;
+
   gfks_named_material_array *mats = NULL;
 
   allocated_vertex_count = _gfks_resize_2d_float_array(&verts, 0, 64, 3);
   allocated_normal_count = _gfks_resize_2d_float_array(&normals, 0, 64, 3);
+  allocated_uv_count = _gfks_resize_2d_float_array(&uv, 0, 64, 2);
 
   int i;
   for (i = 0; i < line_count; i++) {
@@ -291,6 +296,19 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
       normals[normal_count - 1][0] = atof(strtok_r(NULL, " ", &ptr));
       normals[normal_count - 1][1] = atof(strtok_r(NULL, " ", &ptr));
       normals[normal_count - 1][2] = atof(strtok_r(NULL, " ", &ptr));
+    } else if (obj_data[i][0] == 'v' && obj_data[i][1] == 't') {
+      char *ptr;
+      strtok_r(obj_data[i], " ", &ptr);
+
+      uv_count++;
+
+      if (uv_count > allocated_uv_count) {
+        allocated_uv_count = _gfks_resize_2d_float_array(&uv, allocated_uv_count,
+                                                         allocated_uv_count + 64, 2);
+      }
+
+      uv[uv_count - 1][0] = atof(strtok_r(NULL, " ", &ptr));
+      uv[uv_count - 1][1] = atof(strtok_r(NULL, " ", &ptr));
     } else if (_gfks_string_starts_with("usemtl", obj_data[i])) {
       char *ptr;
       strtok_r(obj_data[i], " ", &ptr);
@@ -346,6 +364,8 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
   allocated_normal_count =
       _gfks_resize_2d_float_array(&normals, allocated_normal_count, normal_count, 3);
 
+  allocated_uv_count = _gfks_resize_2d_float_array(&uv, allocated_uv_count, uv_count, 2);
+
   // free obj data
   _gfks_free_obj_data(&obj_data, line_count);
 
@@ -369,6 +389,7 @@ gfks_object *gfks_load_obj(gfks_renderer_flags flags, char *filepath) {
   // free other stuff
   _gfks_free_2d_float_array(&verts, allocated_vertex_count);
   _gfks_free_2d_float_array(&normals, allocated_normal_count);
+  _gfks_free_2d_float_array(&uv, allocated_uv_count);
   gfks_free_named_mats(mats);
 
   for (i = 0; i < mat_count; i++) {
