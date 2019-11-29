@@ -38,6 +38,17 @@ DLL_EXPORT void gfks_init_dt(int window_width, int window_height, char *window_t
                              void (*init)(int *width, int *height),
                              void (*update)(float time_step), void (*finish)(void));
 
+#ifdef LINUX
+DLL_EXPORT void gfks_init_with_window(Display *display, Window window);
+DLL_EXPORT void gfks_init_with_window_dt(Display *display, Window window,
+                             void (*init)(int *width, int *height),
+                             void (*update)(float time_step), void (*finish)(void));
+#endif
+
+#ifdef _WIN32
+// windows version of init_with_window and init_with_window_dt
+#endif
+
 DLL_EXPORT void gfks_init(int window_width, int window_height, char *window_title);
 
 DLL_EXPORT void gfks_use_vsync(int vsync);

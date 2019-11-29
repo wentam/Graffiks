@@ -20,6 +20,39 @@ XSetWindowAttributes swa;
 GLXContext glc;
 int _use_vsync = 1;
 
+void gfks_init_with_window(Display *idisplay, Window window) {
+  win = window;
+  display = idisplay;
+ 
+  vi = glXChooseVisual(display, 0, att);
+
+  int window_x;
+  int window_y;
+  unsigned int window_width;
+  unsigned int window_height;
+  unsigned int border_width;
+  unsigned int depth;
+  XGetGeometry(display, window, &root, &window_x, &window_y, &window_width,
+                      &window_height, &border_width, &depth);
+
+  XMapWindow(display, window);
+
+  glc = glXCreateContext(display, vi, NULL, GL_TRUE);
+
+  glXMakeCurrent(display, window, glc);
+
+  GLenum err = glewInit();
+  if (GLEW_OK != err) {
+    fprintf(stderr, "glew error: %s\n", glewGetErrorString(err));
+  }
+
+  if (GLX_EXT_swap_control && _use_vsync) {
+    glXSwapIntervalEXT(display, window, 1);
+  }
+
+  gfks_set_renderer_size(window_width, window_height);
+}
+
 void gfks_init(int window_width, int window_height, char *window_title) {
   display = XOpenDisplay(NULL);
   root = DefaultRootWindow(display);
@@ -30,27 +63,24 @@ void gfks_init(int window_width, int window_height, char *window_title) {
   swa.colormap = cmap;
   swa.event_mask = ExposureMask | KeyPressMask;
 
-  win = XCreateWindow(display, root, 0, 0, window_width, window_height, 0, vi->depth,
-                      InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+  Window window = XCreateWindow(display, root, 0, 0, window_width, window_height, 0, vi->depth,
+                     InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
 
-  XMapWindow(display, win);
+  XMapWindow(display, window);
 
-  XStoreName(display, win, window_title);
+  XStoreName(display, window, window_title);
+ 
+  gfks_init_with_window(display, window); 
+}
 
-  glc = glXCreateContext(display, vi, NULL, GL_TRUE);
+void gfks_init_with_window_dt(Display *display, Window window,
+                  void (*init)(int *width, int *height), void (*update)(float time_step),
+                  void (*finish)(void)) {
+  gfks_init_with_window(display, window);
 
-  glXMakeCurrent(display, win, glc);
+  gfks_set_dt_callbacks(init, update, finish);
 
-  GLenum err = glewInit();
-  if (GLEW_OK != err) {
-    fprintf(stderr, "glew error: %s\n", glewGetErrorString(err));
-  }
-
-  if (GLX_EXT_swap_control && _use_vsync) {
-    glXSwapIntervalEXT(display, win, 1);
-  }
-
-  gfks_set_renderer_size(window_width, window_height);
+  _gfks_dt_start_loop();
 }
 
 void gfks_init_dt(int window_width, int window_height, char *window_title,
