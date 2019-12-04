@@ -20,13 +20,74 @@ static const char *engine_required_extensions[] = {"VK_KHR_surface"};
 static const int engine_required_extension_count = 
   sizeof(engine_required_extensions)/sizeof(*engine_required_extensions);
 
+// define this function so wo can stick it at bottom of file
+static const char** decide_extensions(gfks_window_system *window_systems, int *extension_count);
+
+// Creates a new Graffiks context
+gfks_context* gfks_create_context(gfks_window_system *window_systems) {
+  #if (GFKS_DEBUG_LEVEL > 0)
+    printf("%s: Creating context\n",GFKS_DEBUG_TAG);
+  #endif
+
+  gfks_context *context = malloc(sizeof(gfks_context));
+
+  // put together app info struct
+  VkApplicationInfo app_info = {};
+  app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+  app_info.pApplicationName = NULL;
+  app_info.applicationVersion = VK_MAKE_VERSION(0,0,0);
+  app_info.pEngineName = GFKS_ENGINE_NAME;
+  app_info.engineVersion = VK_MAKE_VERSION(GFKS_MAJOR_VERSION,GFKS_MINOR_VERSION,GFKS_REVISION);
+  app_info.apiVersion = VK_API_VERSION_1_1;
+
+  // decide what extensions we want to enable.
+  context->enabled_extensions = decide_extensions(window_systems,&(context->enabled_vulkan_extension_count));
+
+  VkInstanceCreateInfo create_info = {};                               
+  create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  create_info.pApplicationInfo = &app_info;
+  create_info.pNext = NULL;
+  create_info.flags = 0;
+  create_info.enabledLayerCount = 0;
+  create_info.enabledExtensionCount = context->enabled_vulkan_extension_count;
+  create_info.ppEnabledExtensionNames = context->enabled_extensions;
+
+#if (GFKS_DEBUG_LEVEL > 1)
+  const char *validation_layers[1] = {"VK_LAYER_KHRONOS_validation"};
+  // TODO check if validation layers exist first
+  create_info.enabledLayerCount = 1;
+  create_info.ppEnabledLayerNames = validation_layers;
+#endif
+
+  context->vk_instance = malloc(sizeof(VkInstance));
+  VkResult r = vkCreateInstance(&create_info, NULL, context->vk_instance);
+  if (r != VK_SUCCESS) {
+    gfks_destroy_context(context);
+    // TODO give user some type of error
+    #if (GFKS_DEBUG_LEVEL > 0)
+    printf("%s: Failed to create vulkan instance. gfks_context will be NULL. VkResult:%i\n",GFKS_DEBUG_TAG,r);
+    #endif
+    return NULL;
+ }
+
+  return context;
+}
+
+// Destroys a Graffiks context
+void gfks_destroy_context(gfks_context *context) {
+  vkDestroyInstance(*(context->vk_instance), NULL);
+  free(context->vk_instance);
+  free(context->enabled_extensions);
+  free(context);
+}
+
 // Decides which vulkan extensions we want to enable
 //
 // - *extension_count will get written to the number of extensions returned.
 // - returned array has extension_count rows and VK_MAX_EXTENSION_NAME_SIZE columns 
 // - if there is no window system mapping available for a window system, or the
 // extension is not available, the window system will be replaced with GFKS_WINDOW_SYSTEM_NONE_BITFLAG
-const char** decide_extensions(gfks_window_system *window_systems, int *extension_count) {
+static const char** decide_extensions(gfks_window_system *window_systems, int *extension_count) {
   // Define a linked list to store our decided-upon extensions
   struct extension_node {
     char *extension;
@@ -127,63 +188,5 @@ const char** decide_extensions(gfks_window_system *window_systems, int *extensio
 
   *extension_count = total_extensions;
   return extensions;
-}
-
-// Creates a new Graffiks context
-gfks_context* gfks_create_context(gfks_window_system *window_systems) {
-  #if (GFKS_DEBUG_LEVEL > 0)
-    printf("%s: Creating context\n",GFKS_DEBUG_TAG);
-  #endif
-
-  gfks_context *context = malloc(sizeof(gfks_context));
-
-  // put together app info struct
-  VkApplicationInfo app_info = {};
-  app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  app_info.pApplicationName = NULL;
-  app_info.applicationVersion = VK_MAKE_VERSION(0,0,0);
-  app_info.pEngineName = GFKS_ENGINE_NAME;
-  app_info.engineVersion = VK_MAKE_VERSION(GFKS_MAJOR_VERSION,GFKS_MINOR_VERSION,GFKS_REVISION);
-  app_info.apiVersion = VK_API_VERSION_1_1;
-
-  // decide what extensions we want to enable.
-  context->enabled_extensions = decide_extensions(window_systems,&(context->enabled_vulkan_extension_count));
-
-  VkInstanceCreateInfo create_info = {};                               
-  create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  create_info.pApplicationInfo = &app_info;
-  create_info.pNext = NULL;
-  create_info.flags = 0;
-  create_info.enabledLayerCount = 0;
-  create_info.enabledExtensionCount = context->enabled_vulkan_extension_count;
-  create_info.ppEnabledExtensionNames = context->enabled_extensions;
-
-#if (GFKS_DEBUG_LEVEL > 1)
-  const char *validation_layers[1] = {"VK_LAYER_KHRONOS_validation"};
-  // TODO check if validation layers exist first
-  create_info.enabledLayerCount = 1;
-  create_info.ppEnabledLayerNames = validation_layers;
-#endif
-
-  context->vk_instance = malloc(sizeof(VkInstance));
-  VkResult r = vkCreateInstance(&create_info, NULL, context->vk_instance);
-  if (r != VK_SUCCESS) {
-    gfks_destroy_context(context);
-    // TODO give user some type of error
-    #if (GFKS_DEBUG_LEVEL > 0)
-    printf("%s: Failed to create vulkan instance. gfks_context will be NULL. VkResult:%i\n",GFKS_DEBUG_TAG,r);
-    #endif
-    return NULL;
- }
-
-  return context;
-}
-
-// Destroys a Graffiks context
-void gfks_destroy_context(gfks_context *context) {
-  vkDestroyInstance(*(context->vk_instance), NULL);
-  free(context->vk_instance);
-  free(context->enabled_extensions);
-  free(context);
 }
 
