@@ -2,17 +2,23 @@
 #include <string.h>
 
 // window system extension mapping
-const int _window_system_extension_mapping_count = 2;
-const struct {
+typedef struct {
   gfks_window_system window_system;
   char *vulkan_extension;
-} _window_system_extension_mapping[] = 
- {{GFKS_WINDOW_SYSTEM_X11_BITFLAG,"VK_KHR_xlib_surface"},
-  {GFKS_WINDOW_SYSTEM_WAYLAND_BITFLAG,"VK_KHR_wayland_surface"}};
+} window_system_extension_map;
+
+static const window_system_extension_map window_system_extension_mapping[] = {
+  {GFKS_WINDOW_SYSTEM_X11_BITFLAG,"VK_KHR_xlib_surface"},
+  {GFKS_WINDOW_SYSTEM_WAYLAND_BITFLAG,"VK_KHR_wayland_surface"}
+};
+
+static const int window_system_extension_mapping_count =
+  sizeof(window_system_extension_mapping)/sizeof(window_system_extension_map);
 
 // required engine extensions
-const int _engine_required_extension_count = 1;
-const char *_engine_required_extensions[] = {"VK_KHR_surface"};
+static const char *engine_required_extensions[] = {"VK_KHR_surface"};
+static const int engine_required_extension_count = 
+  sizeof(engine_required_extensions)/sizeof(*engine_required_extensions);
 
 // Decides which vulkan extensions we want to enable
 //
@@ -20,7 +26,7 @@ const char *_engine_required_extensions[] = {"VK_KHR_surface"};
 // - returned array has extension_count rows and VK_MAX_EXTENSION_NAME_SIZE columns 
 // - if there is no window system mapping available for a window system, or the
 // extension is not available, the window system will be replaced with GFKS_WINDOW_SYSTEM_NONE_BITFLAG
-const char** _decide_extensions(gfks_window_system *window_systems, int *extension_count) {
+const char** decide_extensions(gfks_window_system *window_systems, int *extension_count) {
   // Define a linked list to store our decided-upon extensions
   struct extension_node {
     char *extension;
@@ -43,14 +49,14 @@ const char** _decide_extensions(gfks_window_system *window_systems, int *extensi
   struct extension_node *previous_node = NULL;
   struct extension_node *first_node = NULL;
   int total_extensions = 0;
-  for (int i = 0; i < _window_system_extension_mapping_count; i++)  { // for each window system extension map
+  for (int i = 0; i < window_system_extension_mapping_count; i++)  { // for each window system extension map
 
     // If this window system mapping applies to any of our desired window systems...
-    if (*window_systems & _window_system_extension_mapping[i].window_system) {
+    if (*window_systems & window_system_extension_mapping[i].window_system) {
       // Check if this extension is available 
       int extension_available = 0;
       for (int j = 0; j < vulkan_supported_extension_count; j++) {
-        if (strcmp(_window_system_extension_mapping[i].vulkan_extension, vulkan_extension_properties[j].extensionName) == 0) {
+        if (strcmp(window_system_extension_mapping[i].vulkan_extension, vulkan_extension_properties[j].extensionName) == 0) {
           extension_available = 1;
         }
       }
@@ -60,7 +66,7 @@ const char** _decide_extensions(gfks_window_system *window_systems, int *extensi
         total_extensions++;
 
         struct extension_node *new_node = malloc(sizeof(struct extension_node));
-        new_node->extension = _window_system_extension_mapping[i].vulkan_extension;
+        new_node->extension = window_system_extension_mapping[i].vulkan_extension;
         new_node->next = NULL;
 
         if (previous_node != NULL) {
@@ -83,7 +89,7 @@ const char** _decide_extensions(gfks_window_system *window_systems, int *extensi
   #endif
 
   // Add our required extensions to target array size
-  total_extensions += _engine_required_extension_count;
+  total_extensions += engine_required_extension_count;
 
   // Allocate output extensions array
   const char **extensions = malloc((total_extensions*sizeof(char *))+(VK_MAX_EXTENSION_NAME_SIZE*sizeof(char)));
@@ -110,10 +116,10 @@ const char** _decide_extensions(gfks_window_system *window_systems, int *extensi
   free(cnode);
 
   // Add our required engine extensions
-  for (int j = 0; j < _engine_required_extension_count; j++)  {
-      extensions[i++] = (char*)_engine_required_extensions[j];
+  for (int j = 0; j < engine_required_extension_count; j++)  {
+      extensions[i++] = (char*)engine_required_extensions[j];
       #if (GFKS_DEBUG_LEVEL > 0)
-        printf("%s: Decided to use instance extension: %s\n",GFKS_DEBUG_TAG,_engine_required_extensions[j]) ;
+        printf("%s: Decided to use instance extension: %s\n",GFKS_DEBUG_TAG,engine_required_extensions[j]) ;
       #endif
   }
 
@@ -141,7 +147,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   app_info.apiVersion = VK_API_VERSION_1_1;
 
   // decide what extensions we want to enable.
-  context->enabled_extensions = _decide_extensions(window_systems,&(context->enabled_vulkan_extension_count));
+  context->enabled_extensions = decide_extensions(window_systems,&(context->enabled_vulkan_extension_count));
 
   VkInstanceCreateInfo create_info = {};                               
   create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -162,10 +168,12 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   context->vk_instance = malloc(sizeof(VkInstance));
   VkResult r = vkCreateInstance(&create_info, NULL, context->vk_instance);
   if (r != VK_SUCCESS) {
-    context = NULL;
+    gfks_destroy_context(context);
+    // TODO give user some type of error
     #if (GFKS_DEBUG_LEVEL > 0)
     printf("%s: Failed to create vulkan instance. gfks_context will be NULL. VkResult:%i\n",GFKS_DEBUG_TAG,r);
     #endif
+    return NULL;
  }
 
   return context;
