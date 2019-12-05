@@ -13,21 +13,22 @@ static const window_system_extension_map window_system_extension_mapping[] = {
 };
 
 static const int window_system_extension_mapping_count =
-  sizeof(window_system_extension_mapping)/sizeof(window_system_extension_map);
+sizeof(window_system_extension_mapping)/sizeof(window_system_extension_map);
 
 // required engine extensions
 static const char *engine_required_extensions[] = {"VK_KHR_surface"};
 static const int engine_required_extension_count = 
-  sizeof(engine_required_extensions)/sizeof(*engine_required_extensions);
+sizeof(engine_required_extensions)/sizeof(*engine_required_extensions);
 
 // define this function so wo can stick it at bottom of file
-static const char** decide_extensions(gfks_window_system *window_systems, int *extension_count);
+static const char** decide_extensions(gfks_window_system *window_systems,
+                                      int *extension_count);
 
 // Creates a new Graffiks context
 gfks_context* gfks_create_context(gfks_window_system *window_systems) {
-  #if (GFKS_DEBUG_LEVEL > 0)
-    printf("%s: Creating context\n",GFKS_DEBUG_TAG);
-  #endif
+#if (GFKS_DEBUG_LEVEL > 0)
+  printf("%s: Creating context\n",GFKS_DEBUG_TAG);
+#endif
 
   gfks_context *context = malloc(sizeof(gfks_context));
 
@@ -41,7 +42,8 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   app_info.apiVersion = VK_API_VERSION_1_1;
 
   // decide what extensions we want to enable.
-  context->enabled_extensions = decide_extensions(window_systems,&(context->enabled_vulkan_extension_count));
+  context->enabled_extensions = decide_extensions(window_systems,
+                                                  &(context->enabled_vulkan_extension_count));
 
   VkInstanceCreateInfo create_info = {};                               
   create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -65,7 +67,8 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
     gfks_destroy_context(context);
     // TODO give user some type of error
     #if (GFKS_DEBUG_LEVEL > 0)
-    printf("%s: Failed to create vulkan instance. gfks_context will be NULL. VkResult:%i\n",GFKS_DEBUG_TAG,r);
+    printf("%s: Failed to create vulkan instance. gfks_context will be NULL. VkResult:%i\n",
+           GFKS_DEBUG_TAG,r);
     #endif
     return NULL;
  }
@@ -86,7 +89,8 @@ void gfks_destroy_context(gfks_context *context) {
 // - *extension_count will get written to the number of extensions returned.
 // - returned array has extension_count rows and VK_MAX_EXTENSION_NAME_SIZE columns 
 // - if there is no window system mapping available for a window system, or the
-// extension is not available, the window system will be replaced with GFKS_WINDOW_SYSTEM_NONE_BITFLAG
+// extension is not available, the window system will be replaced with
+// GFKS_WINDOW_SYSTEM_NONE_BITFLAG
 static const char** decide_extensions(gfks_window_system *window_systems, int *extension_count) {
   // Define a linked list to store our decided-upon extensions
   struct extension_node {
@@ -98,11 +102,14 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
   uint32_t vulkan_supported_extension_count;
   vkEnumerateInstanceExtensionProperties(NULL, &vulkan_supported_extension_count, NULL);
   VkExtensionProperties vulkan_extension_properties[vulkan_supported_extension_count];
-  vkEnumerateInstanceExtensionProperties(NULL, &vulkan_supported_extension_count, vulkan_extension_properties);
+  vkEnumerateInstanceExtensionProperties(NULL,
+                                         &vulkan_supported_extension_count,
+                                         vulkan_extension_properties);
 
   #if (GFKS_DEBUG_LEVEL > 1)
   for (int i = 0; i < vulkan_supported_extension_count; i++) {
-    printf("%s: Found supported vulkan extension: %s\n",GFKS_DEBUG_TAG,vulkan_extension_properties[i].extensionName);
+    printf("%s: Found supported vulkan extension: %s\n",
+           GFKS_DEBUG_TAG,vulkan_extension_properties[i].extensionName);
   }
   #endif
 
@@ -110,14 +117,15 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
   struct extension_node *previous_node = NULL;
   struct extension_node *first_node = NULL;
   int total_extensions = 0;
-  for (int i = 0; i < window_system_extension_mapping_count; i++)  { // for each window system extension map
+  for (int i = 0; i < window_system_extension_mapping_count; i++)  {
 
     // If this window system mapping applies to any of our desired window systems...
     if (*window_systems & window_system_extension_mapping[i].window_system) {
       // Check if this extension is available 
       int extension_available = 0;
       for (int j = 0; j < vulkan_supported_extension_count; j++) {
-        if (strcmp(window_system_extension_mapping[i].vulkan_extension, vulkan_extension_properties[j].extensionName) == 0) {
+        if (strcmp(window_system_extension_mapping[i].vulkan_extension,
+                   vulkan_extension_properties[j].extensionName) == 0) {
           extension_available = 1;
         }
       }
@@ -153,7 +161,9 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
   total_extensions += engine_required_extension_count;
 
   // Allocate output extensions array
-  const char **extensions = malloc((total_extensions*sizeof(char *))+(VK_MAX_EXTENSION_NAME_SIZE*sizeof(char)));
+  const char **extensions = malloc((total_extensions*sizeof(char *))
+                                   +(VK_MAX_EXTENSION_NAME_SIZE*sizeof(char)));
+
   char *offset = (char*)&extensions[total_extensions];
   for(int i = 0; i < total_extensions; i++) {
     extensions[i] = offset + i * VK_MAX_EXTENSION_NAME_SIZE;
@@ -180,7 +190,8 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
   for (int j = 0; j < engine_required_extension_count; j++)  {
       extensions[i++] = (char*)engine_required_extensions[j];
       #if (GFKS_DEBUG_LEVEL > 0)
-        printf("%s: Decided to use instance extension: %s\n",GFKS_DEBUG_TAG,engine_required_extensions[j]) ;
+        printf("%s: Decided to use instance extension: %s\n",
+               GFKS_DEBUG_TAG,engine_required_extensions[j]) ;
       #endif
   }
 
