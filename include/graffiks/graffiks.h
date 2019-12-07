@@ -59,28 +59,31 @@ DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 // ----------------------------- new stuff below -------------------------------
 
 #define GFKS_ENGINE_NAME "Graffiks"
+#define GFKS_DEBUG_TAG "GFKS"
 #define GFKS_MAJOR_VERSION 0
 #define GFKS_MINOR_VERSION 0
 #define GFKS_REVISION 0
-#define GFKS_DEBUG_TAG "GFKS"
 
 #ifndef GFKS_DEBUG_LEVEL
 #define GFKS_DEBUG_LEVEL 0
 #endif
+
+
+// Core public interface
+
 
 // Error handling
 // if any gfks_ function returns NULL instead of an object, look at GFKS_LATEST_ERROR
 
 typedef enum {
   GFKS_ERROR_NONE,
+  GFKS_ERROR_NULL_CONTEXT,
   GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
   GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE,
   GFKS_ERROR_UNKNOWN
 } gfks_error;
 
 gfks_error gfks_latest_error;
-
-// Core public interface
 
 // Data types
 typedef enum {
@@ -152,15 +155,15 @@ struct gfks_surface_struct {
 
 /// \brief Creates a new Graffiks surface
 ///
+/// CURRENTLY UNIMPLEMENTED
 ///
 /// \returns A Graffiks context. NULL if there was an error.
 /// \memberof gfks_surface_struct
 gfks_surface* gfks_create_surface();
 
-
 /// \brief Creates a new Graffiks surface for an X11 window
 ///
-/// Only present when BUILD_X11_SUPPORT is defined at build time.
+/// Only present when GFKS_CONFIG_X11_SUPPORT is defined at build time.
 ///
 /// \param display An X11 display
 /// \param window An X11 window
@@ -168,4 +171,30 @@ gfks_surface* gfks_create_surface();
 /// \memberof gfks_surface_struct
 gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, Window window);
 
+
+// --------------------
+// --- gfks_device ---
+// --------------------
+
+typedef struct gfks_device_protected_struct gfks_device_protected;
+typedef struct gfks_device_struct gfks_device;
+
+/// gfks_device
+struct gfks_device_struct {
+  /// \private
+  gfks_device_protected *_protected;
+
+  /// \public
+  /// \brief The parent Graffiks context.
+  /// \memberof gfks_device_struct
+  gfks_context *context;
+
+  /// \public
+  /// \brief Frees a device
+  ///
+  /// Must be called when you're done!
+  /// \param gfks_device A device to be destroyed
+  /// \memberof gfks_device_struct
+  void (*free)(gfks_device *device);
+};
 #endif

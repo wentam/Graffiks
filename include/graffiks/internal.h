@@ -9,9 +9,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 // Error handling
-gfks_err(gfks_error err, int debug_level, int line, char *msg);
+void gfks_err(gfks_error err, int debug_level, char *msg);
 
 // ------------------
 // ---gfks_context---
@@ -38,5 +39,18 @@ typedef struct {
   Display *display;
   Window window;
 } window_handle_x11;
+
+// ------------------
+// ---gfks_device---
+// ------------------
+
+struct gfks_device_protected_struct {
+  VkPhysicalDevice *vk_physical_device;
+  VkPhysicalDeviceProperties *vk_physical_device_properties;
+  VkPhysicalDeviceFeatures *vk_physical_device_features;
+  VkDevice *vk_logical_device;
+  unsigned int vk_queue_family_property_count;
+  VkQueueFamilyProperties *vk_queue_family_properties; // array
+};
 
 #endif

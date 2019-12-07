@@ -7,6 +7,7 @@
 
 
 void gfks_free_surface(gfks_surface *surface) {
+  vkDestroySurfaceKHR(*(surface->context->_protected->vk_instance), *(surface->_protected->vk_surface), NULL);
   free(surface->_protected->window_handle);
   free(surface->_protected);
   free(surface);
@@ -17,6 +18,11 @@ gfks_surface* gfks_create_surface();
 
 #ifdef GFKS_CONFIG_X11_SUPPORT
 gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, Window window) {
+  if (context == NULL) {
+    gfks_err(GFKS_ERROR_NULL_CONTEXT, 1, "Received a NULL context for surface creation");
+    return NULL;
+  }
+
   // Allocate and set up surface struct
   gfks_surface *new_surface = malloc(sizeof(gfks_surface));
   new_surface->_protected = malloc(sizeof(gfks_surface_protected));
@@ -25,7 +31,7 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
   window_handle_x11 *window_handle = malloc(sizeof(window_handle_x11));
 
   if (new_surface == NULL || new_surface->_protected == NULL || window_handle == NULL) {
-    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1,__FILE__, __LINE__, "Failed to allocate memory");
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, "Failed to allocate memory");
     gfks_free_surface(new_surface);
     return NULL;
   }
@@ -47,7 +53,7 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
   xlib_surface_create_info.window = window;
 
   if(vkCreateXlibSurfaceKHR(*(context->_protected->vk_instance), &xlib_surface_create_info, NULL, new_surface->_protected->vk_surface) != VK_SUCCESS) {
-    gfks_err(GFKS_ERROR_UNKNOWN, 1, __FILE__, __LINE__, "Failed to create vulkan surface");
+    gfks_err(GFKS_ERROR_UNKNOWN, 1, "Failed to create vulkan surface");
     gfks_free_surface(new_surface);
     return NULL;
   }
@@ -55,7 +61,6 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
   return new_surface;
 }
 #endif
-
 
 // TODO: should create surface for wayland
 gfks_surface* gfks_create_surface_wayland();

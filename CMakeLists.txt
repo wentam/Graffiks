@@ -8,7 +8,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 add_definitions(-DRESOURCE_PATH="${CMAKE_INSTALL_PREFIX}/share/graffiks/")
 
 # build flags
-add_definitions(-DGFKS_CONFIG_X11_SUPPORT=1)
+add_definitions(-DGFKS_CONFIG_X11_SUPPORT)
 
 file(GLOB base_SRC
   "src/*.c"

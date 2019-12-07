@@ -44,13 +44,15 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   context->_protected = malloc(sizeof(gfks_context_protected));
 
   if (context == NULL || context->_protected == NULL) {
-    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, __FILE__, __LINE__, "Failed to allocate memory");
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, "Failed to allocate memory");
     gfks_free_context(context);
     return NULL;
   }
 
   // Define context function pointers
   context->free = &gfks_free_context;
+
+  // TODO we might not always want to init to vulkan 1.1
 
   // Put together app info struct
   VkApplicationInfo app_info = {};
@@ -85,11 +87,11 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   VkResult r = vkCreateInstance(&create_info, NULL, context->_protected->vk_instance);
   if (r != VK_SUCCESS) {
     if (r == VK_ERROR_EXTENSION_NOT_PRESENT) {
-      gfks_err(GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE, 1,__FILE__, __LINE__, "Failed to create vulkan instance - some or all engine-required vulkan extensions are not available");
+      gfks_err(GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE, 1, "Failed to create vulkan instance - some or all engine-required vulkan extensions are not available");
     } else if (r == VK_ERROR_LAYER_NOT_PRESENT) {
-      gfks_err(GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE, 1,__FILE__, __LINE__, "Failed to create vulkan instance - validation layers not available. Try setting the GFKS_DEBUG_LEVEL Graffiks build flag to 0.");
+      gfks_err(GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE, 1,  "Failed to create vulkan instance - validation layers not available. Try setting the GFKS_DEBUG_LEVEL Graffiks build flag to 0.");
     } else {
-      gfks_err(GFKS_ERROR_UNKNOWN, 1,__FILE__, __LINE__, "Failed to create vulkan instance");
+      gfks_err(GFKS_ERROR_UNKNOWN, 1, "Failed to create vulkan instance");
     }
     gfks_free_context(context);
     return NULL;
