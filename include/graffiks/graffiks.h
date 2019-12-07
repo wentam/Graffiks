@@ -15,11 +15,6 @@
 #endif
 #endif
 
-// TODO: use build flags to determine supported window systems, and only compile in support for those systems
-// make sure we check that window systems are built before initializing them during context creation in context.c!
-#include <X11/X.h>     
-#include <X11/Xlib.h> 
-
 #ifdef _WIN32
 #include "graffiks/dt_loop.h"
 #include "graffiks/dt_callbacks.h"
@@ -46,8 +41,8 @@ DLL_EXPORT void gfks_init_dt(int window_width, int window_height, char *window_t
 #ifdef LINUX
 DLL_EXPORT void gfks_init_with_window(Display *display, Window window);
 DLL_EXPORT void gfks_init_with_window_dt(Display *display, Window window,
-                             void (*init)(int *width, int *height),
-                             void (*update)(float time_step), void (*finish)(void));
+                                         void (*init)(int *width, int *height),
+                                         void (*update)(float time_step), void (*finish)(void));
 #endif
 
 #ifdef _WIN32
@@ -73,10 +68,21 @@ DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 #define GFKS_DEBUG_LEVEL 0
 #endif
 
+// Error handling
+// if any gfks_ function returns NULL instead of an object, look at GFKS_LATEST_ERROR
 
-// core public interface
+typedef enum {
+  GFKS_ERROR_NONE,
+  GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+  GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE,
+  GFKS_ERROR_UNKNOWN
+} gfks_error;
 
-// data types
+gfks_error gfks_latest_error;
+
+// Core public interface
+
+// Data types
 typedef enum {
   GFKS_WINDOW_SYSTEM_NONE_BITFLAG = 1,
   GFKS_WINDOW_SYSTEM_X11_BITFLAG = 2,
@@ -84,7 +90,7 @@ typedef enum {
 } gfks_window_system;
 
 
-// class definitions
+// Class definitions
 
 // --------------------
 // --- gfks_context ---
@@ -131,6 +137,11 @@ struct gfks_surface_struct {
   gfks_surface_protected *_protected;
 
   /// \public
+  /// \brief The parent Graffiks context.
+  /// \memberof gfks_surface_struct
+  gfks_context *context;
+
+  /// \public
   /// \brief Frees a surface
   ///
   /// Must be called when you're done!
@@ -149,10 +160,12 @@ gfks_surface* gfks_create_surface();
 
 /// \brief Creates a new Graffiks surface for an X11 window
 ///
+/// Only present when BUILD_X11_SUPPORT is defined at build time.
 ///
+/// \param display An X11 display
+/// \param window An X11 window
 /// \returns A Graffiks context. NULL if there was an error.
 /// \memberof gfks_surface_struct
 gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, Window window);
-
 
 #endif

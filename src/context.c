@@ -1,7 +1,7 @@
 #include "graffiks/internal.h"
 #include <string.h>
 
-// window system extension mapping
+// Window system extension mapping
 typedef struct {
   gfks_window_system window_system;
   char *vulkan_extension;
@@ -15,12 +15,12 @@ static const window_system_extension_map window_system_extension_mapping[] = {
 static const int window_system_extension_mapping_count =
 sizeof(window_system_extension_mapping)/sizeof(window_system_extension_map);
 
-// required engine extensions
+// Required engine extensions
 static const char *engine_required_extensions[] = {"VK_KHR_surface"};
 static const int engine_required_extension_count = 
 sizeof(engine_required_extensions)/sizeof(*engine_required_extensions);
 
-// define this function so wo can stick it at bottom of file
+// Define this function so we can stick it at bottom of file
 static const char** decide_extensions(gfks_window_system *window_systems,
                                       int *extension_count);
 
@@ -39,19 +39,20 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   printf("%s: Creating context\n",GFKS_DEBUG_TAG);
 #endif
 
-  // allocate structs
+  // Allocate structs
   gfks_context *context = malloc(sizeof(gfks_context));
   context->_protected = malloc(sizeof(gfks_context_protected));
 
   if (context == NULL || context->_protected == NULL) {
-    // TODO memory allocation error, give error before returning
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, __FILE__, __LINE__, "Failed to allocate memory");
+    gfks_free_context(context);
     return NULL;
   }
 
-  // define context function pointers
+  // Define context function pointers
   context->free = &gfks_free_context;
 
-  // put together app info struct
+  // Put together app info struct
   VkApplicationInfo app_info = {};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   app_info.pApplicationName = NULL;
@@ -60,7 +61,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   app_info.engineVersion = VK_MAKE_VERSION(GFKS_MAJOR_VERSION,GFKS_MINOR_VERSION,GFKS_REVISION);
   app_info.apiVersion = VK_API_VERSION_1_1;
 
-  // decide what extensions we want to enable.
+  // Decide what extensions we want to enable.
   context->_protected->enabled_extensions = decide_extensions(window_systems,
                                                   &(context->_protected->enabled_vulkan_extension_count));
 
@@ -83,18 +84,19 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   context->_protected->vk_instance = malloc(sizeof(VkInstance));
   VkResult r = vkCreateInstance(&create_info, NULL, context->_protected->vk_instance);
   if (r != VK_SUCCESS) {
+    if (r == VK_ERROR_EXTENSION_NOT_PRESENT) {
+      gfks_err(GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE, 1,__FILE__, __LINE__, "Failed to create vulkan instance - some or all engine-required vulkan extensions are not available");
+    } else if (r == VK_ERROR_LAYER_NOT_PRESENT) {
+      gfks_err(GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE, 1,__FILE__, __LINE__, "Failed to create vulkan instance - validation layers not available. Try setting the GFKS_DEBUG_LEVEL Graffiks build flag to 0.");
+    } else {
+      gfks_err(GFKS_ERROR_UNKNOWN, 1,__FILE__, __LINE__, "Failed to create vulkan instance");
+    }
     gfks_free_context(context);
-    // TODO give user some type of error
-    #if (GFKS_DEBUG_LEVEL > 0)
-    printf("%s: Failed to create vulkan instance. gfks_context will be NULL. VkResult:%i\n",
-           GFKS_DEBUG_TAG,r);
-    #endif
     return NULL;
  }
 
   return context;
 }
-
 
 // Decides which vulkan extensions we want to enable
 //

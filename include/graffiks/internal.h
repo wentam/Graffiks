@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-typedef void (*free_func)(gfks_context *context);
+// Error handling
+gfks_err(gfks_error err, int debug_level, int line, char *msg);
 
 // ------------------
 // ---gfks_context---
@@ -32,8 +32,6 @@ struct gfks_surface_protected_struct {
 
   gfks_window_system window_system;
   void *window_handle; // data type differs based on window_system
-
-  gfks_context *context;
 };
 
 typedef struct {

@@ -1,5 +1,10 @@
 #include "graffiks/internal.h"
 
+#ifdef GFKS_CONFIG_X11_SUPPORT
+#include <X11/X.h>     
+#include <X11/Xlib.h> 
+#endif
+
 
 void gfks_free_surface(gfks_surface *surface) {
   free(surface->_protected->window_handle);
@@ -8,19 +13,20 @@ void gfks_free_surface(gfks_surface *surface) {
 }
 
 // TODO: should create surface for no window system (for invisible rendering)
-gfks_surface* gfks_create_surface() {
+gfks_surface* gfks_create_surface();
 
-}
-
+#ifdef GFKS_CONFIG_X11_SUPPORT
 gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, Window window) {
   // Allocate and set up surface struct
-  gfks_surface *new_surface = malloc(sizeof(gfks_surface)); 
+  gfks_surface *new_surface = malloc(sizeof(gfks_surface));
   new_surface->_protected = malloc(sizeof(gfks_surface_protected));
+  new_surface->context = context;
 
   window_handle_x11 *window_handle = malloc(sizeof(window_handle_x11));
 
   if (new_surface == NULL || new_surface->_protected == NULL || window_handle == NULL) {
-    // TODO: memory allocation error, throw error before returning
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1,__FILE__, __LINE__, "Failed to allocate memory");
+    gfks_free_surface(new_surface);
     return NULL;
   }
 
@@ -41,12 +47,14 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
   xlib_surface_create_info.window = window;
 
   if(vkCreateXlibSurfaceKHR(*(context->_protected->vk_instance), &xlib_surface_create_info, NULL, new_surface->_protected->vk_surface) != VK_SUCCESS) {
-    // TODO throw error before returning
+    gfks_err(GFKS_ERROR_UNKNOWN, 1, __FILE__, __LINE__, "Failed to create vulkan surface");
+    gfks_free_surface(new_surface);
     return NULL;
   }
 
   return new_surface;
 }
+#endif
 
 
 // TODO: should create surface for wayland

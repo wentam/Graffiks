@@ -6,7 +6,9 @@ add_definitions(-DGFKS_DEBUG_LEVEL=1)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 add_definitions(-DRESOURCE_PATH="${CMAKE_INSTALL_PREFIX}/share/graffiks/")
-#set(CMAKE_C_FLAGS "-g -fsanitize=address")
+
+# build flags
+add_definitions(-DGFKS_CONFIG_X11_SUPPORT=1)
 
 file(GLOB base_SRC
   "src/*.c"
