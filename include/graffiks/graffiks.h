@@ -15,6 +15,10 @@
 #endif
 #endif
 
+// TODO: use build flags to determine supported window systems, and only compile in support for those systems
+// make sure we check that window systems are built before initializing them during context creation in context.c!
+#include <X11/X.h>     
+#include <X11/Xlib.h> 
 
 #ifdef _WIN32
 #include "graffiks/dt_loop.h"
@@ -141,6 +145,14 @@ struct gfks_surface_struct {
 /// \returns A Graffiks context. NULL if there was an error.
 /// \memberof gfks_surface_struct
 gfks_surface* gfks_create_surface();
+
+
+/// \brief Creates a new Graffiks surface for an X11 window
+///
+///
+/// \returns A Graffiks context. NULL if there was an error.
+/// \memberof gfks_surface_struct
+gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, Window window);
 
 
 #endif

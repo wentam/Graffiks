@@ -43,6 +43,11 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   gfks_context *context = malloc(sizeof(gfks_context));
   context->_protected = malloc(sizeof(gfks_context_protected));
 
+  if (context == NULL || context->_protected == NULL) {
+    // TODO memory allocation error, give error before returning
+    return NULL;
+  }
+
   // define context function pointers
   context->free = &gfks_free_context;
 
