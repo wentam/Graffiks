@@ -8,5 +8,6 @@ var dir_a18187bbfdff448b5e028e9a969fd371 =
     [ "material.h", "material_8h.html", "material_8h" ],
     [ "mesh.h", "mesh_8h.html", "mesh_8h" ],
     [ "object.h", "object_8h.html", "object_8h" ],
-    [ "primitives.h", "primitives_8h.html", "primitives_8h" ]
+    [ "primitives.h", "primitives_8h.html", "primitives_8h" ],
+    [ "texture.h", "texture_8h.html", "texture_8h" ]
 ];

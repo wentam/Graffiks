@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['gfks_5fambient_5fcolor',['gfks_ambient_color',['../lights_8h.html#aaf21faaff5ffd2b14d04e73ddc82c97d',1,'lights.c']]]
+  ['free_92',['free',['../structgfks__context__struct.html#a03f0cd2c4417aa0dc32b313c332aedec',1,'gfks_context_struct::free()'],['../structgfks__surface__struct.html#ae8b155f433f934f9270015afe4c313b4',1,'gfks_surface_struct::free()']]]
 ];

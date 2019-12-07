@@ -1,10 +1,10 @@
 var indexSectionsWithContent =
 {
-  0: "cglmopr",
+  0: "cfglmoprt",
   1: "g",
-  2: "cglmopr",
+  2: "cglmoprt",
   3: "g",
-  4: "g"
+  4: "fg"
 };
 
 var indexSectionNames =
@@ -19,7 +19,7 @@ var indexSectionNames =
 var indexSectionLabels =
 {
   0: "All",
-  1: "Data Structures",
+  1: "Classes",
   2: "Files",
   3: "Functions",
   4: "Variables"
