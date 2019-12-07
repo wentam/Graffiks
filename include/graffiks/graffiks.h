@@ -56,8 +56,8 @@ DLL_EXPORT void gfks_use_vsync(int vsync);
 
 DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 
-// ---------------------------------- old stuff above (deprecated) -----------------
-// ---------------------------------- new stuff below ------------------------------
+// ----------------------------- old stuff above (deprecated) ------------------
+// ----------------------------- new stuff below -------------------------------
 
 #define GFKS_ENGINE_NAME "Graffiks"
 #define GFKS_MAJOR_VERSION 0
@@ -69,31 +69,78 @@ DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 #define GFKS_DEBUG_LEVEL 0
 #endif
 
-// data types
-typedef struct gfks_context_struct gfks_context;
 
+// core public interface
+
+// data types
 typedef enum {
   GFKS_WINDOW_SYSTEM_NONE_BITFLAG = 1,
   GFKS_WINDOW_SYSTEM_X11_BITFLAG = 2,
   GFKS_WINDOW_SYSTEM_WAYLAND_BITFLAG = 4
 } gfks_window_system;
 
-// core public interface
+
+// class definitions
+
+// --------------------
+// --- gfks_context ---
+// --------------------
+
+typedef struct gfks_context_protected_struct gfks_context_protected;
+typedef struct gfks_context_struct gfks_context;
+
+/// gfks_context
+struct gfks_context_struct {
+  /// \private
+  gfks_context_protected *_protected;
+
+  /// \public
+  /// \brief Frees a Graffiks context
+  ///
+  /// Must be called when you're done!
+  /// \param gfks_context A context to be destroyed
+  /// \memberof gfks_context_struct
+  void (*free)(gfks_context *context);
+};
 
 /// \brief Creates a new Graffiks context
 ///
-/// The windows systems you request are not garuanteed to be initialized. Inspect window_systems after calling to make sure the window systems you need have been initialized!
+/// The window systems you request are not garuanteed to be initialized. Inspect window_systems after calling to make sure the window systems you need have been initialized!
 ///
 /// The most likely reason for a window system to not be initialized would be the lack of required vulkan extensions.
 /// 
 /// \param window_systems Bit flags for the windows systems you will be drawing to (X11/Wayland/windows DWM/etc). Will be modified to only include windows systems that were initialized and GFKS_WINDOW_SYSTEM_NONE_BITFLAG
 /// \returns A Graffiks context. NULL if there was an error.
+/// \memberof gfks_context_struct
 gfks_context* gfks_create_context(gfks_window_system *window_systems);
 
-/// \brief Destroys a Graffiks context
+// --------------------
+// --- gfks_surface ---
+// --------------------
+
+typedef struct gfks_surface_protected_struct gfks_surface_protected;
+typedef struct gfks_surface_struct gfks_surface;
+
+/// gfks_surface
+struct gfks_surface_struct {
+  /// \private
+  gfks_surface_protected *_protected;
+
+  /// \public
+  /// \brief Frees a surface
+  ///
+  /// Must be called when you're done!
+  /// \param gfks_surface A surface to be destroyed
+  /// \memberof gfks_surface_struct
+  void (*free)(gfks_surface *surface);
+};
+
+/// \brief Creates a new Graffiks surface
 ///
-/// Must be called when you're done!
-/// \param gfks_context A context to be destroyed
-void gfks_destroy_context(gfks_context *context);
+///
+/// \returns A Graffiks context. NULL if there was an error.
+/// \memberof gfks_surface_struct
+gfks_surface* gfks_create_surface();
+
 
 #endif
