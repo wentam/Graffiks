@@ -1,0 +1,60 @@
+.TH "gfks_surface" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gfks_surface \- gfks_surface  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <graffiks\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "gfks_surface * \fBgfks_create_surface\fP ()"
+.br
+.RI "Creates a new Graffiks surface\&. "
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "void(* \fBfree\fP )(gfks_surface *surface)"
+.br
+.RI "Frees a surface\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+gfks_surface 
+.SH "Member Function Documentation"
+.PP 
+.SS "gfks_surface * gfks_create_surface ()"
+
+.PP
+Creates a new Graffiks surface\&. 
+.PP
+\fBReturns\fP
+.RS 4
+A Graffiks context\&. NULL if there was an error\&. 
+.RE
+.PP
+
+.SH "Member Data Documentation"
+.PP 
+.SS "void(* free) (gfks_surface *surface)"
+
+.PP
+Frees a surface\&. Must be called when you're done! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIgfks_surface\fP A surface to be destroyed 
+.RE
+.PP
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

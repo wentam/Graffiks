@@ -1,0 +1,67 @@
+.TH "gfks_context" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gfks_context \- gfks_context  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <graffiks\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "gfks_context * \fBgfks_create_context\fP (gfks_window_system *window_systems)"
+.br
+.RI "Creates a new Graffiks context\&. "
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "void(* \fBfree\fP )(gfks_context *context)"
+.br
+.RI "Frees a Graffiks context\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+gfks_context 
+.SH "Member Function Documentation"
+.PP 
+.SS "gfks_context * gfks_create_context (gfks_window_system * window_systems)"
+
+.PP
+Creates a new Graffiks context\&. The window systems you request are not garuanteed to be initialized\&. Inspect window_systems after calling to make sure the window systems you need have been initialized!
+.PP
+The most likely reason for a window system to not be initialized would be the lack of required vulkan extensions\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIwindow_systems\fP Bit flags for the windows systems you will be drawing to (X11/Wayland/windows DWM/etc)\&. Will be modified to only include windows systems that were initialized and GFKS_WINDOW_SYSTEM_NONE_BITFLAG 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A Graffiks context\&. NULL if there was an error\&. 
+.RE
+.PP
+
+.SH "Member Data Documentation"
+.PP 
+.SS "void(* free) (gfks_context *context)"
+
+.PP
+Frees a Graffiks context\&. Must be called when you're done! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIgfks_context\fP A context to be destroyed 
+.RE
+.PP
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

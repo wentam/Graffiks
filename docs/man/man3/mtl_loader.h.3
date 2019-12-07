@@ -1,0 +1,60 @@
+.TH "include/graffiks/model_loaders/mtl_loader.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/model_loaders/mtl_loader.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'graffiks/material\&.h'\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_named_material\fP"
+.br
+.ti -1c
+.RI "struct \fBgfks_named_material_array\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgfks_named_material_array\fP * \fBgfks_load_mtl\fP (gfks_renderer_flags flags, char *filepath)"
+.br
+.ti -1c
+.RI "void \fBgfks_free_named_mats\fP (\fBgfks_named_material_array\fP *n)"
+.br
+.in -1c
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_named_material"
+.PP 
+\fBClass Members:\fP
+.RS 4
+\fBgfks_material\fP * \fImat\fP 
+.br
+.PP
+char * \fIname\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct gfks_named_material_array"
+.PP 
+\fBClass Members:\fP
+.RS 4
+\fBgfks_named_material\fP ** \fImats\fP 
+.br
+.PP
+int \fInumber_of_mats\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

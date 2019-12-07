@@ -1,0 +1,116 @@
+.TH "include/graffiks/lights.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/lights.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdbool\&.h>\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_point_light\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "float \fBgfks_get_point_light_x\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "Returns the position of the light on the x axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_point_light_y\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "Returns the position of the light on the y axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_point_light_z\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "Returns the position of the light on the z axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_point_light_brightness\fP (\fBgfks_point_light\fP *l)"
+.br
+.RI "Returns the brightness of the light\&. "
+.ti -1c
+.RI "void \fBgfks_set_point_light_location\fP (\fBgfks_point_light\fP *l, float x, float y, float z)"
+.br
+.RI "Sets the position of a light\&. "
+.ti -1c
+.RI "void \fBgfks_set_point_light_brightness\fP (\fBgfks_point_light\fP *l, float brightness)"
+.br
+.RI "Sets the brightness of a light\&. "
+.ti -1c
+.RI "\fBgfks_point_light\fP * \fBgfks_add_point_light\fP ()"
+.br
+.ti -1c
+.RI "void \fBgfks_remove_point_light\fP (\fBgfks_point_light\fP *light)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_ambient_light\fP (float r, float g, float b)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "float \fBgfks_ambient_color\fP [3]"
+.br
+.RI "The color of the ambient light\&. "
+.ti -1c
+.RI "const int \fBGFKS_LIGHT_ATTENUATION_LINEAR\fP"
+.br
+.ti -1c
+.RI "const int \fBGFKS_LIGHT_ATTENUATION_QUADRATIC\fP"
+.br
+.ti -1c
+.RI "const int \fBGFKS_LIGHT_ATTENUATION_CONSTANT\fP"
+.br
+.ti -1c
+.RI "\fBgfks_point_light\fP ** \fBgfks_point_lights\fP"
+.br
+.ti -1c
+.RI "int \fBgfks_point_light_count\fP"
+.br
+.in -1c
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_point_light"
+.PP 
+\fBClass Members:\fP
+.RS 4
+int \fIattenuation_mode\fP 
+.br
+.PP
+float \fIattenuation_strength\fP 
+.br
+.PP
+float \fIbrightness\fP 
+.br
+.PP
+float \fIcolor_b\fP 
+.br
+.PP
+float \fIcolor_g\fP 
+.br
+.PP
+float \fIcolor_r\fP 
+.br
+.PP
+float \fIx\fP 
+.br
+.PP
+float \fIy\fP 
+.br
+.PP
+float \fIz\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

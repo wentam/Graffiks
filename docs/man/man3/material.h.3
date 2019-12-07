@@ -1,0 +1,90 @@
+.TH "include/graffiks/material.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/material.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'graffiks/renderer/renderer\&.h'\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_material\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgfks_material\fP * \fBgfks_create_material\fP (gfks_renderer_flags flags)"
+.br
+.ti -1c
+.RI "void \fBgfks_free_material\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_material_diffuse_color_rgba\fP (\fBgfks_material\fP *m, float r, float g, float b, float a)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_material_specularity_hardness\fP (\fBgfks_material\fP *m, float hardness)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_material_specularity_rgb\fP (\fBgfks_material\fP *m, float r, float g, float b)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_specularity_hardness\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_specularity_color_r\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_specularity_color_g\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_specularity_color_b\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_diffuse_color_r\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_diffuse_color_g\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_diffuse_color_b\fP (\fBgfks_material\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_material_diffuse_color_a\fP (\fBgfks_material\fP *m)"
+.br
+.in -1c
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_material"
+.PP 
+\fBClass Members:\fP
+.RS 4
+float * \fIdiffuse_color\fP 
+.br
+.PP
+gfks_renderer_flags \fIrenderer\fP 
+.br
+.PP
+float \fIspecularity_color_b\fP 
+.br
+.PP
+float \fIspecularity_color_g\fP 
+.br
+.PP
+float \fIspecularity_color_r\fP 
+.br
+.PP
+float \fIspecularity_hardness\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

@@ -1,0 +1,68 @@
+.TH "include/graffiks/graffiks.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/graffiks.h
+.SH SYNOPSIS
+.br
+.PP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_context\fP"
+.br
+.RI "gfks_context "
+.ti -1c
+.RI "struct \fBgfks_surface\fP"
+.br
+.RI "gfks_surface "
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBGFKS_ENGINE_NAME\fP   'Graffiks'"
+.br
+.ti -1c
+.RI "#define \fBGFKS_MAJOR_VERSION\fP   0"
+.br
+.ti -1c
+.RI "#define \fBGFKS_MINOR_VERSION\fP   0"
+.br
+.ti -1c
+.RI "#define \fBGFKS_REVISION\fP   0"
+.br
+.ti -1c
+.RI "#define \fBGFKS_DEBUG_TAG\fP   'GFKS'"
+.br
+.ti -1c
+.RI "#define \fBGFKS_DEBUG_LEVEL\fP   0"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBgfks_window_system\fP { \fBGFKS_WINDOW_SYSTEM_NONE_BITFLAG\fP = 1, \fBGFKS_WINDOW_SYSTEM_X11_BITFLAG\fP = 2, \fBGFKS_WINDOW_SYSTEM_WAYLAND_BITFLAG\fP = 4 }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBgfks_init_dt\fP (int window_width, int window_height, char *window_title, void(*init)(int *width, int *height), void(*update)(float time_step), void(*finish)(void))"
+.br
+.ti -1c
+.RI "void \fBgfks_init\fP (int window_width, int window_height, char *window_title)"
+.br
+.ti -1c
+.RI "void \fBgfks_use_vsync\fP (int vsync)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_antialiasing_samples\fP (int samples)"
+.br
+.in -1c
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

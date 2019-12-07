@@ -1,0 +1,104 @@
+.TH "include/graffiks/object.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/object.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include 'graffiks/mesh\&.h'\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_object\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "float \fBgfks_get_object_x\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_object_y\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_object_z\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_object_angle\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_object_angle_x\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_object_angle_y\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_object_angle_z\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_object_location\fP (\fBgfks_object\fP *o, float x, float y, float z)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_object_rotation\fP (\fBgfks_object\fP *o, float angle, float x, float y, float z)"
+.br
+.ti -1c
+.RI "\fBgfks_object\fP * \fBgfks_create_object\fP (\fBgfks_mesh\fP **meshes, \fBgfks_material\fP **mats, int mesh_count)"
+.br
+.ti -1c
+.RI "void \fBgfks_remove_object\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "void \fBgfks_show_object\fP (\fBgfks_object\fP *o)"
+.br
+.ti -1c
+.RI "void \fBgfks_hide_object\fP (\fBgfks_object\fP *o)"
+.br
+.in -1c
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_object"
+.PP 
+\fBClass Members:\fP
+.RS 4
+float \fIangle\fP 
+.br
+.PP
+float \fIlocation_x\fP 
+.br
+.PP
+float \fIlocation_y\fP 
+.br
+.PP
+float \fIlocation_z\fP 
+.br
+.PP
+\fBgfks_material\fP ** \fImats\fP 
+.br
+.PP
+int \fImesh_count\fP 
+.br
+.PP
+\fBgfks_mesh\fP ** \fImeshes\fP 
+.br
+.PP
+float \fIrot_x\fP 
+.br
+.PP
+float \fIrot_y\fP 
+.br
+.PP
+float \fIrot_z\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

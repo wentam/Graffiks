@@ -1,0 +1,93 @@
+.TH "Classesa" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Classesa
+.SH SYNOPSIS
+.br
+.PP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_context\fP"
+.br
+.RI "aoeu "
+.ti -1c
+.RI "class \fBgfks_context\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgfks_context\fP * \fBgfks_context::gfks_create_context\fP (gfks_window_system *window_systems)"
+.br
+.RI "Creates a new Graffiks context\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_context_struct"
+.PP 
+aoeu 
+.SH "class gfks_context"
+.PP 
+.RI "\fBPublic Member Functions\fP"
+.in +1c
+
+.in +1c
+.ti -1c
+.RI "\fBgfks_context\fP * \fBgfks_create_context\fP (gfks_window_system *window_systems)"
+.br
+.RI "Creates a new Graffiks context\&. "
+.in -1c
+.PP
+.in -1c
+.RI "\fBPublic Attributes\fP"
+.in +1c
+
+.in +1c
+.ti -1c
+.RI "void(* \fBfree\fP )(\fBgfks_context\fP *context)"
+.br
+.RI "Frees a Graffiks context\&. "
+.in -1c
+.SH "Member Data Documentation"
+.PP 
+.SS "void(* free) (\fBgfks_context\fP *context)"
+
+.PP
+Frees a Graffiks context\&. Must be called when you're done! 
+.PP
+\fBParameters\fP
+.RS 4
+\fI\fBgfks_context\fP\fP A context to be destroyed 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBgfks_context\fP * gfks_create_context (gfks_window_system * window_systems)"
+
+.PP
+Creates a new Graffiks context\&. The window systems you request are not garuanteed to be initialized\&. Inspect window_systems after calling to make sure the window systems you need have been initialized!
+.PP
+The most likely reason for a window system to not be initialized would be the lack of required vulkan extensions\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIwindow_systems\fP Bit flags for the windows systems you will be drawing to (X11/Wayland/windows DWM/etc)\&. Will be modified to only include windows systems that were initialized and GFKS_WINDOW_SYSTEM_NONE_BITFLAG 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A Graffiks context\&. NULL if there was an error\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

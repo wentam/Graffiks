@@ -1,0 +1,280 @@
+.TH "include/graffiks/camera.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/camera.h \- Provides functions for creating and managing cameras\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_camera\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgfks_camera\fP * \fBgfks_create_camera\fP ()"
+.br
+.RI "Creates a new camera\&. "
+.ti -1c
+.RI "void \fBgfks_destroy_camera\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Destroys a camera, freeing it from memory\&. "
+.ti -1c
+.RI "void \fBgfks_set_active_camera\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Sets a camera as the active camera\&. "
+.ti -1c
+.RI "void \fBgfks_set_camera_location\fP (\fBgfks_camera\fP *c, float x, float y, float z)"
+.br
+.RI "Sets the location of a camera\&. "
+.ti -1c
+.RI "void \fBgfks_set_camera_target\fP (\fBgfks_camera\fP *c, float x, float y, float z)"
+.br
+.RI "Sets the point that the camera will rotate to aim at\&. "
+.ti -1c
+.RI "void \fBgfks_rotate_camera\fP (\fBgfks_camera\fP *c, float x, float y, float z, float w)"
+.br
+.RI "Rotates the camera\&. "
+.ti -1c
+.RI "\fBgfks_camera\fP * \fBgfks_get_active_camera\fP ()"
+.br
+.RI "Returns the active camera\&. "
+.ti -1c
+.RI "float \fBgfks_get_camera_location_x\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Returns the camera location on the x axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_camera_location_y\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Returns the camera location on the y axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_camera_location_z\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Returns the camera location on the z axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_camera_target_x\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Returns the camera target location on the x axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_camera_target_y\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Returns the camera target location on the y axis\&. "
+.ti -1c
+.RI "float \fBgfks_get_camera_target_z\fP (\fBgfks_camera\fP *c)"
+.br
+.RI "Returns the camera target location on the z axis\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+Provides functions for creating and managing cameras\&. 
+
+
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_camera"
+.PP 
+\fBClass Members:\fP
+.RS 4
+float \fIlocation_x\fP 
+.br
+.PP
+float \fIlocation_y\fP 
+.br
+.PP
+float \fIlocation_z\fP 
+.br
+.PP
+float \fItarget_x\fP 
+.br
+.PP
+float \fItarget_y\fP 
+.br
+.PP
+float \fItarget_z\fP 
+.br
+.PP
+float \fIup_x\fP 
+.br
+.PP
+float \fIup_y\fP 
+.br
+.PP
+float \fIup_z\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Function Documentation"
+.PP 
+.SS "\fBgfks_camera\fP* gfks_create_camera ()"
+
+.PP
+Creates a new camera\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The new camera 
+.RE
+.PP
+
+.SS "void gfks_destroy_camera (\fBgfks_camera\fP * c)"
+
+.PP
+Destroys a camera, freeing it from memory\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIc\fP The camera to destroy 
+.RE
+.PP
+
+.SS "\fBgfks_camera\fP* gfks_get_active_camera ()"
+
+.PP
+Returns the active camera\&. 
+.PP
+\fBReturns\fP
+.RS 4
+A pointer to the active camera 
+.RE
+.PP
+
+.SS "float gfks_get_camera_location_x (\fBgfks_camera\fP * c)"
+
+.PP
+Returns the camera location on the x axis\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The camera location on the x axis 
+.RE
+.PP
+
+.SS "float gfks_get_camera_location_y (\fBgfks_camera\fP * c)"
+
+.PP
+Returns the camera location on the y axis\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The camera location on the y axis 
+.RE
+.PP
+
+.SS "float gfks_get_camera_location_z (\fBgfks_camera\fP * c)"
+
+.PP
+Returns the camera location on the z axis\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The camera location on the z axis 
+.RE
+.PP
+
+.SS "float gfks_get_camera_target_x (\fBgfks_camera\fP * c)"
+
+.PP
+Returns the camera target location on the x axis\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The camera target location on the x axis 
+.RE
+.PP
+
+.SS "float gfks_get_camera_target_y (\fBgfks_camera\fP * c)"
+
+.PP
+Returns the camera target location on the y axis\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The camera target location on the y axis 
+.RE
+.PP
+
+.SS "float gfks_get_camera_target_z (\fBgfks_camera\fP * c)"
+
+.PP
+Returns the camera target location on the z axis\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The camera target location on the z axis 
+.RE
+.PP
+
+.SS "void gfks_rotate_camera (\fBgfks_camera\fP * c, float x, float y, float z, float w)"
+
+.PP
+Rotates the camera\&. Uses quaternion rotation (xyzw)\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIc\fP The camera to rotate 
+.br
+\fIx\fP The x component of quaternion rotation 
+.br
+\fIy\fP The y component of quaternion rotation 
+.br
+\fIz\fP The z component of quaternion rotation 
+.br
+\fIw\fP The w component of quaternion rotation 
+.RE
+.PP
+
+.SS "void gfks_set_active_camera (\fBgfks_camera\fP * c)"
+
+.PP
+Sets a camera as the active camera\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIc\fP The camera to make active 
+.RE
+.PP
+
+.SS "void gfks_set_camera_location (\fBgfks_camera\fP * c, float x, float y, float z)"
+
+.PP
+Sets the location of a camera\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIc\fP The camera 
+.br
+\fIx\fP New location on the x axis 
+.br
+\fIy\fP New location on the y axis 
+.br
+\fIz\fP New location on the z axis 
+.RE
+.PP
+
+.SS "void gfks_set_camera_target (\fBgfks_camera\fP * c, float x, float y, float z)"
+
+.PP
+Sets the point that the camera will rotate to aim at\&. If you set this to 0,0,0, then the camera will rotate to always point to 0,0,0 even as you translate it 
+.PP
+\fBParameters\fP
+.RS 4
+\fIc\fP The camera 
+.br
+\fIx\fP The target location on the x axis 
+.br
+\fIy\fP The target location on the y axis 
+.br
+\fIz\fP The target location on the z axis 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

@@ -1,0 +1,148 @@
+.TH "include/graffiks/mesh.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/graffiks/mesh.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <GL/gl\&.h>\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgfks_mesh\fP"
+.br
+.ti -1c
+.RI "struct \fBgfks_base_mesh\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBbool\fP { \fBfalse\fP, \fBtrue\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgfks_mesh\fP * \fBgfks_create_mesh\fP (float **vertices, int ***indicies, int index_count, float **normals)"
+.br
+.ti -1c
+.RI "\fBgfks_mesh\fP * \fBgfks_create_mesh_st\fP (float vertices[][3], int indicies[][3][3], int index_count, float normals[][3])"
+.br
+.ti -1c
+.RI "\fBgfks_base_mesh\fP * \fBgfks_create_base_mesh\fP (float **vertices, int ***indicies, int index_count, float **normals)"
+.br
+.ti -1c
+.RI "\fBgfks_mesh\fP * \fBgfks_create_mesh_with_instances\fP (\fBgfks_base_mesh\fP *mesh, double instances[][3], int instance_count, bool use_z)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_mesh_vertex_colors\fP (\fBgfks_mesh\fP *m, float colors[][4], int ***indicies, int index_count)"
+.br
+.ti -1c
+.RI "void \fBgfks_free_mesh\fP (\fBgfks_mesh\fP *mesh)"
+.br
+.ti -1c
+.RI "void \fBgfks_free_base_mesh\fP (\fBgfks_base_mesh\fP *mesh)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_x\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_y\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_z\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_angle\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_angle_x\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_angle_y\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "float \fBgfks_get_mesh_angle_z\fP (\fBgfks_mesh\fP *m)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_mesh_location\fP (\fBgfks_mesh\fP *m, float x, float y, float z)"
+.br
+.ti -1c
+.RI "void \fBgfks_set_mesh_rotation\fP (\fBgfks_mesh\fP *m, float angle, float x, float y, float z)"
+.br
+.in -1c
+.SH "Class Documentation"
+.PP 
+.SH "struct gfks_mesh"
+.PP 
+\fBClass Members:\fP
+.RS 4
+float \fIangle\fP 
+.br
+.PP
+float \fIlocation_x\fP 
+.br
+.PP
+float \fIlocation_y\fP 
+.br
+.PP
+float \fIlocation_z\fP 
+.br
+.PP
+GLuint \fInormal_buffer\fP 
+.br
+.PP
+int \fInormal_count\fP 
+.br
+.PP
+float \fIrot_x\fP 
+.br
+.PP
+float \fIrot_y\fP 
+.br
+.PP
+float \fIrot_z\fP 
+.br
+.PP
+GLuint \fItriangle_buffer\fP 
+.br
+.PP
+bool \fIuse_vertex_color\fP 
+.br
+.PP
+GLuint \fIvertex_color_buffer\fP 
+.br
+.PP
+int \fIvertex_count\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct gfks_base_mesh"
+.PP 
+\fBClass Members:\fP
+.RS 4
+int \fInormal_count\fP 
+.br
+.PP
+float * \fInormals\fP 
+.br
+.PP
+int \fIvertex_count\fP 
+.br
+.PP
+float * \fIvertices\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.
