@@ -197,4 +197,6 @@ struct gfks_device_struct {
   /// \memberof gfks_device_struct
   void (*free)(gfks_device *device);
 };
+
+gfks_device* gfks_get_devices_suitable_for_surface(gfks_surface *surface);
 #endif

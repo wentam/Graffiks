@@ -29,7 +29,7 @@ struct gfks_context_protected_struct {
 // ------------------
 
 struct gfks_surface_protected_struct {
-  VkSurfaceKHR *vk_surface;
+  VkSurfaceKHR vk_surface;
 
   gfks_window_system window_system;
   void *window_handle; // data type differs based on window_system
@@ -43,14 +43,32 @@ typedef struct {
 // ------------------
 // ---gfks_device---
 // ------------------
-
+// TODO we need to define which presentation queues can present to which surfaces
 struct gfks_device_protected_struct {
-  VkPhysicalDevice *vk_physical_device;
+  VkPhysicalDevice vk_physical_device;
+  int vk_physical_device_index;
   VkPhysicalDeviceProperties *vk_physical_device_properties;
   VkPhysicalDeviceFeatures *vk_physical_device_features;
-  VkDevice *vk_logical_device;
+  VkDevice vk_logical_device;
+
+  // Queue information
   unsigned int vk_queue_family_property_count;
-  VkQueueFamilyProperties *vk_queue_family_properties; // array
+  VkQueueFamilyProperties *vk_queue_family_properties; // array  
+
+  unsigned int graphics_queue_count;
+  VkQueue *graphics_queues;
+
+  unsigned int compute_queue_count;
+  VkQueue *compute_queues;
+
+  unsigned int transfer_queue_count;
+  VkQueue *transfer_queues;
+
+  unsigned int sparse_binding_queue_count;
+  VkQueue *sparse_binding_queues;
+
+  unsigned int presentation_queue_count;
+  VkQueue *presentation_queues;
 };
 
 #endif

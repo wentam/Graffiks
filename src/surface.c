@@ -7,7 +7,7 @@
 
 
 void gfks_free_surface(gfks_surface *surface) {
-  vkDestroySurfaceKHR(*(surface->context->_protected->vk_instance), *(surface->_protected->vk_surface), NULL);
+  vkDestroySurfaceKHR(*(surface->context->_protected->vk_instance), surface->_protected->vk_surface, NULL);
   free(surface->_protected->window_handle);
   free(surface->_protected);
   free(surface);
@@ -18,6 +18,10 @@ gfks_surface* gfks_create_surface();
 
 #ifdef GFKS_CONFIG_X11_SUPPORT
 gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, Window window) {
+#if GFKS_DEBUG_LEVEL > 1
+  printf("%s: Creating X11 surface\n",GFKS_DEBUG_TAG);
+#endif
+
   if (context == NULL) {
     gfks_err(GFKS_ERROR_NULL_CONTEXT, 1, "Received a NULL context for surface creation");
     return NULL;
@@ -46,17 +50,20 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
 
   // Create our vulkan surface
   VkXlibSurfaceCreateInfoKHR xlib_surface_create_info = {};
-  xlib_surface_create_info.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+  xlib_surface_create_info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
   xlib_surface_create_info.pNext = NULL;
   xlib_surface_create_info.flags = 0;
   xlib_surface_create_info.dpy = display;
   xlib_surface_create_info.window = window;
 
-  if(vkCreateXlibSurfaceKHR(*(context->_protected->vk_instance), &xlib_surface_create_info, NULL, new_surface->_protected->vk_surface) != VK_SUCCESS) {
+  VkSurfaceKHR surface;
+  if(vkCreateXlibSurfaceKHR(*(context->_protected->vk_instance), &xlib_surface_create_info, NULL, &surface) != VK_SUCCESS) {
     gfks_err(GFKS_ERROR_UNKNOWN, 1, "Failed to create vulkan surface");
     gfks_free_surface(new_surface);
     return NULL;
   }
+
+  new_surface->_protected->vk_surface = surface;
 
   return new_surface;
 }

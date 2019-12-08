@@ -124,7 +124,7 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
 
   #if (GFKS_DEBUG_LEVEL > 1)
   for (int i = 0; i < vulkan_supported_extension_count; i++) {
-    printf("%s: Found supported vulkan extension: %s\n",
+    printf("%s: Found supported vulkan instance extension: %s\n",
            GFKS_DEBUG_TAG,vulkan_extension_properties[i].extensionName);
   }
   #endif
@@ -168,7 +168,7 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
   #if (GFKS_DEBUG_LEVEL > 0)
   struct extension_node *current_node = first_node;
   while(current_node != NULL) {
-    printf("%s: Decided to use instance extension: %s\n",GFKS_DEBUG_TAG,current_node->extension) ;
+    printf("%s: Decided to use vulkan instance extension: %s\n",GFKS_DEBUG_TAG,current_node->extension) ;
     current_node = current_node->next;
   }
   #endif
@@ -206,7 +206,7 @@ static const char** decide_extensions(gfks_window_system *window_systems, int *e
   for (int j = 0; j < engine_required_extension_count; j++)  {
       extensions[i++] = (char*)engine_required_extensions[j];
       #if (GFKS_DEBUG_LEVEL > 0)
-        printf("%s: Decided to use instance extension: %s\n",
+        printf("%s: Decided to use vulkan instance extension: %s\n",
                GFKS_DEBUG_TAG,engine_required_extensions[j]) ;
       #endif
   }
