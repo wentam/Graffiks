@@ -20,6 +20,7 @@ void gfks_free_devices(gfks_device *devices, int device_count) {
     devices[i].free(&(devices[i]));
   }
 }
+
 // Allocates our gfks_device structs and fills them with information about
 // the devices
 //
@@ -76,7 +77,7 @@ create_devices(VkInstance vk_instance,
 
   // Assign device properties to our devices
   for (int i = 0; i < physical_device_count; i++) {
-  
+
     // Set up our device struct
     gfks_devices[i]._protected = malloc(sizeof(gfks_device_protected));
     gfks_devices[i]._protected->vk_physical_device_properties = NULL;
@@ -158,9 +159,9 @@ apply_queue_family_info_to_device(gfks_device *device) {
     malloc(sizeof(VkQueueFamilyProperties)*queue_family_count);
 
   if (queue_families == NULL) {
-      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
-               1,
-               "Failed to allocate memory for queue families");
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+             1,
+             "Failed to allocate memory for queue families");
   }
 
   vkGetPhysicalDeviceQueueFamilyProperties(physical_device,
@@ -193,19 +194,11 @@ apply_queue_family_info_to_device(gfks_device *device) {
 // (like graphics and transfers)
 // * If there are multiple queue families that support, say, graphics,
 // can one queue family be faster than another? How would I tell?
-// TODO: * I remember reading that queues expire and need to be recreated.
-// if this is the case, handle this!
 //
 // It sounds like the exact behavior of queue families is very
 // implementation-specific, so queue selection could be challenging
 
-
-// Decides what queues to create for the provided device and surface
-// Returns array of VkDeviceQueueCreateInfo, with each element representing a
-// queue family
-//
-// Free the result when you're done!
-
+// Flags to represent the purpose of a queue
 typedef enum {
   QUEUE_PURPOSE_GRAPHICS_BITFLAG=1,
   QUEUE_PURPOSE_COMPUTE_BITFLAG=2,
@@ -214,9 +207,12 @@ typedef enum {
   QUEUE_PURPOSE_PRESENTATION_BITFLAG=16
 } queue_purpose;
 
+// Represents a decided-upon set of queues to create for a queue family.
 typedef struct {
+  // Creation info for the queue family
   VkDeviceQueueCreateInfo family_queue_create_info;
-  
+
+  // The number of queues we would like to create in this queue family 
   unsigned int queue_count;
 
   // An array with each value representing a queue in the family, whose values
@@ -232,6 +228,12 @@ static void free_queue_family_decisions(queue_family_decision *decisions,
   free(decisions);
 }
 
+// Decides how many queues to create in each queue family, and what the purpose
+// of each queue should be.
+//
+// Returns an array of queue_family_decision, with each element representing a 
+// queue family.
+//
 // Free me with free_queue_family_decisions() when done!
 static queue_family_decision
 *decide_queues(gfks_device *device,
@@ -249,17 +251,18 @@ static queue_family_decision
   // Allocate decision info array 
   queue_family_decision *decisions =
     malloc(sizeof(queue_family_decision)*queue_family_count);
- 
+
   if (decisions == NULL) {
-      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
-               1,
-               "Failed to allocate memory");
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+             1,
+             "Failed to allocate memory");
   }
 
   // Iterate over queue families and create one VkDeviceQueueCreateInfo object
   // for each
   for (int i = 0; i < queue_family_count; i++) {
-    VkQueueFamilyProperties props = device->_protected->vk_queue_family_properties[i];
+    VkQueueFamilyProperties props =
+      device->_protected->vk_queue_family_properties[i];
 
     int queues_available_in_family = props.queueCount;
     int queues_to_create_in_family = 0;
@@ -283,7 +286,7 @@ static queue_family_decision
       if (queues_to_add > queues_available_in_family) {
         queues_to_add = queues_available_in_family;
       }
-   
+
       // Make sure we create at least the number of queues that we want out of
       // this family
       if (queues_to_create_in_family < queues_to_add) {
@@ -303,10 +306,14 @@ static queue_family_decision
     // If this queue family supports presentation to our surface, and we still
     // want presentation queues
     VkBool32 presentSupport = False;                                                          
-    vkGetPhysicalDeviceSurfaceSupportKHR(device->_protected->vk_physical_device, i, surface->_protected->vk_surface, &presentSupport);
+    vkGetPhysicalDeviceSurfaceSupportKHR(device->_protected->vk_physical_device,
+                                         i,
+                                         surface->_protected->vk_surface,
+                                         &presentSupport);
+
     if (presentation_queues_wanted > 0 &&
         (presentSupport == True)) {
-     
+
       // Figure out how many queues we want from this queue family
       int queues_to_add = presentation_queues_wanted;
       if (queues_to_add > queues_available_in_family) {
@@ -352,12 +359,16 @@ static queue_family_decision
   return decisions;
 }
 
-
-const char * const *decide_device_extensions(gfks_device *device, unsigned int *count) {
+// Decides what extensions to ask for at logical device creation time
+const char * 
+const *decide_device_extensions(gfks_device *device,
+                                             unsigned int *count) {
   // TODO check if our device extensions are available 
   int required_device_extension_count = 1;
-  char **required_device_extension_names = malloc(sizeof(char *)*required_device_extension_count);
-  required_device_extension_names[0] = malloc(sizeof(char)*VK_MAX_EXTENSION_NAME_SIZE);
+  char **required_device_extension_names =
+    malloc(sizeof(char *)*required_device_extension_count);
+  required_device_extension_names[0] =
+    malloc(sizeof(char)*VK_MAX_EXTENSION_NAME_SIZE);
   required_device_extension_names[0] = "VK_KHR_swapchain";
   *count = required_device_extension_count;
 
@@ -457,36 +468,37 @@ void create_queues(gfks_device *device,
     }
   }
 
- // Allocate our VkQueue array and associated data
- device->_protected->queues = malloc(sizeof(VkQueue)*total_queue_count);
- device->_protected->queue_count = total_queue_count;
- device->_protected->queue_families_for_queues = malloc(sizeof(int)*total_queue_count);
- 
- // Allocate our indices arrays 
- if (device->_protected->graphics_queue_count > 0) {
-   device->_protected->graphics_queue_indices =
-     malloc(sizeof(int)*device->_protected->graphics_queue_count);
- }
+  // Allocate our VkQueue array and associated data
+  device->_protected->queues = malloc(sizeof(VkQueue)*total_queue_count);
+  device->_protected->queue_count = total_queue_count;
+  device->_protected->queue_families_for_queues =
+    malloc(sizeof(int)*total_queue_count);
 
- if (device->_protected->compute_queue_count > 0) {
-   device->_protected->compute_queue_indices =
-     malloc(sizeof(int)*device->_protected->compute_queue_count);
- }
+  // Allocate our indices arrays 
+  if (device->_protected->graphics_queue_count > 0) {
+    device->_protected->graphics_queue_indices =
+      malloc(sizeof(int)*device->_protected->graphics_queue_count);
+  }
 
- if (device->_protected->transfer_queue_count > 0) {
-   device->_protected->transfer_queue_indices =
-     malloc(sizeof(int)*device->_protected->transfer_queue_count);
- }
+  if (device->_protected->compute_queue_count > 0) {
+    device->_protected->compute_queue_indices =
+      malloc(sizeof(int)*device->_protected->compute_queue_count);
+  }
 
- if (device->_protected->sparse_binding_queue_count > 0) {
-   device->_protected->sparse_binding_queue_indices =
-     malloc(sizeof(int)*device->_protected->sparse_binding_queue_count);
- }
+  if (device->_protected->transfer_queue_count > 0) {
+    device->_protected->transfer_queue_indices =
+      malloc(sizeof(int)*device->_protected->transfer_queue_count);
+  }
 
- if (device->_protected->presentation_queue_count > 0) {
-   device->_protected->presentation_queue_indices =
-     malloc(sizeof(int)*device->_protected->presentation_queue_count);
- }
+  if (device->_protected->sparse_binding_queue_count > 0) {
+    device->_protected->sparse_binding_queue_indices =
+      malloc(sizeof(int)*device->_protected->sparse_binding_queue_count);
+  }
+
+  if (device->_protected->presentation_queue_count > 0) {
+    device->_protected->presentation_queue_indices =
+      malloc(sizeof(int)*device->_protected->presentation_queue_count);
+  }
 
   // write our queues
   int written_graphics_queues = 0;
@@ -548,7 +560,9 @@ void create_queues(gfks_device *device,
 // Outputs an array of devices suitable for rendering graphics and presenting
 // to the provided surface
 gfks_device*
-gfks_get_devices_suitable_for_surface(gfks_surface *surface, uint32_t *devices_obtained) {
+gfks_get_devices_suitable_for_surface(gfks_surface *surface,
+                                      uint32_t *devices_obtained) {
+
 #if GFKS_DEBUG_LEVEL > 1
   printf("%s: Getting devices suitable for surface.\n",GFKS_DEBUG_TAG);
 #endif
@@ -596,15 +610,17 @@ gfks_get_devices_suitable_for_surface(gfks_surface *surface, uint32_t *devices_o
       decide_device_extensions(&(gfks_devices[i]), &device_extension_count);
 
     if (create_logical_device(&(gfks_devices[i]),
-                                extension_decisions,
-                                device_extension_count,
-                                queue_family_decisions,
-                                queue_family_count) == false) {
+                              extension_decisions,
+                              device_extension_count,
+                              queue_family_decisions,
+                              queue_family_count) == false) {
       // We produce errors for this within the function. return NULL.
       return NULL;
     }
 
-    create_queues(&(gfks_devices[i]),queue_family_decisions, queue_family_count); 
+    create_queues(&(gfks_devices[i]),
+                  queue_family_decisions,
+                  queue_family_count); 
 
     free_queue_family_decisions(queue_family_decisions, queue_family_count);
   }
