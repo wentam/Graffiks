@@ -73,14 +73,16 @@ DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 
 
 // Error handling
-// if any gfks_ function returns NULL instead of an object, look at GFKS_LATEST_ERROR
+// if any gfks_ function returns NULL instead of an object, look at gfks_latest_error
 
 typedef enum {
   GFKS_ERROR_NONE,
   GFKS_ERROR_NULL_CONTEXT,
   GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
   GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE,
-  GFKS_ERROR_UNKNOWN
+  GFKS_ERROR_UNKNOWN,
+  GFKS_ERROR_UNKNOWN_VULKAN,
+  GFKS_ERROR_NO_VULKAN_DEVICE,
 } gfks_error;
 
 gfks_error gfks_latest_error;
@@ -198,5 +200,6 @@ struct gfks_device_struct {
   void (*free)(gfks_device *device);
 };
 
-gfks_device* gfks_get_devices_suitable_for_surface(gfks_surface *surface);
+gfks_device* gfks_get_devices_suitable_for_surface(gfks_surface *surface, uint32_t *devices_obtained);
+void gfks_free_devices(gfks_device *devices, int device_count);
 #endif

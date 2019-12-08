@@ -1,7 +1,29 @@
 #include "graffiks/internal.h"
 
+void gfks_free_device(gfks_device *device) {
+  vkDestroyDevice(device->_protected->vk_logical_device, NULL);
+  free(device->_protected->vk_physical_device_properties);
+  free(device->_protected->vk_physical_device_features);
+  free(device->_protected->vk_queue_family_properties);
+  free(device->_protected->queues);
+  free(device->_protected->queue_families_for_queues);
+  free(device->_protected->graphics_queue_indices);
+  free(device->_protected->compute_queue_indices);
+  free(device->_protected->transfer_queue_indices);
+  free(device->_protected->sparse_binding_queue_indices);
+  free(device->_protected);
+  free(device);
+}
+
+void gfks_free_devices(gfks_device *devices, int device_count) {
+  for (int i = 0; i < device_count; i++) {
+    devices[i].free(&(devices[i]));
+  }
+}
 // Allocates our gfks_device structs and fills them with information about
 // the devices
+//
+// returns NULL on error
 static gfks_device*
 create_devices(VkInstance vk_instance,
                int *device_count) {
@@ -10,11 +32,18 @@ create_devices(VkInstance vk_instance,
   if (vkEnumeratePhysicalDevices(vk_instance,
                                  &physical_device_count,
                                  NULL) != VK_SUCCESS) {
-    // TODO error
+
+    gfks_err(GFKS_ERROR_UNKNOWN_VULKAN,
+             1,
+             "Unkown vulkan error while enumerating physical devices");
+    return NULL;
   }
 
   if (physical_device_count <= 0) {
-    // TODO error
+    gfks_err(GFKS_ERROR_NO_VULKAN_DEVICE,
+             1,
+             "No vulkan compatible devices available");
+    return NULL;
   }
 
 #if GFKS_DEBUG_LEVEL > 0
@@ -28,7 +57,10 @@ create_devices(VkInstance vk_instance,
   if (vkEnumeratePhysicalDevices(vk_instance,
                                  &physical_device_count,
                                  physical_devices) != VK_SUCCESS) {
-    // TODO error
+    gfks_err(GFKS_ERROR_UNKNOWN_VULKAN,
+             1,
+             "Unkown vulkan error while enumerating physical devices");
+    return NULL;
   } 
 
   // Allocate our gfks_devices for each physical device,
@@ -36,7 +68,10 @@ create_devices(VkInstance vk_instance,
     malloc(sizeof(gfks_device)*physical_device_count);
 
   if (gfks_devices == NULL) {
-    // TODO error
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+             1,
+             "Failed to allocate memory for devices");
+    return NULL;
   }
 
   // Assign device properties to our devices
@@ -44,12 +79,27 @@ create_devices(VkInstance vk_instance,
   
     // Set up our device struct
     gfks_devices[i]._protected = malloc(sizeof(gfks_device_protected));
+    gfks_devices[i]._protected->vk_physical_device_properties = NULL;
+    gfks_devices[i]._protected->vk_physical_device_features = NULL;
+    gfks_devices[i]._protected->vk_queue_family_properties = NULL;
+    gfks_devices[i]._protected->queues = NULL;
+    gfks_devices[i]._protected->queue_families_for_queues = NULL;
+    gfks_devices[i]._protected->graphics_queue_indices = NULL;
+    gfks_devices[i]._protected->compute_queue_indices = NULL;
+    gfks_devices[i]._protected->transfer_queue_indices = NULL;
+    gfks_devices[i]._protected->sparse_binding_queue_indices = NULL;
+    gfks_devices[i]._protected->presentation_queue_indices = NULL;
+
+    // function pointers
+    gfks_devices[i].free = &gfks_free_device;
 
     VkPhysicalDeviceProperties *devprops =
       malloc(sizeof(VkPhysicalDeviceProperties)); 
 
     if (devprops == NULL) {
-      // TODO error
+      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+               1,
+               "Failed to allocate memory for device properties");
     }
 
     vkGetPhysicalDeviceProperties(physical_devices[i], devprops);
@@ -58,7 +108,9 @@ create_devices(VkInstance vk_instance,
       malloc(sizeof(VkPhysicalDeviceFeatures));
 
     if (devfeat == NULL) {
-      // TODO error
+      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+               1,
+               "Failed to allocate memory for device features");
     }
 
     vkGetPhysicalDeviceFeatures(physical_devices[i], devfeat);
@@ -71,6 +123,13 @@ create_devices(VkInstance vk_instance,
     gfks_devices[i]._protected->vk_physical_device_index = i;
     gfks_devices[i]._protected->vk_physical_device_properties = devprops;
     gfks_devices[i]._protected->vk_physical_device_features = devfeat;
+  }
+
+  if (gfks_devices == NULL) {
+    gfks_err(GFKS_ERROR_UNKNOWN,
+             1,
+             "Unknown error during device creation");
+
   }
 
   return gfks_devices;
@@ -99,7 +158,9 @@ apply_queue_family_info_to_device(gfks_device *device) {
     malloc(sizeof(VkQueueFamilyProperties)*queue_family_count);
 
   if (queue_families == NULL) {
-    // TODO error
+      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+               1,
+               "Failed to allocate memory for queue families");
   }
 
   vkGetPhysicalDeviceQueueFamilyProperties(physical_device,
@@ -163,6 +224,14 @@ typedef struct {
   queue_purpose *queue_purposes;
 } queue_family_decision;
 
+static void free_queue_family_decisions(queue_family_decision *decisions,
+                                        uint32_t decision_count) {
+  for (int i = 0; i < decision_count; i++) {
+    free(decisions[i].queue_purposes);
+  }
+  free(decisions);
+}
+
 // Free me with free_queue_family_decisions() when done!
 static queue_family_decision
 *decide_queues(gfks_device *device,
@@ -182,7 +251,9 @@ static queue_family_decision
     malloc(sizeof(queue_family_decision)*queue_family_count);
  
   if (decisions == NULL) {
-    // TODO error 
+      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+               1,
+               "Failed to allocate memory");
   }
 
   // Iterate over queue families and create one VkDeviceQueueCreateInfo object
@@ -194,6 +265,12 @@ static queue_family_decision
     int queues_to_create_in_family = 0;
     VkQueueFlags *queue_decision_flags =
       malloc(sizeof(VkQueueFlags)*queues_available_in_family);
+
+    if (queue_decision_flags == NULL) {
+      gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
+               1,
+               "Failed to allocate memory");
+    }
 
     *queue_decision_flags = 0;
 
@@ -293,44 +370,50 @@ bool create_logical_device(gfks_device *device,
                            queue_family_decision *queue_family_decisions,
                            int queue_family_count) {
 
- // Create queue create info array
- int used_queue_families = 0; 
- for (int i = 0; i < queue_family_count; i++) {
-  queue_family_decision d = queue_family_decisions[i];
-   if (d.queue_count > 0) {
-     used_queue_families++;
-   }
- }
- 
- VkDeviceQueueCreateInfo queue_create_info[used_queue_families];
- int j = 0;
- for (int i = 0; i < queue_family_count; i++) {  
-  queue_family_decision d = queue_family_decisions[i];
-  if (d.queue_count > 0) {
-    queue_create_info[j++] = d.family_queue_create_info;
+  // Create queue create info array
+  int used_queue_families = 0; 
+  for (int i = 0; i < queue_family_count; i++) {
+    queue_family_decision d = queue_family_decisions[i];
+    if (d.queue_count > 0) {
+      used_queue_families++;
+    }
   }
- }
 
- // set up logical device
- VkPhysicalDeviceFeatures device_features = {};
+  VkDeviceQueueCreateInfo queue_create_info[used_queue_families];
+  int j = 0;
+  for (int i = 0; i < queue_family_count; i++) {  
+    queue_family_decision d = queue_family_decisions[i];
+    if (d.queue_count > 0) {
+      queue_create_info[j++] = d.family_queue_create_info;
+    }
+  }
 
- VkDeviceCreateInfo device_create_info = {};
- device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
- device_create_info.pQueueCreateInfos = queue_create_info;
- device_create_info.queueCreateInfoCount = used_queue_families;
- device_create_info.pEnabledFeatures = &device_features;
- device_create_info.enabledExtensionCount = device_extension_count;
- device_create_info.ppEnabledExtensionNames = device_extensions;
- device_create_info.enabledLayerCount = 0;
+  // set up logical device
+  VkPhysicalDeviceFeatures device_features = {};
 
- VkDevice ldevice;
- if (vkCreateDevice(device->_protected->vk_physical_device, &device_create_info, NULL, &ldevice) != VK_SUCCESS) {
-   // TODO error
-   return false;
- }
- device->_protected->vk_logical_device = ldevice; 
+  VkDeviceCreateInfo device_create_info = {};
+  device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  device_create_info.pQueueCreateInfos = queue_create_info;
+  device_create_info.queueCreateInfoCount = used_queue_families;
+  device_create_info.pEnabledFeatures = &device_features;
+  device_create_info.enabledExtensionCount = device_extension_count;
+  device_create_info.ppEnabledExtensionNames = device_extensions;
+  device_create_info.enabledLayerCount = 0;
 
- return true;
+  VkDevice ldevice;
+  if (vkCreateDevice(device->_protected->vk_physical_device,
+                     &device_create_info,
+                     NULL,
+                     &ldevice) != VK_SUCCESS) {
+
+    gfks_err(GFKS_ERROR_UNKNOWN_VULKAN,
+             1,
+             "Failed to create logical vulkan device for unknown reason");
+    return false;
+  }
+  device->_protected->vk_logical_device = ldevice; 
+
+  return true;
 }
 
 void create_queues(gfks_device *device,
@@ -344,8 +427,11 @@ void create_queues(gfks_device *device,
   device->_protected->presentation_queue_count = 0;
 
   // Count up each type of queue we will be creating
+  int total_queue_count = 0;
   for (int i = 0; i < queue_family_count; i++) {
     queue_family_decision d = queue_family_decisions[i];
+    total_queue_count += d.queue_count;
+
     for (int j = 0; j < d.queue_count; j++) {
       queue_purpose p = d.queue_purposes[i];
 
@@ -371,26 +457,36 @@ void create_queues(gfks_device *device,
     }
   }
 
-  // Allocate our VkQueue objects
-  if (device->_protected->graphics_queue_count > 0) {
-    device->_protected->graphics_queues = malloc(sizeof(VkQueue)*device->_protected->graphics_queue_count);
-  }
+ // Allocate our VkQueue array and associated data
+ device->_protected->queues = malloc(sizeof(VkQueue)*total_queue_count);
+ device->_protected->queue_count = total_queue_count;
+ device->_protected->queue_families_for_queues = malloc(sizeof(int)*total_queue_count);
+ 
+ // Allocate our indices arrays 
+ if (device->_protected->graphics_queue_count > 0) {
+   device->_protected->graphics_queue_indices =
+     malloc(sizeof(int)*device->_protected->graphics_queue_count);
+ }
 
-  if (device->_protected->compute_queue_count > 0) {
-    device->_protected->compute_queues = malloc(sizeof(VkQueue)*device->_protected->compute_queue_count);
-  }
+ if (device->_protected->compute_queue_count > 0) {
+   device->_protected->compute_queue_indices =
+     malloc(sizeof(int)*device->_protected->compute_queue_count);
+ }
 
-  if (device->_protected->transfer_queue_count > 0) {
-    device->_protected->transfer_queues = malloc(sizeof(VkQueue)*device->_protected->transfer_queue_count);
-  }
+ if (device->_protected->transfer_queue_count > 0) {
+   device->_protected->transfer_queue_indices =
+     malloc(sizeof(int)*device->_protected->transfer_queue_count);
+ }
 
-  if (device->_protected->sparse_binding_queue_count > 0) {
-    device->_protected->sparse_binding_queues = malloc(sizeof(VkQueue)*device->_protected->sparse_binding_queue_count);
-  }
+ if (device->_protected->sparse_binding_queue_count > 0) {
+   device->_protected->sparse_binding_queue_indices =
+     malloc(sizeof(int)*device->_protected->sparse_binding_queue_count);
+ }
 
-  if (device->_protected->presentation_queue_count > 0) {
-    device->_protected->presentation_queues = malloc(sizeof(VkQueue)*device->_protected->presentation_queue_count);
-  }
+ if (device->_protected->presentation_queue_count > 0) {
+   device->_protected->presentation_queue_indices =
+     malloc(sizeof(int)*device->_protected->presentation_queue_count);
+ }
 
   // write our queues
   int written_graphics_queues = 0;
@@ -398,61 +494,53 @@ void create_queues(gfks_device *device,
   int written_transfer_queues = 0;
   int written_sparse_binding_queues = 0;
   int written_presentation_queues = 0;
+  int total_written_queues = 0;
   for (int i = 0; i < queue_family_count; i++) {
     int used_queues_in_family = 0;
     queue_family_decision d = queue_family_decisions[i];
     for (int j = 0; j < d.queue_count; j++) {
       queue_purpose p = d.queue_purposes[i];
 
-      if (p & QUEUE_PURPOSE_GRAPHICS_BITFLAG) {
-        VkQueue q;
-        vkGetDeviceQueue(device->_protected->vk_logical_device,
-                         i,
-                         j,
-                         &q);
+      VkQueue q;
+      vkGetDeviceQueue(device->_protected->vk_logical_device,
+                       i,
+                       j,
+                       &q);
 
-        device->_protected->graphics_queues[written_graphics_queues++] = q;
+      device->_protected->queues[total_written_queues] = q;
+      device->_protected->queue_families_for_queues[total_written_queues] = i;
+
+      if (p & QUEUE_PURPOSE_GRAPHICS_BITFLAG) {
+        device->_protected->
+          graphics_queue_indices[written_graphics_queues++] =
+          total_written_queues;
       }
 
       if (p & QUEUE_PURPOSE_COMPUTE_BITFLAG) {
-        VkQueue q;
-        vkGetDeviceQueue(device->_protected->vk_logical_device,
-                         i,
-                         j,
-                         &q);
-
-        device->_protected->compute_queues[written_compute_queues++] = q;
+        device->_protected->
+          compute_queue_indices[written_compute_queues++] =
+          total_written_queues;
       }
 
       if (p & QUEUE_PURPOSE_TRANSFER_BITFLAG) {
-        VkQueue q;
-        vkGetDeviceQueue(device->_protected->vk_logical_device,
-                         i,
-                         j,
-                         &q);
-
-        device->_protected->transfer_queues[written_transfer_queues++] = q;
+        device->_protected->
+          transfer_queue_indices[written_transfer_queues++] =
+          total_written_queues;
       }
 
       if (p & QUEUE_PURPOSE_SPARSE_BINDING_BITFLAG) {
-        VkQueue q;
-        vkGetDeviceQueue(device->_protected->vk_logical_device,
-                         i,
-                         j,
-                         &q);
-
-        device->_protected->sparse_binding_queues[written_sparse_binding_queues++] = q;
+        device->_protected->
+          sparse_binding_queue_indices[written_sparse_binding_queues++] =
+          total_written_queues;
       }
 
       if (p & QUEUE_PURPOSE_PRESENTATION_BITFLAG) {
-        VkQueue q;
-        vkGetDeviceQueue(device->_protected->vk_logical_device,
-                         i,
-                         j,
-                         &q);
-
-        device->_protected->presentation_queues[written_presentation_queues++] = q;
+        device->_protected->
+          presentation_queue_indices[written_presentation_queues++] =
+          total_written_queues;
       }
+
+      total_written_queues++;
     }
   }
 }
@@ -460,7 +548,7 @@ void create_queues(gfks_device *device,
 // Outputs an array of devices suitable for rendering graphics and presenting
 // to the provided surface
 gfks_device*
-gfks_get_devices_suitable_for_surface(gfks_surface *surface) {
+gfks_get_devices_suitable_for_surface(gfks_surface *surface, uint32_t *devices_obtained) {
 #if GFKS_DEBUG_LEVEL > 1
   printf("%s: Getting devices suitable for surface.\n",GFKS_DEBUG_TAG);
 #endif
@@ -473,7 +561,8 @@ gfks_get_devices_suitable_for_surface(gfks_surface *surface) {
                    &device_count);
 
   if (gfks_devices == NULL) {
-    // TODO error if no error was produced inside function
+    // We produce errors for this inside create_devices. return NULL.
+    return NULL;
   }
 
   // Figure out what queues to create for each device, 
@@ -511,12 +600,19 @@ gfks_get_devices_suitable_for_surface(gfks_surface *surface) {
                                 device_extension_count,
                                 queue_family_decisions,
                                 queue_family_count) == false) {
-      // TODO error
+      // We produce errors for this within the function. return NULL.
+      return NULL;
     }
 
     create_queues(&(gfks_devices[i]),queue_family_decisions, queue_family_count); 
+
+    free_queue_family_decisions(queue_family_decisions, queue_family_count);
   }
 
   // TODO test devices for suitability
+  if (devices_obtained != NULL) {
+    *devices_obtained = device_count; 
+  }
   return gfks_devices;
 }
+

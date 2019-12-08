@@ -55,20 +55,25 @@ struct gfks_device_protected_struct {
   unsigned int vk_queue_family_property_count;
   VkQueueFamilyProperties *vk_queue_family_properties; // array  
 
+  unsigned int queue_count;
+  VkQueue *queues;
+
+  unsigned int *queue_families_for_queues;
+
   unsigned int graphics_queue_count;
-  VkQueue *graphics_queues;
+  unsigned int *graphics_queue_indices;
 
   unsigned int compute_queue_count;
-  VkQueue *compute_queues;
+  unsigned int *compute_queue_indices;
 
   unsigned int transfer_queue_count;
-  VkQueue *transfer_queues;
+  unsigned int *transfer_queue_indices;
 
   unsigned int sparse_binding_queue_count;
-  VkQueue *sparse_binding_queues;
+  unsigned int *sparse_binding_queue_indices;
 
   unsigned int presentation_queue_count;
-  VkQueue *presentation_queues;
+  unsigned int *presentation_queue_indices;
 };
 
 #endif
