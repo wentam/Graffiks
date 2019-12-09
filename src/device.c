@@ -301,7 +301,6 @@ gfks_device *gfks_get_all_devices(gfks_context *context,
 
 // Outputs an array of devices suitable for rendering graphics and presenting
 // to the provided surface
-// TODO allow for multiple surfaces?
 gfks_device*
 gfks_get_devices_suitable_for_surfaces(gfks_context *context,
                                        gfks_surface *surfaces,
@@ -332,7 +331,8 @@ gfks_get_devices_suitable_for_surfaces(gfks_context *context,
     gfks_set_up_device_for_surfaces(&(gfks_devices[i]),surfaces,surface_count);
   }
 
-  // TODO test devices for suitability
+  // TODO test devices for suitability and create potentially shorter output
+  // array
   if (devices_obtained != NULL) {
     *devices_obtained = device_count; 
   }

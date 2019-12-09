@@ -31,10 +31,33 @@ struct gfks_context_protected_struct {
 
 struct gfks_surface_protected_struct {
   VkSurfaceKHR vk_surface;
-  //VkSurfaceCapabilities capabilities;
 
   gfks_window_system window_system;
   void *window_handle; // data type differs based on window_system
+
+  // Window geometry
+  int window_x;
+  int window_y;
+  uint32_t window_width;
+  uint32_t window_height;
+
+  // The device we'll use when drawing to this surface
+  gfks_device *draw_device;
+
+  // Device-dependant stuff -
+  // these will be defined/redefined every time we set the draw device
+  //
+  // If draw_device is NULL, these have not been initialized
+  VkSurfaceCapabilitiesKHR capabilities;
+  VkSurfaceFormatKHR surface_format;
+  VkPresentModeKHR present_mode;
+  VkSwapchainKHR swap_chain;
+  VkFormat swap_chain_image_format;
+  VkExtent2D swap_chain_extent;
+
+  uint32_t swap_chain_image_count;
+  VkImage *swap_chain_images;
+  VkImageView *swap_chain_image_views;
 };
 
 typedef struct {

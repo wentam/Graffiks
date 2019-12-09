@@ -137,6 +137,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems);
 
 typedef struct gfks_surface_protected_struct gfks_surface_protected;
 typedef struct gfks_surface_struct gfks_surface;
+typedef struct gfks_device_struct gfks_device;
 
 /// gfks_surface
 struct gfks_surface_struct {
@@ -147,6 +148,15 @@ struct gfks_surface_struct {
   /// \brief The parent Graffiks context.
   /// \memberof gfks_surface_struct
   gfks_context *context;
+
+
+  /// \public
+  /// \brief Sets which device will be used to draw to this surface
+  ///
+  /// \param gfks_surface The surface we want this device to draw to
+  /// \param gfks_device The device we want to use to draw to this surface
+  /// \memberof gfks_surface_struct
+  bool (*set_draw_device)(gfks_surface *surface, gfks_device *device);
 
   /// \public
   /// \brief Frees a surface
@@ -181,7 +191,6 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
 // --------------------
 
 typedef struct gfks_device_protected_struct gfks_device_protected;
-typedef struct gfks_device_struct gfks_device;
 
 /// gfks_device
 struct gfks_device_struct {
