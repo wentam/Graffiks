@@ -13,6 +13,7 @@
 
 // Error handling
 void gfks_err(gfks_error err, int debug_level, char *msg);
+bool gfks_check_alloc_throw_err(void *ptr, char *file, int line);
 
 // ------------------
 // ---gfks_context---
@@ -30,6 +31,7 @@ struct gfks_context_protected_struct {
 
 struct gfks_surface_protected_struct {
   VkSurfaceKHR vk_surface;
+  //VkSurfaceCapabilities capabilities;
 
   gfks_window_system window_system;
   void *window_handle; // data type differs based on window_system
@@ -44,6 +46,8 @@ typedef struct {
 // ---gfks_device---
 // ------------------
 // TODO we need to define which presentation queues can present to which surfaces
+// TODO we need to make some of our device information public so the user of the
+// engine can make decisions about it
 struct gfks_device_protected_struct {
   VkPhysicalDevice vk_physical_device;
   int vk_physical_device_index;

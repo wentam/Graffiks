@@ -53,6 +53,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   context->free = &gfks_free_context;
 
   // TODO we might not always want to init to vulkan 1.1
+  // TODO check available vulkan version and error if our desired version is not avail
 
   // Put together app info struct
   VkApplicationInfo app_info = {};

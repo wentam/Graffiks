@@ -2,6 +2,7 @@
 
 #ifndef GFKS_MESH_H
 #define GFKS_MESH_H
+#include <stdbool.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -23,8 +24,6 @@
 #define DLL_EXPORT
 #endif
 #endif
-
-typedef enum { false, true } bool;
 
 typedef struct {
   GLuint triangle_buffer;

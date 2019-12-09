@@ -13,6 +13,34 @@ void gfks_free_surface(gfks_surface *surface) {
   free(surface);
 }
 
+// Create a new malloc'd gfks_surface and assigns method pointers
+//
+// Argument window_handle must also be malloc'd as this object will be used in
+// stack items below us
+//
+// This function will not fully complete the struct. vk_surface still needs to
+// be defined
+gfks_surface * make_surface(gfks_context *context,
+                             void *window_handle,
+                             gfks_window_system window_system) {
+
+  gfks_surface *new_surface = malloc(sizeof(gfks_surface));
+  new_surface->_protected = malloc(sizeof(gfks_surface_protected));
+  new_surface->context = context;
+  new_surface->_protected->window_handle = window_handle;
+  new_surface->_protected->window_system = window_system;
+
+  // Assign method pointers
+  new_surface->free = &gfks_free_surface;
+
+  if (new_surface == NULL || new_surface->_protected == NULL) {
+    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, "Failed to allocate memory");
+    return NULL;
+  }
+  
+  return new_surface;
+}
+
 // TODO: should create surface for no window system (for invisible rendering)
 gfks_surface* gfks_create_surface();
 
@@ -23,30 +51,37 @@ gfks_surface* gfks_create_surface_X11(gfks_context *context, Display *display, W
 #endif
 
   if (context == NULL) {
-    gfks_err(GFKS_ERROR_NULL_CONTEXT, 1, "Received a NULL context for surface creation");
+    gfks_err(GFKS_ERROR_NULL_ARGUMENT, 1, "Received a NULL context for surface creation");
     return NULL;
   }
 
-  // Allocate and set up surface struct
-  gfks_surface *new_surface = malloc(sizeof(gfks_surface));
-  new_surface->_protected = malloc(sizeof(gfks_surface_protected));
-  new_surface->context = context;
+  if (display == NULL) {
+    gfks_err(GFKS_ERROR_NULL_ARGUMENT, 1, "Received a NULL display for surface creation");
+    return NULL;
+  }
 
+  // Set up our window handle
   window_handle_x11 *window_handle = malloc(sizeof(window_handle_x11));
 
-  if (new_surface == NULL || new_surface->_protected == NULL || window_handle == NULL) {
+  if (window_handle == NULL) {
     gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, "Failed to allocate memory");
-    gfks_free_surface(new_surface);
+    free(window_handle);
     return NULL;
   }
 
   window_handle->display = display;
   window_handle->window = window;
 
-  new_surface->_protected->window_handle = window_handle;
+  // Create the new surface
+  gfks_surface *new_surface = make_surface(context,
+                                           window_handle,
+                                           GFKS_WINDOW_SYSTEM_X11_BITFLAG);
 
-  // Assign method pointers
-  new_surface->free = &gfks_free_surface;
+  if (new_surface == NULL) {
+    // We produced an error in make_struct. Free and Return NULL.
+    gfks_free_surface(new_surface);
+    return NULL;
+  }
 
   // Create our vulkan surface
   VkXlibSurfaceCreateInfoKHR xlib_surface_create_info = {};

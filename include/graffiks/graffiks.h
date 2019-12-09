@@ -15,6 +15,8 @@
 #endif
 #endif
 
+#include <stdbool.h>
+
 #ifdef _WIN32
 #include "graffiks/dt_loop.h"
 #include "graffiks/dt_callbacks.h"
@@ -77,7 +79,7 @@ DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 
 typedef enum {
   GFKS_ERROR_NONE,
-  GFKS_ERROR_NULL_CONTEXT,
+  GFKS_ERROR_NULL_ARGUMENT,
   GFKS_ERROR_FAILED_MEMORY_ALLOCATION,
   GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE,
   GFKS_ERROR_UNKNOWN,
@@ -192,14 +194,63 @@ struct gfks_device_struct {
   gfks_context *context;
 
   /// \public
+  /// \brief Sets up this device to draw to the specified surfaces.
+  /// 
+  /// If you used gfks_get_devices_suitable_for_surfaces(), this has been done for you already.
+  ///
+  /// It's not guaranteed that any device can draw to any surface,
+  /// such as the device not being connected to the correct display,
+  /// so inspect that your device is capable of drawing to your surface with
+  /// method suitable_for_surface.
+  ///
+  /// \param device The device we are setting up
+  /// \param surfaces The surfaces we want to set this device up to draw to
+  /// \param surface_count The number of surfaces we passed to the surfaces parameter
+  /// \returns true on success, false on error
+  /// \memberof gfks_device_struct
+  bool (*set_up_for_surfaces)(gfks_device *device, gfks_surface *surfaces, uint32_t surface_count);
+
+  /// \public
+  /// \brief Determines if this device is able to, and has been set up to draw to the specified surface.
+  ///
+  /// The device can only be suitable for the surface if it has been set up with the set_up_for_surfaces() method
+  ///
+  /// \param device The device we want to test suitability for
+  /// \param surface The surface we would like to test suitability against
+  /// \returns true if this device is suitable for drawing to this surface, otherwise false.
+  /// \memberof gfks_device_struct
+  bool (*suitable_for_surface)(gfks_device *device, gfks_surface *surface);
+
+  /// \public
   /// \brief Frees a device
   ///
   /// Must be called when you're done!
-  /// \param gfks_device A device to be destroyed
+  /// \param device A device to be destroyed
   /// \memberof gfks_device_struct
   void (*free)(gfks_device *device);
 };
 
-gfks_device* gfks_get_devices_suitable_for_surface(gfks_surface *surface, uint32_t *devices_obtained);
+/// \brief Obtains all graffiks-compatible devices
+///
+/// \param context A Graffiks context
+/// \param devices_obtained Will be written with the number of devices returned.
+/// \returns An array *gfks_device or NULL if there was an error.
+/// \memberof gfks_device_struct
+gfks_device *gfks_get_all_devices(gfks_context *context,
+                                  uint32_t *devices_obtained);
+
+/// \brief Obtains all graffiks-compatible devices that are suitable for drawing to the provided surfaces
+///
+/// \param context A Graffiks context
+/// \param surfaces Surfaces we would like our devices to be suitable for
+/// \param surface_count Number of surfaces you have passed to the surfaces parameter
+/// \param devices_obtained Will be written with the number of devices returned.
+/// \returns An array *gfks_device or NULL if there was an error.
+/// \memberof gfks_device_struct
+gfks_device*
+gfks_get_devices_suitable_for_surfaces(gfks_context *context,
+                                       gfks_surface *surfaces,
+                                       uint32_t surface_count,
+                                       uint32_t *devices_obtained);
 void gfks_free_devices(gfks_device *devices, int device_count);
 #endif
