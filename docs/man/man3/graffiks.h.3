@@ -1,4 +1,4 @@
-.TH "include/graffiks/graffiks.h" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.TH "include/graffiks/graffiks.h" 3 "Tue Dec 10 2019" "Graffiks" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -6,6 +6,9 @@ include/graffiks/graffiks.h
 .SH SYNOPSIS
 .br
 .PP
+\fC#include <stdbool\&.h>\fP
+.br
+
 .SS "Classes"
 
 .in +1c
@@ -17,12 +20,19 @@ include/graffiks/graffiks.h
 .RI "struct \fBgfks_surface\fP"
 .br
 .RI "gfks_surface "
+.ti -1c
+.RI "struct \fBgfks_device\fP"
+.br
+.RI "gfks_device "
 .in -1c
 .SS "Macros"
 
 .in +1c
 .ti -1c
 .RI "#define \fBGFKS_ENGINE_NAME\fP   'Graffiks'"
+.br
+.ti -1c
+.RI "#define \fBGFKS_DEBUG_TAG\fP   'GFKS'"
 .br
 .ti -1c
 .RI "#define \fBGFKS_MAJOR_VERSION\fP   0"
@@ -34,15 +44,15 @@ include/graffiks/graffiks.h
 .RI "#define \fBGFKS_REVISION\fP   0"
 .br
 .ti -1c
-.RI "#define \fBGFKS_DEBUG_TAG\fP   'GFKS'"
-.br
-.ti -1c
 .RI "#define \fBGFKS_DEBUG_LEVEL\fP   0"
 .br
 .in -1c
 .SS "Enumerations"
 
 .in +1c
+.ti -1c
+.RI "enum \fBgfks_error\fP { \fBGFKS_ERROR_NONE\fP, \fBGFKS_ERROR_NULL_ARGUMENT\fP, \fBGFKS_ERROR_FAILED_MEMORY_ALLOCATION\fP, \fBGFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE\fP, \fBGFKS_ERROR_UNKNOWN\fP, \fBGFKS_ERROR_UNKNOWN_VULKAN\fP, \fBGFKS_ERROR_NO_VULKAN_DEVICE\fP, \fBGFKS_ERROR_DEVICE_NOT_SUITABLE_FOR_SURFACE\fP, \fBGFKS_ERROR_NO_SUITABLE_SURFACE_FORMAT\fP }"
+.br
 .ti -1c
 .RI "enum \fBgfks_window_system\fP { \fBGFKS_WINDOW_SYSTEM_NONE_BITFLAG\fP = 1, \fBGFKS_WINDOW_SYSTEM_X11_BITFLAG\fP = 2, \fBGFKS_WINDOW_SYSTEM_WAYLAND_BITFLAG\fP = 4 }"
 .br
@@ -61,6 +71,16 @@ include/graffiks/graffiks.h
 .br
 .ti -1c
 .RI "void \fBgfks_set_antialiasing_samples\fP (int samples)"
+.br
+.ti -1c
+.RI "void \fBgfks_free_devices\fP (gfks_device *devices, int device_count)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "gfks_error \fBgfks_latest_error\fP"
 .br
 .in -1c
 .SH "Author"

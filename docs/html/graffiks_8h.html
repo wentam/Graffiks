@@ -91,12 +91,14 @@ $(document).ready(function(){initNavTree('graffiks_8h.html','');});
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">graffiks.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__context__struct.html">gfks_context</a></td></tr>
@@ -105,12 +107,18 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html">gfks_surface</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">gfks_surface  <a href="structgfks__surface__struct.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__device__struct.html">gfks_device</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">gfks_device  <a href="structgfks__device__struct.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:aac23c785402cb52ca640244638087b71"><td class="memItemLeft" align="right" valign="top"><a id="aac23c785402cb52ca640244638087b71"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>GFKS_ENGINE_NAME</b>&#160;&#160;&#160;&quot;Graffiks&quot;</td></tr>
 <tr class="separator:aac23c785402cb52ca640244638087b71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7423cd3b5d4f2c8286a102280d966244"><td class="memItemLeft" align="right" valign="top"><a id="a7423cd3b5d4f2c8286a102280d966244"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>GFKS_DEBUG_TAG</b>&#160;&#160;&#160;&quot;GFKS&quot;</td></tr>
+<tr class="separator:a7423cd3b5d4f2c8286a102280d966244"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31e66b386799151c07fa5d8a6c359378"><td class="memItemLeft" align="right" valign="top"><a id="a31e66b386799151c07fa5d8a6c359378"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>GFKS_MAJOR_VERSION</b>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:a31e66b386799151c07fa5d8a6c359378"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -120,15 +128,27 @@ Macros</h2></td></tr>
 <tr class="memitem:aeee202ee33e3977f89e4ad5ffecf2603"><td class="memItemLeft" align="right" valign="top"><a id="aeee202ee33e3977f89e4ad5ffecf2603"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>GFKS_REVISION</b>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:aeee202ee33e3977f89e4ad5ffecf2603"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7423cd3b5d4f2c8286a102280d966244"><td class="memItemLeft" align="right" valign="top"><a id="a7423cd3b5d4f2c8286a102280d966244"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>GFKS_DEBUG_TAG</b>&#160;&#160;&#160;&quot;GFKS&quot;</td></tr>
-<tr class="separator:a7423cd3b5d4f2c8286a102280d966244"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab720cad89fe593eb6aefaf4731000135"><td class="memItemLeft" align="right" valign="top"><a id="ab720cad89fe593eb6aefaf4731000135"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>GFKS_DEBUG_LEVEL</b>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ab720cad89fe593eb6aefaf4731000135"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:a00ac5dfd52bf39bfbe9611d66803fc31"><td class="memItemLeft" align="right" valign="top"><a id="a00ac5dfd52bf39bfbe9611d66803fc31"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>gfks_error</b> { <br />
+&#160;&#160;<b>GFKS_ERROR_NONE</b>, 
+<b>GFKS_ERROR_NULL_ARGUMENT</b>, 
+<b>GFKS_ERROR_FAILED_MEMORY_ALLOCATION</b>, 
+<b>GFKS_ERROR_VULKAN_EXTENSION_NOT_AVAILABLE</b>, 
+<br />
+&#160;&#160;<b>GFKS_ERROR_UNKNOWN</b>, 
+<b>GFKS_ERROR_UNKNOWN_VULKAN</b>, 
+<b>GFKS_ERROR_NO_VULKAN_DEVICE</b>, 
+<b>GFKS_ERROR_DEVICE_NOT_SUITABLE_FOR_SURFACE</b>, 
+<br />
+&#160;&#160;<b>GFKS_ERROR_NO_SUITABLE_SURFACE_FORMAT</b>
+<br />
+ }</td></tr>
+<tr class="separator:a00ac5dfd52bf39bfbe9611d66803fc31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e964268239c24c7359495d655f8aec3"><td class="memItemLeft" align="right" valign="top"><a id="a9e964268239c24c7359495d655f8aec3"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>gfks_window_system</b> { <b>GFKS_WINDOW_SYSTEM_NONE_BITFLAG</b> = 1, 
 <b>GFKS_WINDOW_SYSTEM_X11_BITFLAG</b> = 2, 
 <b>GFKS_WINDOW_SYSTEM_WAYLAND_BITFLAG</b> = 4
@@ -149,6 +169,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>gfks_use_vsync</b> (i
 <tr class="memitem:a45a86af120721a0aa7cc2d97cbc3f018"><td class="memItemLeft" align="right" valign="top"><a id="a45a86af120721a0aa7cc2d97cbc3f018"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>gfks_set_antialiasing_samples</b> (int samples)</td></tr>
 <tr class="separator:a45a86af120721a0aa7cc2d97cbc3f018"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d5b5237b48610e8111dd351498bc26a"><td class="memItemLeft" align="right" valign="top"><a id="a0d5b5237b48610e8111dd351498bc26a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>gfks_free_devices</b> (gfks_device *devices, int device_count)</td></tr>
+<tr class="separator:a0d5b5237b48610e8111dd351498bc26a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a315bcf3919c36ab9e5d7104d6166ec4c"><td class="memItemLeft" align="right" valign="top"><a id="a315bcf3919c36ab9e5d7104d6166ec4c"></a>
+gfks_error&#160;</td><td class="memItemRight" valign="bottom"><b>gfks_latest_error</b></td></tr>
+<tr class="separator:a315bcf3919c36ab9e5d7104d6166ec4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -156,7 +185,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>gfks_set_antialiasing
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a18187bbfdff448b5e028e9a969fd371.html">graffiks</a></li><li class="navelem"><a class="el" href="graffiks_8h.html">graffiks.h</a></li>
-    <li class="footer">Generated on Thu Dec 5 2019 03:40:17 for Graffiks by
+    <li class="footer">Generated on Tue Dec 10 2019 03:53:46 for Graffiks by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.16 </li>
   </ul>

@@ -106,9 +106,23 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a143bc698d6bad10e9c7de1885f75ed72"><td class="memItemLeft" align="right" valign="top">gfks_surface *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html#a143bc698d6bad10e9c7de1885f75ed72">gfks_create_surface</a> ()</td></tr>
 <tr class="memdesc:a143bc698d6bad10e9c7de1885f75ed72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new Graffiks surface.  <a href="structgfks__surface__struct.html#a143bc698d6bad10e9c7de1885f75ed72">More...</a><br /></td></tr>
 <tr class="separator:a143bc698d6bad10e9c7de1885f75ed72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4edb0f98ab44d4cad77c49fd238454a"><td class="memItemLeft" align="right" valign="top">gfks_surface *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html#ad4edb0f98ab44d4cad77c49fd238454a">gfks_create_surface_X11</a> (gfks_context *<a class="el" href="structgfks__surface__struct.html#a75a33b3b79cbcf315d8337b040a86a16">context</a>, Display *display, Window window)</td></tr>
+<tr class="memdesc:ad4edb0f98ab44d4cad77c49fd238454a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new Graffiks surface for an X11 window.  <a href="structgfks__surface__struct.html#ad4edb0f98ab44d4cad77c49fd238454a">More...</a><br /></td></tr>
+<tr class="separator:ad4edb0f98ab44d4cad77c49fd238454a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a75a33b3b79cbcf315d8337b040a86a16"><td class="memItemLeft" align="right" valign="top"><a id="a75a33b3b79cbcf315d8337b040a86a16"></a>
+gfks_context *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html#a75a33b3b79cbcf315d8337b040a86a16">context</a></td></tr>
+<tr class="memdesc:a75a33b3b79cbcf315d8337b040a86a16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read only. The parent Graffiks context. <br /></td></tr>
+<tr class="separator:a75a33b3b79cbcf315d8337b040a86a16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace2f1653be86d19df8fdd62995f7458e"><td class="memItemLeft" align="right" valign="top"><a id="ace2f1653be86d19df8fdd62995f7458e"></a>
+gfks_device *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html#ace2f1653be86d19df8fdd62995f7458e">draw_device</a></td></tr>
+<tr class="memdesc:ace2f1653be86d19df8fdd62995f7458e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read only, use set_draw_device. The device we'll use when drawing to this surface. <br /></td></tr>
+<tr class="separator:ace2f1653be86d19df8fdd62995f7458e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e40edafa60d9d17faa6610a1bdc557a"><td class="memItemLeft" align="right" valign="top">bool(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html#a3e40edafa60d9d17faa6610a1bdc557a">set_draw_device</a> )(gfks_surface *surface, gfks_device *device)</td></tr>
+<tr class="memdesc:a3e40edafa60d9d17faa6610a1bdc557a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets which device will be used to draw to this surface.  <a href="structgfks__surface__struct.html#a3e40edafa60d9d17faa6610a1bdc557a">More...</a><br /></td></tr>
+<tr class="separator:a3e40edafa60d9d17faa6610a1bdc557a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae8b155f433f934f9270015afe4c313b4"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgfks__surface__struct.html#ae8b155f433f934f9270015afe4c313b4">free</a> )(gfks_surface *surface)</td></tr>
 <tr class="memdesc:ae8b155f433f934f9270015afe4c313b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees a surface.  <a href="structgfks__surface__struct.html#ae8b155f433f934f9270015afe4c313b4">More...</a><br /></td></tr>
 <tr class="separator:ae8b155f433f934f9270015afe4c313b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,6 +146,52 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Creates a new Graffiks surface. </p>
+<p>CURRENTLY UNIMPLEMENTED</p>
+<dl class="section return"><dt>Returns</dt><dd>A Graffiks context. NULL if there was an error. </dd></dl>
+
+</div>
+</div>
+<a id="ad4edb0f98ab44d4cad77c49fd238454a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4edb0f98ab44d4cad77c49fd238454a">&#9670;&nbsp;</a></span>gfks_create_surface_X11()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">gfks_surface * gfks_create_surface_X11 </td>
+          <td>(</td>
+          <td class="paramtype">gfks_context *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Display *&#160;</td>
+          <td class="paramname"><em>display</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Window&#160;</td>
+          <td class="paramname"><em>window</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates a new Graffiks surface for an X11 window. </p>
+<p>Only present when GFKS_CONFIG_X11_SUPPORT is defined at build time.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">display</td><td>An X11 display </td></tr>
+    <tr><td class="paramname">window</td><td>An X11 window </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>A Graffiks context. NULL if there was an error. </dd></dl>
 
 </div>
@@ -159,6 +219,30 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a3e40edafa60d9d17faa6610a1bdc557a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e40edafa60d9d17faa6610a1bdc557a">&#9670;&nbsp;</a></span>set_draw_device</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool(* set_draw_device) (gfks_surface *surface, gfks_device *device)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets which device will be used to draw to this surface. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">gfks_surface</td><td>The surface we want this device to draw to </td></tr>
+    <tr><td class="paramname">gfks_device</td><td>The device we want to use to draw to this surface </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success, false on error - look at gfks_latest_error to get more information. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>include/graffiks/<a class="el" href="graffiks_8h.html">graffiks.h</a></li>
 </ul>
@@ -168,7 +252,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structgfks__surface__struct.html">gfks_surface_struct</a></li>
-    <li class="footer">Generated on Thu Dec 5 2019 03:40:17 for Graffiks by
+    <li class="footer">Generated on Tue Dec 10 2019 03:53:46 for Graffiks by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.16 </li>
   </ul>

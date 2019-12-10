@@ -1,0 +1,145 @@
+.TH "gfks_device" 3 "Tue Dec 10 2019" "Graffiks" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gfks_device \- gfks_device  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <graffiks\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "gfks_device * \fBgfks_get_all_devices\fP (gfks_context *\fBcontext\fP, uint32_t *devices_obtained)"
+.br
+.RI "Obtains all graffiks-compatible devices\&. "
+.ti -1c
+.RI "gfks_device * \fBgfks_get_devices_suitable_for_surfaces\fP (gfks_context *\fBcontext\fP, gfks_surface *surfaces, uint32_t surface_count, uint32_t *devices_obtained)"
+.br
+.RI "Obtains all graffiks-compatible devices that are suitable for drawing to the provided surfaces\&. "
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "gfks_context * \fBcontext\fP"
+.br
+.RI "The parent Graffiks context\&. "
+.ti -1c
+.RI "bool(* \fBset_up_for_surfaces\fP )(gfks_device *device, gfks_surface *surfaces, uint32_t surface_count)"
+.br
+.RI "Sets up this device to draw to the specified surfaces\&. "
+.ti -1c
+.RI "bool(* \fBsuitable_for_surface\fP )(gfks_device *device, gfks_surface *surface)"
+.br
+.RI "Determines if this device is able to, and has been set up to draw to the specified surface\&. "
+.ti -1c
+.RI "void(* \fBfree\fP )(gfks_device *device)"
+.br
+.RI "Frees a device\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+gfks_device 
+.SH "Member Function Documentation"
+.PP 
+.SS "gfks_device * gfks_get_all_devices (gfks_context * context, uint32_t * devices_obtained)"
+
+.PP
+Obtains all graffiks-compatible devices\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIcontext\fP A Graffiks context 
+.br
+\fIdevices_obtained\fP Will be written with the number of devices returned\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+An array *gfks_device or NULL if there was an error\&. 
+.RE
+.PP
+
+.SS "gfks_device * gfks_get_devices_suitable_for_surfaces (gfks_context * context, gfks_surface * surfaces, uint32_t surface_count, uint32_t * devices_obtained)"
+
+.PP
+Obtains all graffiks-compatible devices that are suitable for drawing to the provided surfaces\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIcontext\fP A Graffiks context 
+.br
+\fIsurfaces\fP Surfaces we would like our devices to be suitable for 
+.br
+\fIsurface_count\fP Number of surfaces you have passed to the surfaces parameter 
+.br
+\fIdevices_obtained\fP Will be written with the number of devices returned\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+An array *gfks_device or NULL if there was an error\&. 
+.RE
+.PP
+
+.SH "Member Data Documentation"
+.PP 
+.SS "void(* free) (gfks_device *device)"
+
+.PP
+Frees a device\&. Must be called when you're done! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIdevice\fP A device to be destroyed 
+.RE
+.PP
+
+.SS "bool(* set_up_for_surfaces) (gfks_device *device, gfks_surface *surfaces, uint32_t surface_count)"
+
+.PP
+Sets up this device to draw to the specified surfaces\&. If you used \fBgfks_get_devices_suitable_for_surfaces()\fP, this has been done for you already\&.
+.PP
+It's not guaranteed that any device can draw to any surface, such as the device not being connected to the correct display, so inspect that your device is capable of drawing to your surface with method suitable_for_surface\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIdevice\fP The device we are setting up 
+.br
+\fIsurfaces\fP The surfaces we want to set this device up to draw to 
+.br
+\fIsurface_count\fP The number of surfaces we passed to the surfaces parameter 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+true on success, false on error 
+.RE
+.PP
+
+.SS "bool(* suitable_for_surface) (gfks_device *device, gfks_surface *surface)"
+
+.PP
+Determines if this device is able to, and has been set up to draw to the specified surface\&. The device can only be suitable for the surface if it has been set up with the \fBset_up_for_surfaces()\fP method
+.PP
+\fBParameters\fP
+.RS 4
+\fIdevice\fP The device we want to test suitability for 
+.br
+\fIsurface\fP The surface we would like to test suitability against 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+true if this device is suitable for drawing to this surface, otherwise false\&. 
+.RE
+.PP
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Graffiks from the source code\&.

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['free_1',['free',['../structgfks__context__struct.html#a03f0cd2c4417aa0dc32b313c332aedec',1,'gfks_context_struct::free()'],['../structgfks__surface__struct.html#ae8b155f433f934f9270015afe4c313b4',1,'gfks_surface_struct::free()']]]
+  ['draw_5fdevice_2',['draw_device',['../structgfks__surface__struct.html#ace2f1653be86d19df8fdd62995f7458e',1,'gfks_surface_struct']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['free_92',['free',['../structgfks__context__struct.html#a03f0cd2c4417aa0dc32b313c332aedec',1,'gfks_context_struct::free()'],['../structgfks__surface__struct.html#ae8b155f433f934f9270015afe4c313b4',1,'gfks_surface_struct::free()']]]
+  ['context_103',['context',['../structgfks__surface__struct.html#a75a33b3b79cbcf315d8337b040a86a16',1,'gfks_surface_struct::context()'],['../structgfks__device__struct.html#a75a33b3b79cbcf315d8337b040a86a16',1,'gfks_device_struct::context()']]]
 ];

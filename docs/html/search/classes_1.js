@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['window_5fsystem_5fextension_5fmap_58',['window_system_extension_map',['../structwindow__system__extension__map.html',1,'']]]
+  ['window_5fhandle_5fx11_67',['window_handle_x11',['../structwindow__handle__x11.html',1,'']]]
 ];

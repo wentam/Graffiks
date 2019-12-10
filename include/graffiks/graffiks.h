@@ -72,7 +72,7 @@ DLL_EXPORT void gfks_set_antialiasing_samples(int samples);
 
 
 // Core public interface
-
+// TODO document what errors each function can return
 
 // Error handling
 // if any gfks_ function returns NULL instead of an object, look at gfks_latest_error
@@ -85,6 +85,8 @@ typedef enum {
   GFKS_ERROR_UNKNOWN,
   GFKS_ERROR_UNKNOWN_VULKAN,
   GFKS_ERROR_NO_VULKAN_DEVICE,
+  GFKS_ERROR_DEVICE_NOT_SUITABLE_FOR_SURFACE,
+  GFKS_ERROR_NO_SUITABLE_SURFACE_FORMAT,
 } gfks_error;
 
 gfks_error gfks_latest_error;
@@ -145,16 +147,21 @@ struct gfks_surface_struct {
   gfks_surface_protected *_protected;
 
   /// \public
-  /// \brief The parent Graffiks context.
+  /// \brief Read only. The parent Graffiks context.
   /// \memberof gfks_surface_struct
   gfks_context *context;
 
+  /// \public
+  /// \brief Read only, use set_draw_device. The device we'll use when drawing to this surface.
+  /// \memberof gfks_surface_struct
+  gfks_device *draw_device;
 
   /// \public
   /// \brief Sets which device will be used to draw to this surface
   ///
   /// \param gfks_surface The surface we want this device to draw to
   /// \param gfks_device The device we want to use to draw to this surface
+  /// \returns true on success, false on error - look at gfks_latest_error to get more information.
   /// \memberof gfks_surface_struct
   bool (*set_draw_device)(gfks_surface *surface, gfks_device *device);
 
@@ -204,7 +211,7 @@ struct gfks_device_struct {
 
   /// \public
   /// \brief Sets up this device to draw to the specified surfaces.
-  /// 
+  ///
   /// If you used gfks_get_devices_suitable_for_surfaces(), this has been done for you already.
   ///
   /// It's not guaranteed that any device can draw to any surface,

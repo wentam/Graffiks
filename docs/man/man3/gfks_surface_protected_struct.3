@@ -1,4 +1,4 @@
-.TH "gfks_surface_protected" 3 "Thu Dec 5 2019" "Graffiks" \" -*- nroff -*-
+.TH "gfks_surface_protected" 3 "Tue Dec 10 2019" "Graffiks" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -10,12 +10,97 @@ gfks_surface_protected
 
 .in +1c
 .ti -1c
-.RI "gfks_context * \fBcontext\fP"
+.RI "VkSurfaceKHR \fBvk_surface\fP"
+.br
+.ti -1c
+.RI "gfks_window_system \fBwindow_system\fP"
+.br
+.ti -1c
+.RI "void * \fBwindow_handle\fP"
+.br
+.ti -1c
+.RI "int \fBwindow_x\fP"
+.br
+.ti -1c
+.RI "int \fBwindow_y\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBwindow_width\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBwindow_height\fP"
+.br
+.ti -1c
+.RI "gfks_device * \fBdraw_device\fP"
+.br
+.ti -1c
+.RI "VkSurfaceCapabilitiesKHR \fBcapabilities\fP"
+.br
+.ti -1c
+.RI "VkSurfaceFormatKHR \fBsurface_format\fP"
+.br
+.ti -1c
+.RI "VkPresentModeKHR \fBpresent_mode\fP"
+.br
+.ti -1c
+.RI "bool \fBswap_chain_defined\fP"
+.br
+.ti -1c
+.RI "VkSwapchainKHR \fBswap_chain\fP"
+.br
+.ti -1c
+.RI "VkFormat \fBswap_chain_image_format\fP"
+.br
+.ti -1c
+.RI "VkExtent2D \fBswap_chain_extent\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBswap_chain_image_count\fP"
+.br
+.ti -1c
+.RI "VkImage * \fBswap_chain_images\fP"
+.br
+.ti -1c
+.RI "VkImageView * \fBswap_chain_image_views\fP"
 .br
 .in -1c
 .SH "Member Data Documentation"
 .PP 
-.SS "gfks_context* gfks_surface_protected::context"
+.SS "VkSurfaceCapabilitiesKHR gfks_surface_protected::capabilities"
+
+.SS "gfks_device* gfks_surface_protected::draw_device"
+
+.SS "VkPresentModeKHR gfks_surface_protected::present_mode"
+
+.SS "VkSurfaceFormatKHR gfks_surface_protected::surface_format"
+
+.SS "VkSwapchainKHR gfks_surface_protected::swap_chain"
+
+.SS "bool gfks_surface_protected::swap_chain_defined"
+
+.SS "VkExtent2D gfks_surface_protected::swap_chain_extent"
+
+.SS "uint32_t gfks_surface_protected::swap_chain_image_count"
+
+.SS "VkFormat gfks_surface_protected::swap_chain_image_format"
+
+.SS "VkImageView* gfks_surface_protected::swap_chain_image_views"
+
+.SS "VkImage* gfks_surface_protected::swap_chain_images"
+
+.SS "VkSurfaceKHR gfks_surface_protected::vk_surface"
+
+.SS "void* gfks_surface_protected::window_handle"
+
+.SS "uint32_t gfks_surface_protected::window_height"
+
+.SS "gfks_window_system gfks_surface_protected::window_system"
+
+.SS "uint32_t gfks_surface_protected::window_width"
+
+.SS "int gfks_surface_protected::window_x"
+
+.SS "int gfks_surface_protected::window_y"
 
 
 .SH "Author"

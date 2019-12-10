@@ -21,10 +21,6 @@ var mesh_8h =
       [ "vertex_count", "mesh_8h.html#a2f0eeb3c61b96be3efc31f6cc1e984e5", null ],
       [ "vertices", "mesh_8h.html#a3b4bc1b3bdabc9e076e4193a65aaaf48", null ]
     ] ],
-    [ "bool", "mesh_8h.html#af6a258d8f3ee5206d682d799316314b1", [
-      [ "false", "mesh_8h.html#af6a258d8f3ee5206d682d799316314b1ae9de385ef6fe9bf3360d1038396b884c", null ],
-      [ "true", "mesh_8h.html#af6a258d8f3ee5206d682d799316314b1a08f175a5505a10b9ed657defeb050e4b", null ]
-    ] ],
     [ "gfks_create_base_mesh", "mesh_8h.html#a2b2bf436ab13e9540860651b095e2c8c", null ],
     [ "gfks_create_mesh", "mesh_8h.html#a70d5b833186d1318e94003e341b8c6a2", null ],
     [ "gfks_create_mesh_st", "mesh_8h.html#a6a2aea332f2b68fd85fb6e7ce25dc6c7", null ],

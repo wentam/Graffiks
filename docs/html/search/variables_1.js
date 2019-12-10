@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['gfks_5fambient_5fcolor_93',['gfks_ambient_color',['../lights_8h.html#aaf21faaff5ffd2b14d04e73ddc82c97d',1,'lights.c']]]
+  ['draw_5fdevice_104',['draw_device',['../structgfks__surface__struct.html#ace2f1653be86d19df8fdd62995f7458e',1,'gfks_surface_struct']]]
 ];
