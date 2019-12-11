@@ -87,6 +87,7 @@ typedef enum {
   GFKS_ERROR_NO_VULKAN_DEVICE,
   GFKS_ERROR_DEVICE_NOT_SUITABLE_FOR_SURFACE,
   GFKS_ERROR_NO_SUITABLE_SURFACE_FORMAT,
+  GFKS_ERROR_INVALID_SPIRV_DATA
 } gfks_error;
 
 gfks_error gfks_latest_error;
@@ -101,12 +102,17 @@ typedef enum {
 
 // Class definitions
 
+typedef struct gfks_context_struct gfks_context;
+typedef struct gfks_surface_struct gfks_surface;
+typedef struct gfks_device_struct gfks_device;
+typedef struct gfks_shader_struct gfks_shader;
+typedef struct gfks_render_pass_struct gfks_render_pass;
+
 // --------------------
 // --- gfks_context ---
 // --------------------
 
 typedef struct gfks_context_protected_struct gfks_context_protected;
-typedef struct gfks_context_struct gfks_context;
 
 /// gfks_context
 struct gfks_context_struct {
@@ -137,9 +143,21 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems);
 // --- gfks_surface ---
 // --------------------
 
+// TODO: can we make our surface device-agnostic?
+// right now, surface->set_draw_device is needed so we can create a swap chain for the surface.
+//
+// I see a couple of ways to rework this.
+// * Automatically set ourselves up for every device that ends up being created within our context,
+// storing swapchains in arrays.
+//
+// This isn't a performance issue in CPU-space really as it's all init-time stuff, though I wonder
+// about wasteing gpu memory with unused swap chains.
+//
+// * we could set up swap chains for different surfaces up in the render pass. This would require
+// that the render pass is "initialized" with the surface before the render pass would be capable of
+// presenting to the surface.
+
 typedef struct gfks_surface_protected_struct gfks_surface_protected;
-typedef struct gfks_surface_struct gfks_surface;
-typedef struct gfks_device_struct gfks_device;
 
 /// gfks_surface
 struct gfks_surface_struct {
@@ -151,19 +169,7 @@ struct gfks_surface_struct {
   /// \memberof gfks_surface_struct
   gfks_context *context;
 
-  /// \public
-  /// \brief Read only, use set_draw_device. The device we'll use when drawing to this surface.
-  /// \memberof gfks_surface_struct
-  gfks_device *draw_device;
-
-  /// \public
-  /// \brief Sets which device will be used to draw to this surface
-  ///
-  /// \param gfks_surface The surface we want this device to draw to
-  /// \param gfks_device The device we want to use to draw to this surface
-  /// \returns true on success, false on error - look at gfks_latest_error to get more information.
-  /// \memberof gfks_surface_struct
-  bool (*set_draw_device)(gfks_surface *surface, gfks_device *device);
+  // TODO function for user to get surface size (use window size or swap chain extent size?)
 
   /// \public
   /// \brief Frees a surface
@@ -269,4 +275,78 @@ gfks_get_devices_suitable_for_surfaces(gfks_context *context,
                                        uint32_t surface_count,
                                        uint32_t *devices_obtained);
 void gfks_free_devices(gfks_device *devices, int device_count);
+
+
+// -------------------
+// --- gfks_shader ---
+// -------------------
+
+typedef struct gfks_shader_protected_struct gfks_shader_protected;
+
+typedef enum {
+  GFKS_SHADER_STAGE_VERTEX,
+  GFKS_SHADER_STAGE_FRAGMENT,
+  GFKS_SHADER_STAGE_GEOMETRY,
+  GFKS_SHADER_STAGE_COMPUTE
+} gfks_shader_stage;
+
+/// gfks_shader
+struct gfks_shader_struct {
+  /// \private
+  gfks_shader_protected* _protected;
+
+  gfks_shader_stage shader_stage;
+
+  gfks_device *device; // the device this shader is suitable for
+
+  /// \public
+  /// \brief Frees a shader
+  ///
+  /// Must be called when you're done
+  /// \param device A shader to be destroyed
+  /// \memberof gfks_shader_struct
+  void (*free)(gfks_shader *shader);
+};
+
+gfks_shader* gfks_create_shader(void *SPIRV_data,
+                                uint32_t SPIRV_data_size,
+                                char *entry_func_name,
+                                gfks_device *device,
+                                gfks_shader_stage shader_stage);
+
+// ------------------------
+// --- gfks_render_pass ---
+// ------------------------
+
+typedef struct gfks_render_pass_protected_struct gfks_render_pass_protected;
+
+static const uint32_t GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES = 256;
+
+/// gfks_render_pass
+struct gfks_render_pass_struct {
+  /// \private
+  gfks_render_pass_protected* _protected;
+
+  gfks_device *device; // the device this render_pass will utilize
+  gfks_context *context; // the parent context for this render pass
+
+  /// \public
+  /// \brief Frees a render_pass
+  ///
+  /// Must be called when you're done
+  /// \param device A render_pass to be destroyed
+  /// \memberof gfks_render_pass_struct
+  void (*free)(gfks_render_pass *render_pass);
+
+  // Surface must be capable of being drawn to by the device this render pass was created with
+  // TODO Make sure we error if the surface can't be drawn to by the device
+  // TODO have user set swapchain settings like double-buffer etc on surface add time?
+  int16_t (*add_presentation_surface)(gfks_render_pass *render_pass,
+                                      gfks_surface *surface); // returns index of surface or error -1
+  bool (*remove_presentation_surface)(gfks_render_pass *render_pass, uint8_t index);
+
+  // TODO methods to disable/enable presentation to specific presentation surfaces?
+};
+
+gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device, float width, float height);
 #endif

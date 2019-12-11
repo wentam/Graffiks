@@ -43,22 +43,6 @@ struct gfks_surface_protected_struct {
   uint32_t window_width;
   uint32_t window_height;
 
-
-  // Device-dependant stuff -
-  // these will be defined/redefined every time we set the draw device
-  //
-  // If surface->draw_device is NULL, these have not been initialized
-  VkSurfaceCapabilitiesKHR capabilities;
-  VkSurfaceFormatKHR surface_format;
-  VkPresentModeKHR present_mode;
-  bool swap_chain_defined;
-  VkSwapchainKHR swap_chain;
-  VkFormat swap_chain_image_format;
-  VkExtent2D swap_chain_extent;
-
-  uint32_t swap_chain_image_count;
-  VkImage *swap_chain_images;
-  VkImageView *swap_chain_image_views;
 };
 
 typedef struct {
@@ -104,6 +88,50 @@ struct gfks_device_protected_struct {
 
   unsigned int presentation_queue_count;
   unsigned int *presentation_queue_indices;
+};
+
+// -----------------
+// ---gfks_shader---
+// -----------------
+
+/// \private
+struct gfks_shader_protected_struct {
+  VkShaderModule vk_shader_module;
+  VkPipelineShaderStageCreateInfo vk_shader_stage_create_info;
+};
+
+// ----------------------
+// ---gfks_render_pass---
+// ----------------------
+
+/// \private
+typedef struct {
+  VkSurfaceCapabilitiesKHR surface_capabilities;
+  VkSurfaceFormatKHR surface_format;
+  VkPresentModeKHR surface_presentation_mode;
+
+  bool swap_chain_defined;
+  VkSwapchainKHR swap_chain;
+
+  VkExtent2D swap_chain_extent;
+
+  uint32_t swap_chain_image_count;
+  VkImage *swap_chain_images;
+  VkImageView *swap_chain_image_views;
+} presentation_surface_data;
+
+/// \private
+struct gfks_render_pass_protected_struct {
+  uint8_t presentation_surface_count;
+
+  // TODO these two could be the same array (put the surface in the struct)
+  gfks_surface **presentation_surfaces; // array of pointers to gfks_surfaces
+  presentation_surface_data **presentation_surface_data; // array of pointers to our data
+
+  // Viewport information
+  VkViewport viewport;
+  VkRect2D scissor;
+  VkPipelineViewportStateCreateInfo viewport_state_create_info;
 };
 
 #endif
