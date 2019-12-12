@@ -1,7 +1,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
-#include <X11/X.h>    
-#include <X11/Xlib.h> 
+#include <X11/X.h>
+#include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
 #include <stdio.h>
 #include <stdlib.h>
