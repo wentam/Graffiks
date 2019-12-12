@@ -26,7 +26,9 @@ static const char** decide_extensions(gfks_window_system *window_systems,
 
 // Destroys a Graffiks context
 static void gfks_free_context(gfks_context *context) {
-  vkDestroyInstance(*(context->_protected->vk_instance), NULL);
+  if (context->_protected->instance_created) {
+    vkDestroyInstance(*(context->_protected->vk_instance), NULL);
+  }
   free(context->_protected->vk_instance);
   free(context->_protected->enabled_extensions);
   free(context->_protected);
@@ -42,6 +44,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   // Allocate structs
   gfks_context *context = malloc(sizeof(gfks_context));
   context->_protected = malloc(sizeof(gfks_context_protected));
+  context->_protected->instance_created = false;
 
   if (context == NULL || context->_protected == NULL) {
     gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, "Failed to allocate memory");
@@ -68,7 +71,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   context->_protected->enabled_extensions = decide_extensions(window_systems,
                                                   &(context->_protected->enabled_vulkan_extension_count));
 
-  VkInstanceCreateInfo create_info = {};                               
+  VkInstanceCreateInfo create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   create_info.pApplicationInfo = &app_info;
   create_info.pNext = NULL;
@@ -98,6 +101,7 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
     return NULL;
  }
 
+  context->_protected->instance_created = true;
   return context;
 }
 

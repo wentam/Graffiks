@@ -21,6 +21,7 @@ bool gfks_check_alloc_throw_err(void *ptr, char *file, int line);
 
 /// \private
 struct gfks_context_protected_struct {
+  bool instance_created;
   VkInstance *vk_instance;
   int enabled_vulkan_extension_count;
   const char **enabled_extensions; 
