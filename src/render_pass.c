@@ -3,61 +3,82 @@
 
 // TODO free all mallocs in this file
 
+
+static uint32_t gfks_render_pass_add_shader_set(gfks_render_pass *render_pass,
+                                                uint32_t shader_count,
+                                                gfks_shader **shader_set) {
+
+  // TODO error on malloc NULL
+  uint32_t* draw_step_count = &(render_pass->_protected->draw_step_count);
+  render_pass->_protected->draw_steps[*draw_step_count] = malloc(sizeof(draw_step));
+
+  // Copy the shader pointers in the users shader set into our own set.
+  // We need to own the memory.
+  render_pass->_protected->draw_steps[*draw_step_count]->shader_count = shader_count;
+  render_pass->_protected->draw_steps[*draw_step_count]->shader_set = malloc(sizeof(gfks_shader)*shader_count);
+  for (int i = 0; i < shader_count; i++) {
+    render_pass->_protected->draw_steps[*draw_step_count]->shader_set[i] = shader_set[i];
+  }
+
+  return (*draw_step_count)++;
+}
+
+
 static bool set_up_presentation_surface(gfks_render_pass *render_pass,
                                         uint8_t surface_index) {
 
-   // Grab our surface and device
-   gfks_surface *surface = render_pass->_protected->presentation_surfaces[surface_index];
-   gfks_device *device = render_pass->device;
+  // Grab our surface and device
+  gfks_surface *surface = render_pass->_protected->presentation_surfaces[surface_index];
+  gfks_device *device = render_pass->device;
 
-   // Allocate memory for our presentation surface data and get an easy handle to it
-   render_pass->_protected->presentation_surface_data[surface_index] =
-     malloc(sizeof(presentation_surface_data));
-   presentation_surface_data *psd = render_pass->_protected->presentation_surface_data[surface_index];
+  // Allocate memory for our presentation surface data and get an easy handle to it
+  render_pass->_protected->presentation_surface_data[surface_index] =
+    malloc(sizeof(presentation_surface_data));
+  presentation_surface_data *psd = render_pass->_protected->presentation_surface_data[surface_index];
 
-   // Define our surface capabilities
-   if (!gfks_surface_util_obtain_surface_capabilities_for_device(surface,
-                                                                 device,
-                                                                 &(psd->surface_capabilities))) {
-     return false;
-   }
+  // Define our surface capabilities
+  if (!gfks_surface_util_obtain_surface_capabilities_for_device(surface,
+                                                                device,
+                                                                &(psd->surface_capabilities))) {
+    return false;
+  }
 
-   // Decide swap chain image count
-   uint32_t desired_swap_chain_image_count =
-     gfks_surface_util_decide_desired_swap_chain_image_count(psd->surface_capabilities);
+  // Decide swap chain image count
+  uint32_t desired_swap_chain_image_count =
+    gfks_surface_util_decide_desired_swap_chain_image_count(psd->surface_capabilities);
 
-   // Decide swap chain image size
-   psd->swap_chain_extent =
-     gfks_surface_util_decide_swap_chain_image_size(psd->surface_capabilities, surface);
+  // Decide swap chain image size
+  psd->swap_chain_extent =
+    gfks_surface_util_decide_swap_chain_image_size(psd->surface_capabilities, surface);
 
-   // Decide surface format
-   if (!gfks_surface_util_decide_surface_format_for_device(surface,
-                                                           device,
-                                                           &(psd->surface_format))) return false;
+  // Decide surface format
+  if (!gfks_surface_util_decide_surface_format_for_device(surface,
+                                                          device,
+                                                          &(psd->surface_format))) return false;
 
-   // Decide presentation mode
-   if (!gfks_surface_util_decide_surface_presentation_mode_for_device(surface,
-                                                    device,
-                                                    &(psd->surface_presentation_mode))) return false;
+  // Decide presentation mode
+  if (!gfks_surface_util_decide_surface_presentation_mode_for_device(surface,
+                                                                     device,
+                                                                     &(psd->surface_presentation_mode))) return false;
 
-   // Create our swap chain
-   if(!gfks_surface_util_create_swap_chain(surface,
-                                           device,
-                                           psd->surface_capabilities,
-                                           psd->surface_format,
-                                           psd->surface_presentation_mode,
-                                           psd->swap_chain_extent,
-                                           &(psd->swap_chain),
-                                           &(psd->swap_chain_image_count),
-                                           &(psd->swap_chain_images),
-                                           &(psd->swap_chain_image_views),
-                                           desired_swap_chain_image_count)) return false;
+  // Create our swap chain
+  if(!gfks_surface_util_create_swap_chain(surface,
+                                          device,
+                                          psd->surface_capabilities,
+                                          psd->surface_format,
+                                          psd->surface_presentation_mode,
+                                          psd->swap_chain_extent,
+                                          &(psd->swap_chain),
+                                          &(psd->swap_chain_image_count),
+                                          &(psd->swap_chain_images),
+                                          &(psd->swap_chain_image_views),
+                                          desired_swap_chain_image_count)) return false;
 
-   return true;
+  return true;
 }
 
 static int16_t gfks_render_pass_add_presentation_surface(gfks_render_pass *render_pass,
-                                                        gfks_surface *surface) {
+                                                         gfks_surface *surface) {
 
   // get our surface count
   uint8_t pcount = render_pass->_protected->presentation_surface_count;
@@ -114,6 +135,7 @@ static gfks_render_pass* init_struct() {
 
   // Initialize primitive members
   new_pass->_protected->presentation_surface_count = 0;
+  new_pass->_protected->draw_step_count = 0;
 
   // Assign NULL to all pointer members
   new_pass->context = NULL;
@@ -124,6 +146,7 @@ static gfks_render_pass* init_struct() {
   // Assign method pointers
   new_pass->add_presentation_surface = &gfks_render_pass_add_presentation_surface;
   new_pass->remove_presentation_surface = &gfks_render_pass_remove_presentation_surface;
+  new_pass->add_shader_set = &gfks_render_pass_add_shader_set;
 
   // Return the struct
   return new_pass;
@@ -142,7 +165,7 @@ gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *de
 
   // Define our viewport and scissor
   // TODO: This viewport/scissor information is used only for pipeline creation,
-  // so it would make sense that the user would specify it for each material/shader chain.
+  // so it would make sense that the user would specify it for each shader set.
   // it also looks like it's possible to add multiple viewports. no idea what that does, but
   // we probably want to be able to utilize it
   VkViewport viewport = {};
@@ -175,11 +198,12 @@ gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *de
   new_pass->_protected->viewport_state_create_info = view_port_state_create_info;
 
   // Allocate memory for our presentation surfaces
-  // TODO it's probably best to allocate this memory dynamically, growing as needed.
+  // TODO allocate this memory dynamically, growing as needed.
   new_pass->_protected->presentation_surfaces = malloc(sizeof(gfks_surface *) *
                                                        GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES);
   new_pass->_protected->presentation_surface_data = malloc(sizeof(presentation_surface_data *) *
                                                            GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES);
+  new_pass->_protected->draw_steps = malloc(sizeof(draw_step *) * 256);
 
   return new_pass;
 }

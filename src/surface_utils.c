@@ -134,7 +134,6 @@ static bool gfks_surface_util_create_swap_chain(gfks_surface             *surfac
 
   // Output image views
   *output_swap_chain_image_views = swap_chain_image_views;
-  printf("FFFFFOOOOOOOO %p\n",swap_chain_image_views);
 
   return true;
 }

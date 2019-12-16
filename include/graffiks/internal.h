@@ -121,8 +121,16 @@ typedef struct {
   VkImageView *swap_chain_image_views;
 } presentation_surface_data;
 
+typedef struct {
+  uint32_t shader_count;
+  gfks_shader **shader_set; // array of pointers to shaders
+} draw_step;
+
 /// \private
 struct gfks_render_pass_protected_struct {
+  uint32_t draw_step_count;
+  draw_step **draw_steps; // array of pointers to our draw steps
+
   uint8_t presentation_surface_count;
 
   // TODO these two could be the same array (put the surface in the struct)
@@ -133,6 +141,17 @@ struct gfks_render_pass_protected_struct {
   VkViewport viewport;
   VkRect2D scissor;
   VkPipelineViewportStateCreateInfo viewport_state_create_info;
+};
+
+
+// ----------------------
+// ---gfks_render_plan---
+// ----------------------
+
+/// \private
+struct gfks_render_plan_protected_struct {
+  uint32_t render_pass_count;
+  gfks_render_pass **render_passes; // array of pointers to render passes
 };
 
 #endif

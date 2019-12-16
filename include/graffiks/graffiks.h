@@ -107,6 +107,7 @@ typedef struct gfks_surface_struct gfks_surface;
 typedef struct gfks_device_struct gfks_device;
 typedef struct gfks_shader_struct gfks_shader;
 typedef struct gfks_render_pass_struct gfks_render_pass;
+typedef struct gfks_render_plan_struct gfks_render_plan;
 
 // --------------------
 // --- gfks_context ---
@@ -346,7 +347,37 @@ struct gfks_render_pass_struct {
   bool (*remove_presentation_surface)(gfks_render_pass *render_pass, uint8_t index);
 
   // TODO methods to disable/enable presentation to specific presentation surfaces?
+  uint32_t (*add_shader_set)(gfks_render_pass *render_pass, uint32_t shader_count, gfks_shader **shader_set);
 };
 
 gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device, float width, float height);
+
+
+
+// ------------------------
+// --- gfks_render_plan ---
+// ------------------------
+
+typedef struct gfks_render_plan_protected_struct gfks_render_plan_protected;
+
+/// gfks_render_plan
+struct gfks_render_plan_struct {
+  /// \private
+  gfks_render_plan_protected* _protected;
+
+  gfks_device *device; // the device this render_plan will utilize
+  gfks_context *context; // the parent context for this render plan
+
+  /// \public
+  /// \brief Frees a render plan
+  ///
+  /// Must be called when you're done
+  /// \param device A render_plan to be destroyed
+  /// \memberof gfks_render_plan_struct
+  void (*free)(gfks_render_plan *render_plan);
+  void (*add_render_pass)(gfks_render_plan *plan, gfks_render_pass *pass);
+  bool (*finalize)(gfks_render_plan *plan);
+};
+
+gfks_render_plan* gfks_create_render_plan(gfks_context *context, gfks_device *device);
 #endif
