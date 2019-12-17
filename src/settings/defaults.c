@@ -9,6 +9,8 @@ gfks_defaults* init_struct() {
   gfks_defaults* new = malloc(sizeof(gfks_defaults));
   new->rasterization_settings = NULL;
 
+  new->free = &gfks_free_defaults;
+
   return new;
 }
 

@@ -21,9 +21,6 @@ static uint32_t gfks_render_pass_add_shader_set(gfks_render_pass *render_pass,
   }
 
   // Define our rasterization settings with the defaults
-  //
-  // TODO we should grab a default settings object from defaults generated at context creation.
-  // right now we're creating a new object for each and every draw step and never freeing.
   render_pass->_protected->draw_steps[*draw_step_count]->rsettings =
     render_pass->context->_protected->defaults->rasterization_settings;
 
