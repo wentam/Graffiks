@@ -115,6 +115,7 @@ gfks_rasterization_settings* gfks_create_rasterization_settings() {
   new_obj->_protected->settings.depthBiasConstantFactor = 0.0f;
   new_obj->_protected->settings.depthBiasClamp = 0.0f;
   new_obj->_protected->settings.depthBiasSlopeFactor = 0.0f;
+  new_obj->_protected->settings.flags = 0;
 
   return new_obj;
 }
