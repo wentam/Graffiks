@@ -95,20 +95,6 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems);
 // --- gfks_surface ---
 // --------------------
 
-// TODO: can we make our surface device-agnostic?
-// right now, surface->set_draw_device is needed so we can create a swap chain for the surface.
-//
-// I see a couple of ways to rework this.
-// * Automatically set ourselves up for every device that ends up being created within our context,
-// storing swapchains in arrays.
-//
-// This isn't a performance issue in CPU-space really as it's all init-time stuff, though I wonder
-// about wasteing gpu memory with unused swap chains.
-//
-// * we could set up swap chains for different surfaces up in the render pass. This would require
-// that the render pass is "initialized" with the surface before the render pass would be capable of
-// presenting to the surface.
-
 typedef struct gfks_surface_protected_struct gfks_surface_protected;
 
 /// gfks_surface
