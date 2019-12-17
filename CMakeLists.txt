@@ -12,9 +12,6 @@ add_definitions(-DGFKS_CONFIG_X11_SUPPORT)
 
 file(GLOB base_SRC
   "src/*.c"
-  "src/primitives/*.c"
-  "src/model_loaders/*.c"
-  "src/renderer/*.c"
   "src/settings/*.c"
 )
 
@@ -38,7 +35,6 @@ find_library(X11_LIB X11)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   add_definitions(-DLINUX)
-  set(DRIVER src/driver/driver-linux.c)
   set(OS linux)
 endif()
 
@@ -46,14 +42,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(C_LIB "")
   set(M_LIB "")
   set(X11_LIB "")
-  set(DRIVER src/driver/driver-windows.c)
   add_definitions(-DGRAFFIKS_BUILD_SHARED)
   set(OS windows)
 endif()
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS}/)
 
-add_library(graffiks SHARED ${base_SRC} ${DRIVER})
+add_library(graffiks SHARED ${base_SRC})
 
 target_link_libraries(graffiks ${C_LIB} ${M_LIB} ${X11_LIB} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
