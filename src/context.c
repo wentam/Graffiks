@@ -28,6 +28,7 @@ static const char** decide_extensions(gfks_window_system *window_systems,
 static void gfks_free_context(gfks_context *context) {
   if (context->_protected->instance_created) {
     vkDestroyInstance(*(context->_protected->vk_instance), NULL);
+    context->_protected->defaults->free(context->_protected->defaults);
   }
   free(context->_protected->vk_instance);
   free(context->_protected->enabled_extensions);
@@ -68,8 +69,8 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
   app_info.apiVersion = VK_API_VERSION_1_1;
 
   // Decide what extensions we want to enable.
-  context->_protected->enabled_extensions = decide_extensions(window_systems,
-                                                  &(context->_protected->enabled_vulkan_extension_count));
+  context->_protected->enabled_extensions =
+    decide_extensions(window_systems, &(context->_protected->enabled_vulkan_extension_count));
 
   VkInstanceCreateInfo create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -99,7 +100,10 @@ gfks_context* gfks_create_context(gfks_window_system *window_systems) {
     }
     gfks_free_context(context);
     return NULL;
- }
+  }
+
+  // define defaults
+  context->_protected->defaults = gfks_create_defaults();
 
   context->_protected->instance_created = true;
   return context;

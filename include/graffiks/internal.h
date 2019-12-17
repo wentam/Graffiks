@@ -15,6 +15,21 @@
 void gfks_err(gfks_error err, int debug_level, char *msg);
 bool gfks_check_alloc_throw_err(void *ptr, char *file, int line);
 
+// -------------------
+// ---gfks_defaults---
+// -------------------
+
+/// \private
+typedef struct gfks_defaults_struct gfks_defaults;
+
+/// \private
+struct gfks_defaults_struct {
+  gfks_rasterization_settings *rasterization_settings;
+  void (*free)(gfks_defaults *defaults);
+};
+
+gfks_defaults* gfks_create_defaults();
+
 // ------------------
 // ---gfks_context---
 // ------------------
@@ -25,6 +40,7 @@ struct gfks_context_protected_struct {
   VkInstance *vk_instance;
   int enabled_vulkan_extension_count;
   const char **enabled_extensions; 
+  gfks_defaults *defaults;
 };
 
 // ------------------
@@ -164,5 +180,6 @@ struct gfks_render_plan_protected_struct {
 struct gfks_rasterization_settings_protected_struct {
   VkPipelineRasterizationStateCreateInfo settings;
 };
+
 
 #endif
