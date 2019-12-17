@@ -10,8 +10,6 @@
 #include <X11/Xlib.h>
 #endif
 
-// ----------------------------- new stuff below -------------------------------
-
 #define GFKS_ENGINE_NAME "Graffiks"
 #define GFKS_DEBUG_TAG "GFKS"
 #define GFKS_MAJOR_VERSION 0
