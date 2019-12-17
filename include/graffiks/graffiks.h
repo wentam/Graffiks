@@ -108,6 +108,7 @@ typedef struct gfks_device_struct gfks_device;
 typedef struct gfks_shader_struct gfks_shader;
 typedef struct gfks_render_pass_struct gfks_render_pass;
 typedef struct gfks_render_plan_struct gfks_render_plan;
+typedef struct gfks_rasterization_settings_struct gfks_rasterization_settings;
 
 // --------------------
 // --- gfks_context ---
@@ -348,11 +349,14 @@ struct gfks_render_pass_struct {
 
   // TODO methods to disable/enable presentation to specific presentation surfaces?
   uint32_t (*add_shader_set)(gfks_render_pass *render_pass, uint32_t shader_count, gfks_shader **shader_set);
+
+
+  void (*set_shaderset_rasterization)(gfks_render_pass *render_pass,
+                                      uint32_t shaderset_index,
+                                      gfks_rasterization_settings *settings);
 };
 
 gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device, float width, float height);
-
-
 
 // ------------------------
 // --- gfks_render_plan ---
@@ -376,8 +380,56 @@ struct gfks_render_plan_struct {
   /// \memberof gfks_render_plan_struct
   void (*free)(gfks_render_plan *render_plan);
   void (*add_render_pass)(gfks_render_plan *plan, gfks_render_pass *pass);
+
+  // Applies dependencies in our plan. Must be called again after future dependency changes.
   bool (*finalize)(gfks_render_plan *plan);
+
+  //
+  bool (*execute)(gfks_render_plan *plan);
 };
 
 gfks_render_plan* gfks_create_render_plan(gfks_context *context, gfks_device *device);
+
+
+
+// -----------------------------------
+// --- gfks_rasterization_settings ---
+// -----------------------------------
+
+typedef struct gfks_rasterization_settings_protected_struct gfks_rasterization_settings_protected;
+
+/// gfks_rasterization_settings
+struct gfks_rasterization_settings_struct {
+  /// \private
+  gfks_rasterization_settings_protected* _protected;
+
+  /// \public
+  /// \brief Frees a render plan
+  ///
+  /// Must be called when you're done
+  /// \param device A rasterization_settings to be destroyed
+  /// \memberof gfks_rasterization_settings_struct
+  void (*free)(gfks_rasterization_settings *rasterization_settings);
+
+  // TODO document.....
+  void (*front_face_clockwise)(gfks_rasterization_settings *settings);
+  void (*front_face_counterclockwise)(gfks_rasterization_settings *settings);
+  void (*depth_clamp_enabled)(gfks_rasterization_settings *settings, bool setting);
+  void (*rasterizer_discard_enabled)(gfks_rasterization_settings *settings, bool setting);
+  void (*polygon_mode_fill)(gfks_rasterization_settings *settings);
+  void (*polygon_mode_line)(gfks_rasterization_settings *settings);
+  void (*polygon_mode_point)(gfks_rasterization_settings *settings);
+  void (*line_width)(gfks_rasterization_settings *settings, float line_width);
+  void (*disable_culling)(gfks_rasterization_settings *settings);
+  void (*culling_front)(gfks_rasterization_settings *settings);
+  void (*culling_back)(gfks_rasterization_settings *settings);
+  void (*culling_frontback)(gfks_rasterization_settings *settings);
+  void (*depth_bias_enabled)(gfks_rasterization_settings *settings, bool setting);
+  void (*depth_bias_constant_factor)(gfks_rasterization_settings *settings, float setting);
+  void (*depth_bias_clamp)(gfks_rasterization_settings *settings, float setting);
+  void (*depth_bias_slope_factor)(gfks_rasterization_settings *settings, float setting);
+};
+
+
+gfks_rasterization_settings* gfks_create_rasterization_settings();
 #endif

@@ -10,23 +10,6 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   VkDevice vk_device = plan->device->_protected->vk_logical_device;
 
   // TODO static hax
-  // define rasterizer create info
-  //
-  // this should be defined as a component of the "material" when setting up render pass
-  VkPipelineRasterizationStateCreateInfo rasterizer = {};
-  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-  rasterizer.depthClampEnable = VK_FALSE;
-  rasterizer.rasterizerDiscardEnable = VK_FALSE;
-  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-  rasterizer.lineWidth = 1.0F;
-  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-  rasterizer.depthBiasEnable = VK_FALSE;
-  rasterizer.depthBiasConstantFactor = 0.0f;
-  rasterizer.depthBiasClamp = 0.0f;
-  rasterizer.depthBiasSlopeFactor = 0.0f;
-
-  // TODO static hax
   // define multisampling info
   // (we won't bother with multisampling for this test)
   VkPipelineMultisampleStateCreateInfo multisampling = {};
@@ -142,7 +125,7 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
   pipeline_create_info.pInputAssemblyState = &input_assembly_state_create_info;
   pipeline_create_info.pViewportState = &(plan->_protected->render_passes[0]->_protected->viewport_state_create_info);
-  pipeline_create_info.pRasterizationState = &rasterizer;
+  pipeline_create_info.pRasterizationState = &(plan->_protected->render_passes[0]->_protected->draw_steps[0]->rsettings->_protected->settings);
   pipeline_create_info.pMultisampleState = &multisampling;
   pipeline_create_info.pDepthStencilState = NULL;
   pipeline_create_info.pColorBlendState = &color_blending;
@@ -213,7 +196,8 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
 
   // TODO static hax
   // create command buffer for each swap chain image
-  VkCommandBuffer command_buffers[swap_chain_image_count];
+  plan->_protected->command_buffers = malloc(sizeof(VkCommandBuffer)*swap_chain_image_count);
+  VkCommandBuffer *command_buffers = plan->_protected->command_buffers;
 
   VkCommandBufferAllocateInfo alloc_info = {};
   alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -226,6 +210,8 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   }
 
   // TODO static hax
+  // TODO we're creating a different command buffer for each swap chain image?
+  // pretty sure we can submit the same buffer for each one.....
   // set each command buffer to complete a basic render pass
   for (int i = 0; i < swap_chain_image_count; i++)  {
     VkCommandBufferBeginInfo begin_info = {};
@@ -258,6 +244,12 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
     }
   }
 
+  return true;
+}
+
+static bool gfks_render_plan_execute(gfks_render_plan *plan){
+  VkDevice vk_device = plan->device->_protected->vk_logical_device;
+
   // TODO static hax
   // create semaphores
   VkSemaphore image_available_semaphore;
@@ -276,7 +268,6 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
     exit(0);
   }
 
-  // TODO XXTRA STATIC HAX (put this in an execute func)
   // ------------------
   // --- draw frame ---
   // ------------------
@@ -309,7 +300,7 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   submit_info.pWaitSemaphores = wait_semaphores;
   submit_info.pWaitDstStageMask = wait_stages;
   submit_info.commandBufferCount = 1;
-  submit_info.pCommandBuffers = &command_buffers[image_index];
+  submit_info.pCommandBuffers = &(plan->_protected->command_buffers[image_index]);
   submit_info.signalSemaphoreCount = 1;
   submit_info.pSignalSemaphores = signal_semaphores;
 
@@ -349,11 +340,13 @@ static gfks_render_plan* init_struct() {
   p->device = NULL;
   p->context = NULL;
   p->_protected->render_passes = NULL;
+  p->_protected->command_buffers = NULL;
   p->_protected->render_pass_count = 0;
 
   p->free = &gfks_free_render_plan;
   p->add_render_pass = &gfks_render_plan_add_render_pass;
   p->finalize = &gfks_render_plan_finalize_plan;
+  p->execute = &gfks_render_plan_execute;
 }
 
 gfks_render_plan* gfks_create_render_plan(gfks_context *context, gfks_device *device) {

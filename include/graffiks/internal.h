@@ -124,6 +124,7 @@ typedef struct {
 typedef struct {
   uint32_t shader_count;
   gfks_shader **shader_set; // array of pointers to shaders
+  gfks_rasterization_settings *rsettings; // pointer to settings
 } draw_step;
 
 /// \private
@@ -152,6 +153,16 @@ struct gfks_render_pass_protected_struct {
 struct gfks_render_plan_protected_struct {
   uint32_t render_pass_count;
   gfks_render_pass **render_passes; // array of pointers to render passes
+  VkCommandBuffer *command_buffers;
+};
+
+// ---------------------------------
+// ---gfks_rasterization_settings---
+// ---------------------------------
+
+/// \private
+struct gfks_rasterization_settings_protected_struct {
+  VkPipelineRasterizationStateCreateInfo settings;
 };
 
 #endif

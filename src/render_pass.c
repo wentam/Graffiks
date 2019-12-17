@@ -20,7 +20,21 @@ static uint32_t gfks_render_pass_add_shader_set(gfks_render_pass *render_pass,
     render_pass->_protected->draw_steps[*draw_step_count]->shader_set[i] = shader_set[i];
   }
 
+  // Define our rasterization settings with the defaults
+  //
+  // TODO we should grab a default settings object from defaults generated at context creation.
+  // right now we're creating a new object for each and every draw step and never freeing.
+  gfks_rasterization_settings *rsets = gfks_create_rasterization_settings();
+  render_pass->_protected->draw_steps[*draw_step_count]->rsettings = rsets;
+
   return (*draw_step_count)++;
+}
+
+static void gfks_render_pass_set_shaderset_rasterization(gfks_render_pass *render_pass,
+                                                         uint32_t shaderset_index,
+                                                         gfks_rasterization_settings *settings) {
+  
+  render_pass->_protected->draw_steps[shaderset_index]->rsettings = settings;
 }
 
 
@@ -147,6 +161,7 @@ static gfks_render_pass* init_struct() {
   new_pass->add_presentation_surface = &gfks_render_pass_add_presentation_surface;
   new_pass->remove_presentation_surface = &gfks_render_pass_remove_presentation_surface;
   new_pass->add_shader_set = &gfks_render_pass_add_shader_set;
+  new_pass->set_shaderset_rasterization = &gfks_render_pass_set_shaderset_rasterization;
 
   // Return the struct
   return new_pass;

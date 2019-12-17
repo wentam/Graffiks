@@ -15,6 +15,7 @@ file(GLOB base_SRC
   "src/primitives/*.c"
   "src/model_loaders/*.c"
   "src/renderer/*.c"
+  "src/settings/*.c"
 )
 
 find_package(OpenGL REQUIRED)
