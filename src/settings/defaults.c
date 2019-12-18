@@ -2,6 +2,7 @@
 
 static void gfks_free_defaults(gfks_defaults *defaults) {
   defaults->rasterization_settings->free(defaults->rasterization_settings);
+  defaults->multisample_settings->free(defaults->multisample_settings);
   free(defaults);
 }
 
@@ -17,6 +18,7 @@ gfks_defaults* init_struct() {
 gfks_defaults* gfks_create_defaults() {
   gfks_defaults* new = init_struct();    
   new->rasterization_settings = gfks_create_rasterization_settings();
+  new->multisample_settings = gfks_create_multisample_settings();
 
   return new;
 }

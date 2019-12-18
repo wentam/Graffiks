@@ -25,6 +25,7 @@ typedef struct gfks_defaults_struct gfks_defaults;
 /// \private
 struct gfks_defaults_struct {
   gfks_rasterization_settings *rasterization_settings;
+  gfks_multisample_settings *multisample_settings;
   void (*free)(gfks_defaults *defaults);
 };
 
@@ -141,6 +142,7 @@ typedef struct {
   uint32_t shader_count;
   gfks_shader **shader_set; // array of pointers to shaders
   gfks_rasterization_settings *rsettings; // pointer to settings
+  gfks_multisample_settings *msettings; // pointer to settings
 } draw_step;
 
 /// \private
@@ -164,12 +166,18 @@ struct gfks_render_pass_protected_struct {
 // ----------------------
 // ---gfks_render_plan---
 // ----------------------
+typedef struct {
+  gfks_render_pass *render_pass;
+  uint32_t dep_count;
+  uint32_t deps[16]; // array of render passes we depend on TODO should not be static size
+} planned_render_pass;
 
 /// \private
 struct gfks_render_plan_protected_struct {
   uint32_t render_pass_count;
-  gfks_render_pass **render_passes; // array of pointers to render passes
-  VkCommandBuffer *command_buffers;
+  planned_render_pass *planned_render_passes;
+  VkCommandBuffer *command_buffers; 
+  uint32_t *render_pass_order; // A pre-calculated order that satisfies dependencies. Array of indices.
 };
 
 // ---------------------------------
@@ -179,6 +187,16 @@ struct gfks_render_plan_protected_struct {
 /// \private
 struct gfks_rasterization_settings_protected_struct {
   VkPipelineRasterizationStateCreateInfo settings;
+};
+
+// ---------------------------------
+// ---gfks_multisample_settings---
+// ---------------------------------
+
+
+/// \private
+struct gfks_multisample_settings_protected_struct {
+  VkPipelineMultisampleStateCreateInfo settings;
 };
 
 

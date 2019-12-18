@@ -20,9 +20,11 @@ static uint32_t gfks_render_pass_add_shader_set(gfks_render_pass *render_pass,
     render_pass->_protected->draw_steps[*draw_step_count]->shader_set[i] = shader_set[i];
   }
 
-  // Define our rasterization settings with the defaults
+  // Define our rasterization/multisampling settings with the defaults
   render_pass->_protected->draw_steps[*draw_step_count]->rsettings =
     render_pass->context->_protected->defaults->rasterization_settings;
+  render_pass->_protected->draw_steps[*draw_step_count]->msettings =
+    render_pass->context->_protected->defaults->multisample_settings;
 
   return (*draw_step_count)++;
 }
@@ -32,6 +34,13 @@ static void gfks_render_pass_set_shaderset_rasterization(gfks_render_pass *rende
                                                          gfks_rasterization_settings *settings) {
   
   render_pass->_protected->draw_steps[shaderset_index]->rsettings = settings;
+}
+
+static void gfks_render_pass_set_shaderset_multisampling(gfks_render_pass *render_pass,
+                                                        uint32_t shaderset_index,
+                                                        gfks_multisample_settings *settings) {
+  
+  render_pass->_protected->draw_steps[shaderset_index]->msettings = settings;
 }
 
 
@@ -159,6 +168,7 @@ static gfks_render_pass* init_struct() {
   new_pass->remove_presentation_surface = &gfks_render_pass_remove_presentation_surface;
   new_pass->add_shader_set = &gfks_render_pass_add_shader_set;
   new_pass->set_shaderset_rasterization = &gfks_render_pass_set_shaderset_rasterization;
+  new_pass->set_shaderset_multisampling = &gfks_render_pass_set_shaderset_multisampling;
 
   // Return the struct
   return new_pass;
@@ -169,7 +179,10 @@ static void gfks_free_render_pass(gfks_render_pass *render_pass) {
   free(render_pass);
 }
 
-gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device, float width, float height) {
+gfks_render_pass* gfks_create_render_pass(gfks_context *context,
+                                          gfks_device *device,
+                                          float width,
+                                          float height) {
   // Init our struct
   gfks_render_pass* new_pass = init_struct();
   new_pass->context = context;

@@ -59,6 +59,7 @@ typedef struct gfks_shader_struct gfks_shader;
 typedef struct gfks_render_pass_struct gfks_render_pass;
 typedef struct gfks_render_plan_struct gfks_render_plan;
 typedef struct gfks_rasterization_settings_struct gfks_rasterization_settings;
+typedef struct gfks_multisample_settings_struct gfks_multisample_settings;
 
 // --------------------
 // --- gfks_context ---
@@ -290,6 +291,10 @@ struct gfks_render_pass_struct {
   void (*set_shaderset_rasterization)(gfks_render_pass *render_pass,
                                       uint32_t shaderset_index,
                                       gfks_rasterization_settings *settings);
+
+  void (*set_shaderset_multisampling)(gfks_render_pass *render_pass,
+                                      uint32_t shaderset_index,
+                                      gfks_multisample_settings *settings);
 };
 
 gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device, float width, float height);
@@ -315,7 +320,10 @@ struct gfks_render_plan_struct {
   /// \param device A render_plan to be destroyed
   /// \memberof gfks_render_plan_struct
   void (*free)(gfks_render_plan *render_plan);
-  void (*add_render_pass)(gfks_render_plan *plan, gfks_render_pass *pass);
+  uint32_t (*add_render_pass)(gfks_render_plan *plan, gfks_render_pass *pass);
+  void (*add_render_pass_dependency)(gfks_render_plan *plan,
+                                     uint32_t pass_index,
+                                     uint32_t pass_dep_index);
 
   // Applies dependencies in our plan. Must be called again after future dependency changes.
   bool (*finalize)(gfks_render_plan *plan);
@@ -366,6 +374,47 @@ struct gfks_rasterization_settings_struct {
   void (*depth_bias_slope_factor)(gfks_rasterization_settings *settings, float setting);
 };
 
-
 gfks_rasterization_settings* gfks_create_rasterization_settings();
+
+// -----------------------------------
+// --- gfks_multisample_settings -----
+// -----------------------------------
+
+typedef struct gfks_multisample_settings_protected_struct gfks_multisample_settings_protected;
+
+// These enum values are extracted from the vulkan specification - 36.VkSampleCountFlagBits
+// These are static to prevent the user of the engine from needing to pull in the vulkan headers.
+// Don't touch the numbers.
+typedef enum {
+  GFKS_SAMPLE_COUNT_1_BITFLAG  = 1,
+  GFKS_SAMPLE_COUNT_2_BITFLAG  = 2,
+  GFKS_SAMPLE_COUNT_4_BITFLAG  = 4,
+  GFKS_SAMPLE_COUNT_8_BITFLAG  = 8,
+  GFKS_SAMPLE_COUNT_16_BITFLAG = 16,
+  GFKS_SAMPLE_COUNT_32_BITFLAG = 32,
+  GFKS_SAMPLE_COUNT_64_BITFLAG = 64
+} gfks_sample_count_bitflags;
+
+/// gfks_multisample_settings
+struct gfks_multisample_settings_struct {
+  /// \private
+  gfks_multisample_settings_protected* _protected;
+
+  /// \public
+  /// \brief Frees a render plan
+  ///
+  /// Must be called when you're done
+  /// \param device A multisample_settings to be destroyed
+  /// \memberof gfks_multisample_settings_struct
+  void (*free)(gfks_multisample_settings *multisample_settings);
+  void (*sample_shading_enabled)(gfks_multisample_settings *settings, bool setting);
+  void (*rasterization_samples)(gfks_multisample_settings *settings, gfks_sample_count_bitflags flags);
+  void (*minimum_sample_shading)(gfks_multisample_settings *settings, float setting);
+  void (*sample_mask)(gfks_multisample_settings *settings, uint32_t *sample_mask);
+  void (*alpha_to_coverage_enabled)(gfks_multisample_settings *settings, bool setting);
+  void (*alpha_to_one_enabled)(gfks_multisample_settings *settings, bool setting);
+
+};
+
+gfks_multisample_settings* gfks_create_multisample_settings();
 #endif

@@ -1,25 +1,75 @@
 #include "graffiks/internal.h"
 
-static void gfks_render_plan_add_render_pass(gfks_render_plan *plan, gfks_render_pass *pass) {
+
+static void add_pass_to_pass_order(gfks_render_plan *plan,
+                                   uint32_t pass_index,
+                                   bool *pass_added,
+                                   uint32_t *passes_added) {
+
+  // If this pass has already been added, do nothing.
+  if (pass_added[pass_index]) return;
+
+  // Grab handle to our planned render pass
+  planned_render_pass *pass = &(plan->_protected->planned_render_passes[pass_index]);
+
+  // Recursively add any un-added dependencies
+  if (pass->dep_count > 0) {
+    for (int i = 0; i < pass->dep_count; i++) {
+      if (!(pass_added[pass->deps[i]])) {
+        add_pass_to_pass_order(plan, pass->deps[i], pass_added, passes_added);
+      }
+    }
+  }
+
+  // Add our pass to the list
+  plan->_protected->render_pass_order[*passes_added] = pass_index;
+  pass_added[pass_index] = true;
+  (*passes_added)++;
+}
+
+static void determine_render_pass_order(gfks_render_plan *plan) {
+  if (plan->_protected->render_pass_order != NULL) {
+    free(plan->_protected->render_pass_order);
+  }
+
+  plan->_protected->render_pass_order = malloc(sizeof(uint32_t)*plan->_protected->render_pass_count);
+
+  uint32_t passes_added = 0;
+
+  // Create array of bools to represent if we've found a place for each pass
+  bool pass_added[plan->_protected->render_pass_count];
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    pass_added[i] = false;
+  }
+
+  // Add all of our passes to the list with our recursive function
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    add_pass_to_pass_order(plan, i, pass_added, &passes_added);
+  }
+}
+
+static uint32_t gfks_render_plan_add_render_pass(gfks_render_plan *plan, gfks_render_pass *pass) {
   uint32_t *pcount = &(plan->_protected->render_pass_count);
-  plan->_protected->render_passes[*pcount] = pass;
+  plan->_protected->planned_render_passes[*pcount].render_pass = pass;
   (*pcount)++;
+
+  return (*pcount)-1;
+}
+
+static void gfks_render_plan_add_render_pass_dependency(gfks_render_plan *plan,
+                                                        uint32_t pass_index,
+                                                        uint32_t pass_dep_index) {
+  // TODO make sure indices are valid
+
+  uint32_t *dep_count = &(plan->_protected->planned_render_passes[pass_index].dep_count);
+  plan->_protected->planned_render_passes[pass_index].deps[*dep_count] = pass_dep_index;
+  (*dep_count)++;
+
+  determine_render_pass_order(plan); // TODO this might not be the best point to determine order.
 }
 
 static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   VkDevice vk_device = plan->device->_protected->vk_logical_device;
-
-  // TODO static hax
-  // define multisampling info
-  // (we won't bother with multisampling for this test)
-  VkPipelineMultisampleStateCreateInfo multisampling = {};
-  multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-  multisampling.minSampleShading = 1.0f;
-  multisampling.pSampleMask = NULL;
-  multisampling.alphaToCoverageEnable = VK_FALSE;
-  multisampling.alphaToOneEnable = VK_FALSE;
 
   // TODO static hax
   // set up color blending info
@@ -43,25 +93,18 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   VkPipelineLayoutCreateInfo pipeline_layout_create_info = {};
   pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 
-  if (vkCreatePipelineLayout(vk_device, &pipeline_layout_create_info, NULL, &pipeline_layout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(vk_device,
+                             &pipeline_layout_create_info,
+                             NULL,
+                             &pipeline_layout) != VK_SUCCESS) {
     printf("Failed to create pipeline layout\n");
   }
 
   // TODO static hax
-  // subpass dependencies
-  VkSubpassDependency dep = {};
-  dep.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dep.dstSubpass = 0;
-  dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dep.srcAccessMask = 0;
-  dep.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-  // TODO static hax
-  // define render pass
+  // define color attachment
   VkAttachmentDescription color_attachment = {};
   color_attachment.format =
-    plan->_protected->render_passes[0]->_protected->presentation_surface_data[0]->surface_format.format;
+    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->surface_format.format;
   color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
   color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -74,11 +117,23 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   color_attachment_ref.attachment = 0;
   color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  // TODO static hax
+  // define subpasses
   VkSubpassDescription subpass = {};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &color_attachment_ref;
 
+  VkSubpassDependency dep = {};
+  dep.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dep.dstSubpass = 0;
+  dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dep.srcAccessMask = 0;
+  dep.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+  // TODO static hax
+  // define render pass
   VkRenderPass render_pass;
 
   VkRenderPassCreateInfo render_pass_create_info = {};
@@ -110,8 +165,8 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
 
   // TODO static hax
   // create pipeline
-  uint32_t shader_count = plan->_protected->render_passes[0]->_protected->draw_steps[0]->shader_count;
-  gfks_shader **shader_set = plan->_protected->render_passes[0]->_protected->draw_steps[0]->shader_set;
+  uint32_t shader_count = plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->shader_count;
+  gfks_shader **shader_set = plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->shader_set;
 
   VkPipelineShaderStageCreateInfo vk_shader_set[shader_count];
   for (int i = 0; i < shader_count; i++) {
@@ -124,9 +179,12 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   pipeline_create_info.pStages = vk_shader_set;
   pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
   pipeline_create_info.pInputAssemblyState = &input_assembly_state_create_info;
-  pipeline_create_info.pViewportState = &(plan->_protected->render_passes[0]->_protected->viewport_state_create_info);
-  pipeline_create_info.pRasterizationState = &(plan->_protected->render_passes[0]->_protected->draw_steps[0]->rsettings->_protected->settings);
-  pipeline_create_info.pMultisampleState = &multisampling;
+  pipeline_create_info.pViewportState =
+    &(plan->_protected->planned_render_passes[0].render_pass->_protected->viewport_state_create_info);
+  pipeline_create_info.pRasterizationState =
+    &(plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->rsettings->_protected->settings);
+  pipeline_create_info.pMultisampleState =
+    &(plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->msettings->_protected->settings);
   pipeline_create_info.pDepthStencilState = NULL;
   pipeline_create_info.pColorBlendState = &color_blending;
   pipeline_create_info.pDynamicState = NULL;
@@ -151,13 +209,13 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   // TODO static hax
   // create a framebuffer for each swapchain image view
   uint32_t swap_chain_image_count =
-    plan->_protected->render_passes[0]->_protected->presentation_surface_data[0]->swap_chain_image_count;
+    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->swap_chain_image_count;
 
   VkImageView *swap_chain_image_views =
-    plan->_protected->render_passes[0]->_protected->presentation_surface_data[0]->swap_chain_image_views;
+    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->swap_chain_image_views;
 
   VkExtent2D swap_chain_extent =
-    plan->_protected->render_passes[0]->_protected->presentation_surface_data[0]->swap_chain_extent;
+    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->swap_chain_extent;
 
   VkFramebuffer swap_chain_frame_buffers[swap_chain_image_count];
 
@@ -258,12 +316,18 @@ static bool gfks_render_plan_execute(gfks_render_plan *plan){
   VkSemaphoreCreateInfo semaphore_create_info = {};
   semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-  if (vkCreateSemaphore(vk_device, &semaphore_create_info, NULL, &image_available_semaphore) != VK_SUCCESS) {
+  if (vkCreateSemaphore(vk_device,
+                        &semaphore_create_info,
+                        NULL,
+                        &image_available_semaphore) != VK_SUCCESS) {
     printf("Failed to create semaphore\n");
     exit(0);
   }
 
-  if (vkCreateSemaphore(vk_device, &semaphore_create_info, NULL, &render_finished_semaphore) != VK_SUCCESS) {
+  if (vkCreateSemaphore(vk_device,
+                        &semaphore_create_info,
+                        NULL,
+                        &render_finished_semaphore) != VK_SUCCESS) {
     printf("Failed to create semaphore\n");
     exit(0);
   }
@@ -273,7 +337,13 @@ static bool gfks_render_plan_execute(gfks_render_plan *plan){
   // ------------------
 
   VkSwapchainKHR swap_chain =
-    plan->_protected->render_passes[0]->_protected->presentation_surface_data[0]->swap_chain;
+    plan->
+    _protected->
+    planned_render_passes[0].render_pass->
+    _protected->
+    presentation_surface_data[0]->
+    swap_chain;
+
   VkQueue graphics_queue =
     plan->device->_protected->queues[plan->device->_protected->graphics_queue_indices[0]];
   VkQueue present_queue =
@@ -282,7 +352,12 @@ static bool gfks_render_plan_execute(gfks_render_plan *plan){
   // TODO static hax
   // get next image
   uint32_t image_index;
-  int vr = vkAcquireNextImageKHR(vk_device, swap_chain, UINT64_MAX, image_available_semaphore, VK_NULL_HANDLE, &image_index);
+  int vr = vkAcquireNextImageKHR(vk_device,
+                                 swap_chain,
+                                 UINT64_MAX,
+                                 image_available_semaphore,
+                                 VK_NULL_HANDLE,
+                                 &image_index);
 
   printf("got result %i from vkAquireNextImageKHR (0 is success)\n",vr);
   printf("got image %i from vkAquireNextImageKHR\n",image_index);
@@ -330,6 +405,9 @@ static bool gfks_render_plan_execute(gfks_render_plan *plan){
 }
 
 static void gfks_free_render_plan(gfks_render_plan *plan) {
+  if (plan->_protected->render_pass_order != NULL) {
+    free(plan->_protected->render_pass_order);
+  }
   free(plan->_protected);
   free(plan);
 }
@@ -339,12 +417,13 @@ static gfks_render_plan* init_struct() {
   p->_protected = malloc(sizeof(gfks_render_plan_protected));
   p->device = NULL;
   p->context = NULL;
-  p->_protected->render_passes = NULL;
+  p->_protected->planned_render_passes = NULL;
   p->_protected->command_buffers = NULL;
   p->_protected->render_pass_count = 0;
 
   p->free = &gfks_free_render_plan;
   p->add_render_pass = &gfks_render_plan_add_render_pass;
+  p->add_render_pass_dependency = &gfks_render_plan_add_render_pass_dependency;
   p->finalize = &gfks_render_plan_finalize_plan;
   p->execute = &gfks_render_plan_execute;
 }
@@ -353,10 +432,15 @@ gfks_render_plan* gfks_create_render_plan(gfks_context *context, gfks_device *de
   gfks_render_plan *new_plan = init_struct();
   new_plan->device = device;
   new_plan->context = context;
+  new_plan->_protected->render_pass_order = NULL;
 
-  // Allocate render passes array
+  // Allocate/init render passes array
   // TODO allocate dynamically
-  new_plan->_protected->render_passes = malloc(sizeof(gfks_render_pass *)*256);
+  new_plan->_protected->planned_render_passes = malloc(sizeof(planned_render_pass)*256);
+
+  for (int i = 0; i < 256; i++) {
+    new_plan->_protected->planned_render_passes[i].dep_count = 0;
+  }
 
   return new_plan;
 }

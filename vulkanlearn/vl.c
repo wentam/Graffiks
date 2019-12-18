@@ -108,19 +108,17 @@ void main() {
   // Make the result of this pass present to our surface
   if (triangle_render_pass->add_presentation_surface(triangle_render_pass, gfks_surface) == -1) handle_gfks_error();
 
+
   // Add our shader set to our render pass
   uint32_t shaderset_index = triangle_render_pass->add_shader_set(triangle_render_pass, 2, gfks_shader_stages);
 
-  // Define rasterization settings
-  gfks_rasterization_settings *rsettings = gfks_create_rasterization_settings();
-  rsettings->polygon_mode_line(rsettings);
-
-  triangle_render_pass->set_shaderset_rasterization(triangle_render_pass,shaderset_index, rsettings);
-
   // Add our render pass to the plan
-  triangle_render_plan->add_render_pass(triangle_render_plan, triangle_render_pass);
+  uint32_t triangle_render_pass_index = triangle_render_plan->add_render_pass(triangle_render_plan, triangle_render_pass);
 
   triangle_render_plan->finalize(triangle_render_plan) || handle_gfks_error();
+
+  // Make a circular dep for fun
+  //triangle_render_plan->add_render_pass_dependency(triangle_render_plan, triangle_render_pass_index, triangle_render_pass_index);
 
   // Draw our triangle!
   triangle_render_plan->execute(triangle_render_plan) || handle_gfks_error();
@@ -133,5 +131,4 @@ void main() {
   //  gfks_free_devices(gfks_devices, gfks_device_count);
   gfks_surface->free(gfks_surface);
   gfks_context->free(gfks_context);
-  rsettings->free(rsettings);
 }
