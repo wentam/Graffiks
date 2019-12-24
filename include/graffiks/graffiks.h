@@ -56,8 +56,8 @@ typedef struct gfks_context_struct gfks_context;
 typedef struct gfks_surface_struct gfks_surface;
 typedef struct gfks_device_struct gfks_device;
 typedef struct gfks_shader_struct gfks_shader;
+typedef struct gfks_subpass_struct gfks_subpass;
 typedef struct gfks_render_pass_struct gfks_render_pass;
-typedef struct gfks_render_plan_struct gfks_render_plan;
 typedef struct gfks_rasterization_settings_struct gfks_rasterization_settings;
 typedef struct gfks_multisample_settings_struct gfks_multisample_settings;
 
@@ -254,12 +254,56 @@ gfks_shader* gfks_create_shader(void *SPIRV_data,
                                 gfks_shader_stage shader_stage);
 
 // ------------------------
+// --- gfks_subpass ---
+// ------------------------
+
+typedef struct gfks_subpass_protected_struct gfks_subpass_protected;
+
+static const uint32_t GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES = 256;
+
+/// gfks_subpass
+struct gfks_subpass_struct {
+  /// \private
+  gfks_subpass_protected* _protected;
+
+  gfks_device *device; // the device this subpass will utilize
+  gfks_context *context; // the parent context for this render pass
+
+  /// \public
+  /// \brief Frees a subpass
+  ///
+  /// Must be called when you're done
+  /// \param device A subpass to be destroyed
+  /// \memberof gfks_subpass_struct
+  void (*free)(gfks_subpass *subpass);
+
+  // Surface must be capable of being drawn to by the device this render pass was created with
+  // TODO Make sure we error if the surface can't be drawn to by the device
+  // TODO have user set swapchain settings like double-buffer etc on surface add time?
+  int16_t (*add_presentation_surface)(gfks_subpass *subpass,
+                                      gfks_surface *surface); // returns index of surface or error -1
+  bool (*remove_presentation_surface)(gfks_subpass *subpass, uint8_t index);
+
+  // TODO methods to disable/enable presentation to specific presentation surfaces?
+  uint32_t (*add_shader_set)(gfks_subpass *subpass, uint32_t shader_count, gfks_shader **shader_set);
+
+
+  void (*set_shaderset_rasterization)(gfks_subpass *subpass,
+                                      uint32_t shaderset_index,
+                                      gfks_rasterization_settings *settings);
+
+  void (*set_shaderset_multisampling)(gfks_subpass *subpass,
+                                      uint32_t shaderset_index,
+                                      gfks_multisample_settings *settings);
+};
+
+gfks_subpass* gfks_create_subpass(gfks_context *context, gfks_device *device, float width, float height);
+
+// ------------------------
 // --- gfks_render_pass ---
 // ------------------------
 
 typedef struct gfks_render_pass_protected_struct gfks_render_pass_protected;
-
-static const uint32_t GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES = 256;
 
 /// gfks_render_pass
 struct gfks_render_pass_struct {
@@ -270,69 +314,25 @@ struct gfks_render_pass_struct {
   gfks_context *context; // the parent context for this render pass
 
   /// \public
-  /// \brief Frees a render_pass
+  /// \brief Frees a render pass
   ///
   /// Must be called when you're done
   /// \param device A render_pass to be destroyed
   /// \memberof gfks_render_pass_struct
   void (*free)(gfks_render_pass *render_pass);
-
-  // Surface must be capable of being drawn to by the device this render pass was created with
-  // TODO Make sure we error if the surface can't be drawn to by the device
-  // TODO have user set swapchain settings like double-buffer etc on surface add time?
-  int16_t (*add_presentation_surface)(gfks_render_pass *render_pass,
-                                      gfks_surface *surface); // returns index of surface or error -1
-  bool (*remove_presentation_surface)(gfks_render_pass *render_pass, uint8_t index);
-
-  // TODO methods to disable/enable presentation to specific presentation surfaces?
-  uint32_t (*add_shader_set)(gfks_render_pass *render_pass, uint32_t shader_count, gfks_shader **shader_set);
-
-
-  void (*set_shaderset_rasterization)(gfks_render_pass *render_pass,
-                                      uint32_t shaderset_index,
-                                      gfks_rasterization_settings *settings);
-
-  void (*set_shaderset_multisampling)(gfks_render_pass *render_pass,
-                                      uint32_t shaderset_index,
-                                      gfks_multisample_settings *settings);
-};
-
-gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device, float width, float height);
-
-// ------------------------
-// --- gfks_render_plan ---
-// ------------------------
-
-typedef struct gfks_render_plan_protected_struct gfks_render_plan_protected;
-
-/// gfks_render_plan
-struct gfks_render_plan_struct {
-  /// \private
-  gfks_render_plan_protected* _protected;
-
-  gfks_device *device; // the device this render_plan will utilize
-  gfks_context *context; // the parent context for this render plan
-
-  /// \public
-  /// \brief Frees a render plan
-  ///
-  /// Must be called when you're done
-  /// \param device A render_plan to be destroyed
-  /// \memberof gfks_render_plan_struct
-  void (*free)(gfks_render_plan *render_plan);
-  uint32_t (*add_render_pass)(gfks_render_plan *plan, gfks_render_pass *pass);
-  void (*add_render_pass_dependency)(gfks_render_plan *plan,
+  uint32_t (*add_subpass)(gfks_render_pass *pass, gfks_subpass *subpass);
+  void (*add_subpass_dependency)(gfks_render_pass *pass,
                                      uint32_t pass_index,
                                      uint32_t pass_dep_index);
 
-  // Applies dependencies in our plan. Must be called again after future dependency changes.
-  bool (*finalize)(gfks_render_plan *plan);
+  // Applies dependencies in our pass. Must be called again after future dependency changes.
+  bool (*finalize)(gfks_render_pass *pass);
 
   //
-  bool (*execute)(gfks_render_plan *plan);
+  bool (*execute)(gfks_render_pass *pass);
 };
 
-gfks_render_plan* gfks_create_render_plan(gfks_context *context, gfks_device *device);
+gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device);
 
 
 
@@ -348,7 +348,7 @@ struct gfks_rasterization_settings_struct {
   gfks_rasterization_settings_protected* _protected;
 
   /// \public
-  /// \brief Frees a render plan
+  /// \brief Frees a render pass
   ///
   /// Must be called when you're done
   /// \param device A rasterization_settings to be destroyed
@@ -401,7 +401,7 @@ struct gfks_multisample_settings_struct {
   gfks_multisample_settings_protected* _protected;
 
   /// \public
-  /// \brief Frees a render plan
+  /// \brief Frees a render pass
   ///
   /// Must be called when you're done
   /// \param device A multisample_settings to be destroyed

@@ -1,234 +1,579 @@
 #include "graffiks/internal.h"
-#include "surface_utils.c"
 
-// TODO free all mallocs in this file
+static void add_subpass_to_subpass_order(gfks_render_pass *pass,
+                                   uint32_t pass_index,
+                                   bool *pass_added,
+                                   uint32_t *passes_added) {
 
+  // If this pass has already been added, do nothing.
+  if (pass_added[pass_index]) return;
 
-static uint32_t gfks_render_pass_add_shader_set(gfks_render_pass *render_pass,
-                                                uint32_t shader_count,
-                                                gfks_shader **shader_set) {
+  // Grab handle to our planned render pass
+  planned_subpass *subpass = &(pass->_protected->planned_subpasses[pass_index]);
 
-  // TODO error on malloc NULL
-  uint32_t* draw_step_count = &(render_pass->_protected->draw_step_count);
-  render_pass->_protected->draw_steps[*draw_step_count] = malloc(sizeof(draw_step));
-
-  // Copy the shader pointers in the users shader set into our own set.
-  // We need to own the memory.
-  render_pass->_protected->draw_steps[*draw_step_count]->shader_count = shader_count;
-  render_pass->_protected->draw_steps[*draw_step_count]->shader_set = malloc(sizeof(gfks_shader)*shader_count);
-  for (int i = 0; i < shader_count; i++) {
-    render_pass->_protected->draw_steps[*draw_step_count]->shader_set[i] = shader_set[i];
+  // Recursively add any un-added dependencies
+  if (subpass->dep_count > 0) {
+    for (int i = 0; i < subpass->dep_count; i++) {
+      if (!(pass_added[subpass->deps[i]])) {
+        add_subpass_to_subpass_order(pass, subpass->deps[i], pass_added, passes_added);
+      }
+    }
   }
 
-  // Define our rasterization/multisampling settings with the defaults
-  render_pass->_protected->draw_steps[*draw_step_count]->rsettings =
-    render_pass->context->_protected->defaults->rasterization_settings;
-  render_pass->_protected->draw_steps[*draw_step_count]->msettings =
-    render_pass->context->_protected->defaults->multisample_settings;
-
-  return (*draw_step_count)++;
+  // Add our pass to the list
+  pass->_protected->subpass_order[*passes_added] = pass_index;
+  pass_added[pass_index] = true;
+  (*passes_added)++;
 }
 
-static void gfks_render_pass_set_shaderset_rasterization(gfks_render_pass *render_pass,
-                                                         uint32_t shaderset_index,
-                                                         gfks_rasterization_settings *settings) {
-  
-  render_pass->_protected->draw_steps[shaderset_index]->rsettings = settings;
-}
-
-static void gfks_render_pass_set_shaderset_multisampling(gfks_render_pass *render_pass,
-                                                        uint32_t shaderset_index,
-                                                        gfks_multisample_settings *settings) {
-  
-  render_pass->_protected->draw_steps[shaderset_index]->msettings = settings;
-}
-
-
-static bool set_up_presentation_surface(gfks_render_pass *render_pass,
-                                        uint8_t surface_index) {
-
-  // Grab our surface and device
-  gfks_surface *surface = render_pass->_protected->presentation_surfaces[surface_index];
-  gfks_device *device = render_pass->device;
-
-  // Allocate memory for our presentation surface data and get an easy handle to it
-  render_pass->_protected->presentation_surface_data[surface_index] =
-    malloc(sizeof(presentation_surface_data));
-  presentation_surface_data *psd = render_pass->_protected->presentation_surface_data[surface_index];
-
-  // Define our surface capabilities
-  if (!gfks_surface_util_obtain_surface_capabilities_for_device(surface,
-                                                                device,
-                                                                &(psd->surface_capabilities))) {
-    return false;
+static void determine_subpass_order(gfks_render_pass *pass) {
+  // If we had a past allocation here, free it
+  if (pass->_protected->subpass_order != NULL) {
+    free(pass->_protected->subpass_order);
   }
 
-  // Decide swap chain image count
-  uint32_t desired_swap_chain_image_count =
-    gfks_surface_util_decide_desired_swap_chain_image_count(psd->surface_capabilities);
+  // Allocate our array
+  pass->_protected->subpass_order = malloc(sizeof(uint32_t)*pass->_protected->subpass_count);
 
-  // Decide swap chain image size
-  psd->swap_chain_extent =
-    gfks_surface_util_decide_swap_chain_image_size(psd->surface_capabilities, surface);
+  // We need to keep track of how many we add
+  uint32_t passes_added = 0;
 
-  // Decide surface format
-  if (!gfks_surface_util_decide_surface_format_for_device(surface,
-                                                          device,
-                                                          &(psd->surface_format))) return false;
+  // Create array of bools to represent if we've found a place for each pass
+  bool pass_added[pass->_protected->subpass_count];
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    pass_added[i] = false;
+  }
 
-  // Decide presentation mode
-  if (!gfks_surface_util_decide_surface_presentation_mode_for_device(surface,
-                                                                     device,
-                                                                     &(psd->surface_presentation_mode))) return false;
+  // Add all of our passes to the list with our recursive function
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    add_subpass_to_subpass_order(pass, i, pass_added, &passes_added);
+  }
+}
 
-  // Create our swap chain
-  if(!gfks_surface_util_create_swap_chain(surface,
-                                          device,
-                                          psd->surface_capabilities,
-                                          psd->surface_format,
-                                          psd->surface_presentation_mode,
-                                          psd->swap_chain_extent,
-                                          &(psd->swap_chain),
-                                          &(psd->swap_chain_image_count),
-                                          &(psd->swap_chain_images),
-                                          &(psd->swap_chain_image_views),
-                                          desired_swap_chain_image_count)) return false;
+static uint32_t gfks_render_pass_add_subpass(gfks_render_pass *pass, gfks_subpass *subpass) {
+  uint32_t *pcount = &(pass->_protected->subpass_count);
+  pass->_protected->planned_subpasses[*pcount].subpass = subpass;
+  (*pcount)++;
+
+  return (*pcount)-1;
+}
+
+static void gfks_render_pass_add_subpass_dependency(gfks_render_pass *pass,
+                                                        uint32_t pass_index,
+                                                        uint32_t pass_dep_index) {
+  // TODO make sure indices are valid
+
+  uint32_t *dep_count = &(pass->_protected->planned_subpasses[pass_index].dep_count);
+  pass->_protected->planned_subpasses[pass_index].deps[*dep_count] = pass_dep_index;
+  (*dep_count)++;
+
+  determine_subpass_order(pass); // TODO this might not be the best point to determine order.
+}
+
+static bool gfks_render_pass_finalize_pass(gfks_render_pass *pass) {
+  VkDevice vk_device = pass->device->_protected->vk_logical_device;
+
+  determine_subpass_order(pass); // TODO this might not be the best point to determine order.
+
+  // TODO static hax
+  // set up color blending info
+  VkPipelineColorBlendAttachmentState color_blend_attachment = {};
+  color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+                                          VK_COLOR_COMPONENT_G_BIT |
+                                          VK_COLOR_COMPONENT_B_BIT |
+                                          VK_COLOR_COMPONENT_A_BIT;
+
+  color_blend_attachment.blendEnable = VK_FALSE;
+
+  VkPipelineColorBlendStateCreateInfo color_blending = {};
+  color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  color_blending.logicOpEnable = VK_FALSE;
+  color_blending.attachmentCount = 1;
+  color_blending.pAttachments = &color_blend_attachment;
+
+  // TODO static hax
+  // set up pipeline layout
+  VkPipelineLayout pipeline_layout;
+  VkPipelineLayoutCreateInfo pipeline_layout_create_info = {};
+  pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+
+  if (vkCreatePipelineLayout(vk_device,
+                             &pipeline_layout_create_info,
+                             NULL,
+                             &pipeline_layout) != VK_SUCCESS) {
+    printf("Failed to create pipeline layout\n");
+  }
+
+  // TODO static hax
+  // define color attachment
+  VkAttachmentDescription color_attachment = {};
+  color_attachment.format =
+    pass->_protected->planned_subpasses[0].subpass->_protected->presentation_surface_data[0]->surface_format.format;
+  color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference color_attachment_ref = {};
+  color_attachment_ref.attachment = 0;
+  color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  // TODO: There are some situations in which a graffiks render pass should be a full render pass,
+  // and not just a subpass
+
+  // Define each render pass as a subpass
+  uint32_t subpass_count = pass->_protected->subpass_count;
+  VkSubpassDescription subpasses[pass->_protected->subpass_count];
+  for(int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+
+    subpasses[i].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpasses[i].colorAttachmentCount = 1;
+    subpasses[i].pColorAttachments = &color_attachment_ref;
+    subpasses[i].inputAttachmentCount = 0;
+    subpasses[i].pInputAttachments = NULL;
+    subpasses[i].preserveAttachmentCount = 0;
+    subpasses[i].pPreserveAttachments = NULL;
+    subpasses[i].pResolveAttachments = NULL;
+    subpasses[i].pDepthStencilAttachment = NULL;
+  }
+
+  // Figure out how many subpass dependencies we need to create
+  uint32_t subpass_dep_count = 0;
+  for(int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+
+    subpass_dep_count += planned_pass->dep_count;
+  }
+ 
+  // Define subpass dependencies 
+  VkSubpassDependency subpass_deps[subpass_dep_count];
+  uint32_t created_subpass_dep_count = 0;
+  for(int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+  
+    for (int j = 0; j < planned_pass->dep_count; j++) {
+      subpass_deps[created_subpass_dep_count].srcSubpass = i;
+      subpass_deps[created_subpass_dep_count].dstSubpass = planned_pass->deps[j];
+
+      // TODO: currently we assume the dependency is on the color attachment.
+      // dependencies should be specific to the attachment that they actually depend on.
+      subpass_deps[created_subpass_dep_count].srcStageMask =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+      subpass_deps[created_subpass_dep_count].srcAccessMask = 0;
+      subpass_deps[created_subpass_dep_count].dstStageMask =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+      subpass_deps[created_subpass_dep_count].dstAccessMask =
+        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;  
+
+      created_subpass_dep_count++;
+    }
+  }
+
+  // Create our render pass
+  VkRenderPass render_pass;
+
+  VkRenderPassCreateInfo render_pass_create_info = {};
+  render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  render_pass_create_info.attachmentCount = 1;
+  render_pass_create_info.pAttachments = &color_attachment;
+  render_pass_create_info.subpassCount = subpass_count;
+  render_pass_create_info.pSubpasses = subpasses;
+  render_pass_create_info.dependencyCount = created_subpass_dep_count;
+  render_pass_create_info.pDependencies = subpass_deps;
+
+  if (vkCreateRenderPass(vk_device, &render_pass_create_info, NULL, &render_pass) != VK_SUCCESS) {
+    // TODO error
+  }
+
+  // TODO static hax
+  // set up input info
+  VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {};
+  vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
+  vertex_input_state_create_info.pVertexBindingDescriptions = NULL;
+  vertex_input_state_create_info.vertexAttributeDescriptionCount = 0;
+  vertex_input_state_create_info.pVertexAttributeDescriptions = NULL;
+
+  VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {};
+  input_assembly_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
+
+  // ----------------------------------------------------
+  // Create pipeline for each render pass "draw step"
+  // Stored as a flattened 2d array:
+  //  * Each row is a render pass, with rows ordered as they are in pass->_protected->subpass_order
+  //  * Each item in each row is a pipeline for a draw step,
+  //    with order corrisponding to pass->draw_steps
+  //
+  // This storage means as we iterate over planned render passes in draw order,
+  // and the draw steps inside, the index will correspond to an item in this array that matches the
+  // draw step
+  // ----------------------------------------------------
+
+  // Count up total draw steps
+  uint32_t total_draw_step_count = 0;
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+
+    total_draw_step_count += planned_pass->subpass->_protected->draw_step_count;
+  }
+
+  // Create our pipelines
+  VkPipeline draw_step_pipelines[total_draw_step_count];
+  uint32_t defined_draw_step_pipelines = 0;
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+
+    for (int j = 0; j < planned_pass->subpass->_protected->draw_step_count; j++) {
+      draw_step *draw_step = planned_pass->subpass->_protected->draw_steps[j];
+
+      uint32_t shader_count = draw_step->shader_count;
+      gfks_shader **shader_set = draw_step->shader_set;
+
+      VkPipelineShaderStageCreateInfo vk_shader_set[shader_count];
+      for (int k = 0; k < shader_count; k++) {
+        vk_shader_set[k] = shader_set[k]->_protected->vk_shader_stage_create_info;
+      }
+
+      VkGraphicsPipelineCreateInfo pipeline_create_info = {};
+      pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+      pipeline_create_info.stageCount = shader_count;
+      pipeline_create_info.pStages = vk_shader_set;
+      pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
+      pipeline_create_info.pInputAssemblyState = &input_assembly_state_create_info;
+      pipeline_create_info.pViewportState =
+        &(planned_pass->subpass->_protected->viewport_state_create_info);
+
+      pipeline_create_info.pRasterizationState = &(draw_step->rsettings->_protected->settings);
+      pipeline_create_info.pMultisampleState = &(draw_step->msettings->_protected->settings);
+      pipeline_create_info.pDepthStencilState = NULL;
+      pipeline_create_info.pColorBlendState = &color_blending;
+      pipeline_create_info.pDynamicState = NULL;
+      pipeline_create_info.layout = pipeline_layout;
+      pipeline_create_info.renderPass = render_pass;
+      pipeline_create_info.subpass = i;
+      pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
+      pipeline_create_info.basePipelineIndex = -1;
+
+      VkPipeline pipeline;
+
+      if (vkCreateGraphicsPipelines(vk_device,
+                                    VK_NULL_HANDLE,
+                                    1,
+                                    &pipeline_create_info,
+                                    NULL,
+                                    &pipeline) != VK_SUCCESS) {
+        // TODO error
+      }
+
+      draw_step_pipelines[defined_draw_step_pipelines++] = pipeline;
+    }
+  }
+
+  // --------------------------------
+  // Create a framebuffer for each swapchain image view in each presentation surface
+  // --------------------------------
+
+  // Count up presentation surfaces for array allocation
+  uint32_t total_presentation_surface_count = 0;
+  uint32_t max_presentation_surface_count = 0;
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+
+    uint32_t c = planned_pass->subpass->_protected->presentation_surface_count;
+    if (c > max_presentation_surface_count) {
+      max_presentation_surface_count = c;
+    }
+    total_presentation_surface_count += c;
+  }
+
+  // Figure out our largest swap chain image count for array allocation
+  uint32_t max_swapchain_image_count = 0;
+
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+
+    for (int j = 0; j < planned_pass->subpass->_protected->presentation_surface_count; j++) {
+      uint32_t c =
+        planned_pass->subpass->_protected->presentation_surface_data[j]->swap_chain_image_count;
+
+      if (c > max_swapchain_image_count) {
+        max_swapchain_image_count = c;
+      }
+    }
+  }
+
+  // Declare our framebuffer array
+  VkFramebuffer framebuffers[total_presentation_surface_count];
+
+  // Declare a lookup table that will define which framebuffer goes to which presentation surface
+  // Rows are render passes
+  // Cols are presentation surfaces
+  // Values are framebuffer indices
+  uint32_t framebuffer_lookup_table
+    [pass->_protected->subpass_count]
+    [max_presentation_surface_count]
+    [max_swapchain_image_count];
+
+  // Create our framebuffers, writing our framebuffer lookup table along the way
+  uint32_t created_framebuffer_count = 0;
+  for (int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
+    
+    for (int j = 0; j < planned_pass->subpass->_protected->presentation_surface_count; j++) {
+      presentation_surface_data* presentation_surface_data =
+        (planned_pass->subpass->_protected->presentation_surface_data[j]);
+
+      // Create a framebuffer for each swapchain image view
+      uint32_t swap_chain_image_count = presentation_surface_data->swap_chain_image_count;
+      VkImageView *swap_chain_image_views = presentation_surface_data->swap_chain_image_views;
+      VkExtent2D swap_chain_extent = presentation_surface_data->swap_chain_extent;
+
+      for (int k = 0; k < swap_chain_image_count; k++) {
+        VkImageView attachments[] = {swap_chain_image_views[k]};
+
+        VkFramebufferCreateInfo frame_buffer_create_info = {};
+        frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frame_buffer_create_info.renderPass = render_pass;
+        frame_buffer_create_info.attachmentCount =1;
+        frame_buffer_create_info.pAttachments  = attachments;
+        frame_buffer_create_info.width = swap_chain_extent.width;
+        frame_buffer_create_info.height = swap_chain_extent.height;
+        frame_buffer_create_info.layers = 1;
+
+        if (vkCreateFramebuffer(vk_device,
+                                &frame_buffer_create_info, 
+                                NULL, 
+                                &framebuffers[created_framebuffer_count]) != VK_SUCCESS) {
+          // TODO error
+        }
+
+        framebuffer_lookup_table[i][j][k] = created_framebuffer_count;
+        created_framebuffer_count++;
+      }
+    }
+  }
+   
+  // TODO static hax
+  // create command pool
+  VkCommandPool command_pool;
+
+  VkCommandPoolCreateInfo pool_create_info = {};
+  pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+  pool_create_info.queueFamilyIndex =
+    pass->device->_protected->queue_families_for_queues[pass->device->_protected->graphics_queue_indices[0]];
+  pool_create_info.flags = 0;
+
+  if (vkCreateCommandPool(vk_device, &pool_create_info, NULL, &command_pool) != VK_SUCCESS) {
+    printf("Failed to create command pool\n");
+    exit(0);
+  }
+
+  uint32_t swap_chain_image_count = 2; // TODO hax
+  VkExtent2D swap_chain_extent = {};   // etc...
+  swap_chain_extent.width = 1024;      // etc...
+  swap_chain_extent.height = 728;      // etc
+
+  // TODO static hax
+  // create command buffer for each swap chain image
+  pass->_protected->command_buffers = malloc(sizeof(VkCommandBuffer)*swap_chain_image_count);
+  VkCommandBuffer *command_buffers = pass->_protected->command_buffers;
+
+  VkCommandBufferAllocateInfo alloc_info = {};
+  alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  alloc_info.commandPool = command_pool;
+  alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  alloc_info.commandBufferCount = (uint32_t) swap_chain_image_count;
+
+  if (vkAllocateCommandBuffers(vk_device, &alloc_info, command_buffers) != VK_SUCCESS) {
+    printf("Failed to create command buffers\n");
+  }
+
+  // TODO static hax
+  // TODO we're creating a different command buffer for each swap chain image?
+  // pretty sure we can submit the same buffer for each one.....
+  // set each command buffer to complete a basic render pass
+  for (int i = 0; i < swap_chain_image_count; i++)  {
+    VkCommandBufferBeginInfo begin_info = {};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = 0;
+    begin_info.pInheritanceInfo = NULL;
+
+    if (vkBeginCommandBuffer(command_buffers[i], &begin_info) != VK_SUCCESS) {
+      // TODO error
+    }
+
+    VkRenderPassBeginInfo subpass_begin_info = {};
+    subpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    subpass_begin_info.renderPass = render_pass;
+    subpass_begin_info.framebuffer = framebuffers[framebuffer_lookup_table[0][0][i]];
+    subpass_begin_info.renderArea.offset = (VkOffset2D){0, 0};
+    subpass_begin_info.renderArea.extent = swap_chain_extent;
+
+    VkClearValue clearColor = {0.0f,0.0f,0.0f,1.0f};
+    subpass_begin_info.clearValueCount = 1;
+    subpass_begin_info.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(command_buffers[i], &subpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, draw_step_pipelines[0]);
+    vkCmdDraw(command_buffers[i],3,1,0,0);
+    vkCmdEndRenderPass(command_buffers[i]);
+    if (vkEndCommandBuffer(command_buffers[i]) != VK_SUCCESS) {
+      // TODO error
+    }
+  }
 
   return true;
 }
 
-static int16_t gfks_render_pass_add_presentation_surface(gfks_render_pass *render_pass,
-                                                         gfks_surface *surface) {
+static bool gfks_render_pass_execute(gfks_render_pass *pass){
+  VkDevice vk_device = pass->device->_protected->vk_logical_device;
 
-  // get our surface count
-  uint8_t pcount = render_pass->_protected->presentation_surface_count;
+  // TODO static hax
+  // create semaphores
+  VkSemaphore image_available_semaphore;
+  VkSemaphore render_finished_semaphore;
 
-  // See if there's an existing NULL spot we can use
-  int16_t chosen_index = -1;
-  for (int i = 0; i < pcount; i++) {
-    if (render_pass->_protected->presentation_surfaces[i] == NULL) {
-      chosen_index = i;
-      break;
-    }
+  VkSemaphoreCreateInfo semaphore_create_info = {};
+  semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+  if (vkCreateSemaphore(vk_device,
+                        &semaphore_create_info,
+                        NULL,
+                        &image_available_semaphore) != VK_SUCCESS) {
+    printf("Failed to create semaphore\n");
+    exit(0);
   }
 
-  // If we didn't find an empty spot, we'll add our surface to the end of the array
-  if (chosen_index == -1) chosen_index = pcount;
-
-  // Error if we have too many presentation surfaces already
-  if (chosen_index >= GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES) {
-    // TODO error
+  if (vkCreateSemaphore(vk_device,
+                        &semaphore_create_info,
+                        NULL,
+                        &render_finished_semaphore) != VK_SUCCESS) {
+    printf("Failed to create semaphore\n");
+    exit(0);
   }
 
-  // Assign our surface
-  render_pass->_protected->presentation_surfaces[chosen_index] = surface;
+  // ------------------
+  // --- draw frame ---
+  // ------------------
 
-  // If we were added to the end, increment our count
-  if (chosen_index == pcount) render_pass->_protected->presentation_surface_count++;
+  VkSwapchainKHR swap_chain =
+    pass->
+    _protected->
+    planned_subpasses[0].subpass->
+    _protected->
+    presentation_surface_data[0]->
+    swap_chain;
 
-  // Set up our presentation surface
-  if (!set_up_presentation_surface(render_pass,
-                                   chosen_index)) return -1;
+  VkQueue graphics_queue =
+    pass->device->_protected->queues[pass->device->_protected->graphics_queue_indices[0]];
+  VkQueue present_queue =
+    pass->device->_protected->queues[pass->device->_protected->presentation_queue_indices[0]];
+
+  // TODO static hax
+  // get next image
+  uint32_t image_index;
+  int vr = vkAcquireNextImageKHR(vk_device,
+                                 swap_chain,
+                                 UINT64_MAX,
+                                 image_available_semaphore,
+                                 VK_NULL_HANDLE,
+                                 &image_index);
+
+  printf("got result %i from vkAquireNextImageKHR (0 is success)\n",vr);
+  printf("got image %i from vkAquireNextImageKHR\n",image_index);
+
+  // TODO static hax
+  // submit the command buffer
+  VkSemaphore wait_semaphores[] = {image_available_semaphore};
+  VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  VkSemaphore signal_semaphores[] = {render_finished_semaphore};
+
+  VkSubmitInfo submit_info = {};
+  submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submit_info.waitSemaphoreCount = 1;
+  submit_info.pWaitSemaphores = wait_semaphores;
+  submit_info.pWaitDstStageMask = wait_stages;
+  submit_info.commandBufferCount = 1;
+  submit_info.pCommandBuffers = &(pass->_protected->command_buffers[image_index]);
+  submit_info.signalSemaphoreCount = 1;
+  submit_info.pSignalSemaphores = signal_semaphores;
+
+  if (vkQueueSubmit(graphics_queue, 1, &submit_info, VK_NULL_HANDLE) != VK_SUCCESS) {
+    printf("Failed to submit command buffer to queue\n");
+    exit(0);
+  }
+
+  // TODO static hax
+  // presentation
+  VkSwapchainKHR swap_chains[] = {swap_chain};
+
+  VkPresentInfoKHR present_info = {};
+  present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  present_info.waitSemaphoreCount = 1;
+  present_info.pWaitSemaphores = signal_semaphores;
+  present_info.swapchainCount = 1;
+  present_info.pSwapchains = swap_chains;
+  present_info.pImageIndices = &image_index;
+  present_info.pResults = NULL;
+
+  if (vkQueuePresentKHR(present_queue, &present_info)!= VK_SUCCESS) {
+    printf("Failed to present image\n");
+  }
+
+  return true;
 }
 
-static bool gfks_render_pass_remove_presentation_surface(gfks_render_pass *render_pass,
-                                                         uint8_t index) {
-  render_pass->_protected->presentation_surfaces[index] = NULL;
-
-  if (index == (render_pass->_protected->presentation_surface_count)-1) {
-    render_pass->_protected->presentation_surface_count--;
+static void gfks_free_render_pass(gfks_render_pass *pass) {
+  if (pass->_protected->subpass_order != NULL) {
+    free(pass->_protected->subpass_order);
   }
-
- // TODO free our presentation surface data, and destroy vulkan objects within
+  free(pass->_protected);
+  free(pass);
 }
 
 static gfks_render_pass* init_struct() {
-  // Allocate memory for our struct
-  gfks_render_pass* new_pass = malloc(sizeof(gfks_render_pass));
-  new_pass->_protected = malloc(sizeof(gfks_render_pass_protected));
+  gfks_render_pass *p = malloc(sizeof(gfks_render_pass));
+  p->_protected = malloc(sizeof(gfks_render_pass_protected));
+  p->device = NULL;
+  p->context = NULL;
+  p->_protected->planned_subpasses = NULL;
+  p->_protected->command_buffers = NULL;
+  p->_protected->subpass_count = 0;
 
-  // Error and return NULL on failed allocation
-  if (new_pass == NULL || new_pass->_protected == NULL) {
-    gfks_err(GFKS_ERROR_FAILED_MEMORY_ALLOCATION, 1, "Failed to allocate memory");
-    return NULL;
-  }
-
-  // Initialize primitive members
-  new_pass->_protected->presentation_surface_count = 0;
-  new_pass->_protected->draw_step_count = 0;
-
-  // Assign NULL to all pointer members
-  new_pass->context = NULL;
-  new_pass->device = NULL;
-  new_pass->_protected->presentation_surfaces = NULL;
-  new_pass->_protected->presentation_surface_data = NULL;
-
-  // Assign method pointers
-  new_pass->add_presentation_surface = &gfks_render_pass_add_presentation_surface;
-  new_pass->remove_presentation_surface = &gfks_render_pass_remove_presentation_surface;
-  new_pass->add_shader_set = &gfks_render_pass_add_shader_set;
-  new_pass->set_shaderset_rasterization = &gfks_render_pass_set_shaderset_rasterization;
-  new_pass->set_shaderset_multisampling = &gfks_render_pass_set_shaderset_multisampling;
-
-  // Return the struct
-  return new_pass;
+  p->free = &gfks_free_render_pass;
+  p->add_subpass = &gfks_render_pass_add_subpass;
+  p->add_subpass_dependency = &gfks_render_pass_add_subpass_dependency;
+  p->finalize = &gfks_render_pass_finalize_pass;
+  p->execute = &gfks_render_pass_execute;
 }
 
-static void gfks_free_render_pass(gfks_render_pass *render_pass) {
-  free(render_pass->_protected);
-  free(render_pass);
-}
-
-gfks_render_pass* gfks_create_render_pass(gfks_context *context,
-                                          gfks_device *device,
-                                          float width,
-                                          float height) {
-  // Init our struct
-  gfks_render_pass* new_pass = init_struct();
-  new_pass->context = context;
+gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device) {
+  gfks_render_pass *new_pass = init_struct();
   new_pass->device = device;
+  new_pass->context = context;
+  new_pass->_protected->subpass_order = NULL;
 
-  // Define our viewport and scissor
-  // TODO: This viewport/scissor information is used only for pipeline creation,
-  // so it would make sense that the user would specify it for each shader set.
-  // it also looks like it's possible to add multiple viewports. no idea what that does, but
-  // we probably want to be able to utilize it
-  VkViewport viewport = {};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = width;
-  viewport.height = height;
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
+  // Allocate/init render passes array
+  // TODO allocate dynamically
+  new_pass->_protected->planned_subpasses = malloc(sizeof(planned_subpass)*256);
 
-  VkExtent2D e = {};
-  e.width = width;
-  e.height = height;
-
-  VkRect2D scissor = {};
-  scissor.offset = (VkOffset2D){0.0f, 0.0f};
-  scissor.extent = e;
-
-  new_pass->_protected->viewport = viewport;
-  new_pass->_protected->scissor = scissor;
-
-  VkPipelineViewportStateCreateInfo view_port_state_create_info = {};
-  view_port_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-  view_port_state_create_info.viewportCount = 1;
-  view_port_state_create_info.pViewports = &(new_pass->_protected->viewport);
-  view_port_state_create_info.scissorCount = 1;
-  view_port_state_create_info.pScissors = &(new_pass->_protected->scissor);
-
-
-  new_pass->_protected->viewport_state_create_info = view_port_state_create_info;
-
-  // Allocate memory for our presentation surfaces
-  // TODO allocate this memory dynamically, growing as needed.
-  new_pass->_protected->presentation_surfaces = malloc(sizeof(gfks_surface *) *
-                                                       GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES);
-  new_pass->_protected->presentation_surface_data = malloc(sizeof(presentation_surface_data *) *
-                                                           GFKS_MAX_RENDER_PASS_PRESENTATION_SURFACES);
-  new_pass->_protected->draw_steps = malloc(sizeof(draw_step *) * 256);
+  for (int i = 0; i < 256; i++) {
+    new_pass->_protected->planned_subpasses[i].dep_count = 0;
+  }
 
   return new_pass;
 }

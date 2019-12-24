@@ -119,7 +119,7 @@ struct gfks_shader_protected_struct {
 };
 
 // ----------------------
-// ---gfks_render_pass---
+// ---gfks_subpass---
 // ----------------------
 
 /// \private
@@ -146,7 +146,7 @@ typedef struct {
 } draw_step;
 
 /// \private
-struct gfks_render_pass_protected_struct {
+struct gfks_subpass_protected_struct {
   uint32_t draw_step_count;
   draw_step **draw_steps; // array of pointers to our draw steps
 
@@ -164,20 +164,20 @@ struct gfks_render_pass_protected_struct {
 
 
 // ----------------------
-// ---gfks_render_plan---
+// ---gfks_render_pass---
 // ----------------------
 typedef struct {
-  gfks_render_pass *render_pass;
+  gfks_subpass *subpass;
   uint32_t dep_count;
   uint32_t deps[16]; // array of indeces to render passes we depend on TODO should not be static size
-} planned_render_pass;
+} planned_subpass;
 
 /// \private
-struct gfks_render_plan_protected_struct {
-  uint32_t render_pass_count;
-  planned_render_pass *planned_render_passes;
+struct gfks_render_pass_protected_struct {
+  uint32_t subpass_count;
+  planned_subpass *planned_subpasses;
   VkCommandBuffer *command_buffers; 
-  uint32_t *render_pass_order; // A pre-calculated order that satisfies dependencies. Array of indices.
+  uint32_t *subpass_order; // A pre-calculated order that satisfies dependencies. Array of indices.
 };
 
 // ---------------------------------
