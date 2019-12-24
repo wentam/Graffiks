@@ -108,7 +108,6 @@ void main() {
   // Make the result of this pass present to our surface
   if (triangle_render_pass->add_presentation_surface(triangle_render_pass, gfks_surface) == -1) handle_gfks_error();
 
-
   // Add our shader set to our render pass
   uint32_t shaderset_index = triangle_render_pass->add_shader_set(triangle_render_pass, 2, gfks_shader_stages);
 

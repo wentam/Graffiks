@@ -169,7 +169,7 @@ struct gfks_render_pass_protected_struct {
 typedef struct {
   gfks_render_pass *render_pass;
   uint32_t dep_count;
-  uint32_t deps[16]; // array of render passes we depend on TODO should not be static size
+  uint32_t deps[16]; // array of indeces to render passes we depend on TODO should not be static size
 } planned_render_pass;
 
 /// \private

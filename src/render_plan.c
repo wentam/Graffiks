@@ -1,6 +1,5 @@
 #include "graffiks/internal.h"
 
-
 static void add_pass_to_pass_order(gfks_render_plan *plan,
                                    uint32_t pass_index,
                                    bool *pass_added,
@@ -28,12 +27,15 @@ static void add_pass_to_pass_order(gfks_render_plan *plan,
 }
 
 static void determine_render_pass_order(gfks_render_plan *plan) {
+  // If we had a past allocation here, free it
   if (plan->_protected->render_pass_order != NULL) {
     free(plan->_protected->render_pass_order);
   }
 
+  // Allocate our array
   plan->_protected->render_pass_order = malloc(sizeof(uint32_t)*plan->_protected->render_pass_count);
 
+  // We need to keep track of how many we add
   uint32_t passes_added = 0;
 
   // Create array of bools to represent if we've found a place for each pass
@@ -70,6 +72,8 @@ static void gfks_render_plan_add_render_pass_dependency(gfks_render_plan *plan,
 
 static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   VkDevice vk_device = plan->device->_protected->vk_logical_device;
+
+  determine_render_pass_order(plan); // TODO this might not be the best point to determine order.
 
   // TODO static hax
   // set up color blending info
@@ -117,33 +121,72 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   color_attachment_ref.attachment = 0;
   color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-  // TODO static hax
-  // define subpasses
-  VkSubpassDescription subpass = {};
-  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-  subpass.colorAttachmentCount = 1;
-  subpass.pColorAttachments = &color_attachment_ref;
+  // TODO: There are some situations in which a graffiks render pass should be a full render pass,
+  // and not just a subpass
 
-  VkSubpassDependency dep = {};
-  dep.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dep.dstSubpass = 0;
-  dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dep.srcAccessMask = 0;
-  dep.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  // Define each render pass as a subpass
+  uint32_t subpass_count = plan->_protected->render_pass_count;
+  VkSubpassDescription subpasses[plan->_protected->render_pass_count];
+  for(int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
 
-  // TODO static hax
-  // define render pass
+    subpasses[i].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpasses[i].colorAttachmentCount = 1;
+    subpasses[i].pColorAttachments = &color_attachment_ref;
+    subpasses[i].inputAttachmentCount = 0;
+    subpasses[i].pInputAttachments = NULL;
+    subpasses[i].preserveAttachmentCount = 0;
+    subpasses[i].pPreserveAttachments = NULL;
+    subpasses[i].pResolveAttachments = NULL;
+    subpasses[i].pDepthStencilAttachment = NULL;
+  }
+
+  // Figure out how many subpass dependencies we need to create
+  uint32_t subpass_dep_count = 0;
+  for(int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
+
+    subpass_dep_count += planned_pass->dep_count;
+  }
+ 
+  // Define subpass dependencies 
+  VkSubpassDependency subpass_deps[subpass_dep_count];
+  uint32_t created_subpass_dep_count = 0;
+  for(int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
+  
+    for (int j = 0; j < planned_pass->dep_count; j++) {
+      subpass_deps[created_subpass_dep_count].srcSubpass = i;
+      subpass_deps[created_subpass_dep_count].dstSubpass = planned_pass->deps[j];
+
+      // TODO: currently we assume the dependency is on the color attachment.
+      // dependencies should be specific to the attachment that they actually depend on.
+      subpass_deps[created_subpass_dep_count].srcStageMask =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+      subpass_deps[created_subpass_dep_count].srcAccessMask = 0;
+      subpass_deps[created_subpass_dep_count].dstStageMask =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+      subpass_deps[created_subpass_dep_count].dstAccessMask =
+        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;  
+
+      created_subpass_dep_count++;
+    }
+  }
+
+  // Create our render pass
   VkRenderPass render_pass;
 
   VkRenderPassCreateInfo render_pass_create_info = {};
   render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   render_pass_create_info.attachmentCount = 1;
   render_pass_create_info.pAttachments = &color_attachment;
-  render_pass_create_info.subpassCount = 1;
-  render_pass_create_info.pSubpasses = &subpass;
-  render_pass_create_info.dependencyCount = 1;
-  render_pass_create_info.pDependencies = &dep;
+  render_pass_create_info.subpassCount = subpass_count;
+  render_pass_create_info.pSubpasses = subpasses;
+  render_pass_create_info.dependencyCount = created_subpass_dep_count;
+  render_pass_create_info.pDependencies = subpass_deps;
 
   if (vkCreateRenderPass(vk_device, &render_pass_create_info, NULL, &render_pass) != VK_SUCCESS) {
     // TODO error
@@ -163,80 +206,167 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
   input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
 
-  // TODO static hax
-  // create pipeline
-  uint32_t shader_count = plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->shader_count;
-  gfks_shader **shader_set = plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->shader_set;
+  // ----------------------------------------------------
+  // Create pipeline for each render pass "draw step"
+  // Stored as a flattened 2d array:
+  //  * Each row is a render pass, with rows ordered as they are in plan->_protected->render_pass_order
+  //  * Each item in each row is a pipeline for a draw step,
+  //    with order corrisponding to pass->draw_steps
+  //
+  // This storage means as we iterate over planned render passes in draw order,
+  // and the draw steps inside, the index will correspond to an item in this array that matches the
+  // draw step
+  // ----------------------------------------------------
 
-  VkPipelineShaderStageCreateInfo vk_shader_set[shader_count];
-  for (int i = 0; i < shader_count; i++) {
-    vk_shader_set[i] = shader_set[i]->_protected->vk_shader_stage_create_info;
+  // Count up total draw steps
+  uint32_t total_draw_step_count = 0;
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
+
+    total_draw_step_count += planned_pass->render_pass->_protected->draw_step_count;
   }
 
-  VkGraphicsPipelineCreateInfo pipeline_create_info = {};
-  pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-  pipeline_create_info.stageCount = 2;
-  pipeline_create_info.pStages = vk_shader_set;
-  pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
-  pipeline_create_info.pInputAssemblyState = &input_assembly_state_create_info;
-  pipeline_create_info.pViewportState =
-    &(plan->_protected->planned_render_passes[0].render_pass->_protected->viewport_state_create_info);
-  pipeline_create_info.pRasterizationState =
-    &(plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->rsettings->_protected->settings);
-  pipeline_create_info.pMultisampleState =
-    &(plan->_protected->planned_render_passes[0].render_pass->_protected->draw_steps[0]->msettings->_protected->settings);
-  pipeline_create_info.pDepthStencilState = NULL;
-  pipeline_create_info.pColorBlendState = &color_blending;
-  pipeline_create_info.pDynamicState = NULL;
-  pipeline_create_info.layout = pipeline_layout;
-  pipeline_create_info.renderPass = render_pass;
-  pipeline_create_info.subpass = 0;
-  pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
-  pipeline_create_info.basePipelineIndex = -1;
+  // Create our pipelines
+  VkPipeline draw_step_pipelines[total_draw_step_count];
+  uint32_t defined_draw_step_pipelines = 0;
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
 
-  VkPipeline graphics_pipeline;
+    for (int j = 0; j < planned_pass->render_pass->_protected->draw_step_count; j++) {
+      draw_step *draw_step = planned_pass->render_pass->_protected->draw_steps[j];
 
-  if (vkCreateGraphicsPipelines(vk_device,
-                                VK_NULL_HANDLE,
-                                1,
-                                &pipeline_create_info,
-                                NULL,
-                                &graphics_pipeline) != VK_SUCCESS) {
-    // TODO error
-  }
+      uint32_t shader_count = draw_step->shader_count;
+      gfks_shader **shader_set = draw_step->shader_set;
 
+      VkPipelineShaderStageCreateInfo vk_shader_set[shader_count];
+      for (int k = 0; k < shader_count; k++) {
+        vk_shader_set[k] = shader_set[k]->_protected->vk_shader_stage_create_info;
+      }
 
-  // TODO static hax
-  // create a framebuffer for each swapchain image view
-  uint32_t swap_chain_image_count =
-    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->swap_chain_image_count;
+      VkGraphicsPipelineCreateInfo pipeline_create_info = {};
+      pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+      pipeline_create_info.stageCount = shader_count;
+      pipeline_create_info.pStages = vk_shader_set;
+      pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
+      pipeline_create_info.pInputAssemblyState = &input_assembly_state_create_info;
+      pipeline_create_info.pViewportState =
+        &(planned_pass->render_pass->_protected->viewport_state_create_info);
 
-  VkImageView *swap_chain_image_views =
-    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->swap_chain_image_views;
+      pipeline_create_info.pRasterizationState = &(draw_step->rsettings->_protected->settings);
+      pipeline_create_info.pMultisampleState = &(draw_step->msettings->_protected->settings);
+      pipeline_create_info.pDepthStencilState = NULL;
+      pipeline_create_info.pColorBlendState = &color_blending;
+      pipeline_create_info.pDynamicState = NULL;
+      pipeline_create_info.layout = pipeline_layout;
+      pipeline_create_info.renderPass = render_pass;
+      pipeline_create_info.subpass = i;
+      pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
+      pipeline_create_info.basePipelineIndex = -1;
 
-  VkExtent2D swap_chain_extent =
-    plan->_protected->planned_render_passes[0].render_pass->_protected->presentation_surface_data[0]->swap_chain_extent;
+      VkPipeline pipeline;
 
-  VkFramebuffer swap_chain_frame_buffers[swap_chain_image_count];
+      if (vkCreateGraphicsPipelines(vk_device,
+                                    VK_NULL_HANDLE,
+                                    1,
+                                    &pipeline_create_info,
+                                    NULL,
+                                    &pipeline) != VK_SUCCESS) {
+        // TODO error
+      }
 
-  for (int i = 0; i < swap_chain_image_count; i++) {
-    VkImageView attachments[] = {swap_chain_image_views[i]};
-
-    VkFramebufferCreateInfo frame_buffer_create_info = {};
-    frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    frame_buffer_create_info.renderPass = render_pass;
-    frame_buffer_create_info.attachmentCount =1;
-    frame_buffer_create_info.pAttachments  = attachments;
-    frame_buffer_create_info.width = swap_chain_extent.width;
-    frame_buffer_create_info.height = swap_chain_extent.height;
-    frame_buffer_create_info.layers = 1;
-
-    if (vkCreateFramebuffer(vk_device, &frame_buffer_create_info, NULL, &swap_chain_frame_buffers[i]) != VK_SUCCESS) {
-      printf("Failed to create framebuffer for swap buffer image %i\n", i);
-      exit(0);
+      draw_step_pipelines[defined_draw_step_pipelines++] = pipeline;
     }
   }
 
+  // --------------------------------
+  // Create a framebuffer for each swapchain image view in each presentation surface
+  // --------------------------------
+
+  // Count up presentation surfaces for array allocation
+  uint32_t total_presentation_surface_count = 0;
+  uint32_t max_presentation_surface_count = 0;
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
+
+    uint32_t c = planned_pass->render_pass->_protected->presentation_surface_count;
+    if (c > max_presentation_surface_count) {
+      max_presentation_surface_count = c;
+    }
+    total_presentation_surface_count += c;
+  }
+
+  // Figure out our largest swap chain image count for array allocation
+  uint32_t max_swapchain_image_count = 0;
+
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
+
+    for (int j = 0; j < planned_pass->render_pass->_protected->presentation_surface_count; j++) {
+      uint32_t c =
+        planned_pass->render_pass->_protected->presentation_surface_data[j]->swap_chain_image_count;
+
+      if (c > max_swapchain_image_count) {
+        max_swapchain_image_count = c;
+      }
+    }
+  }
+
+  // Declare our framebuffer array
+  VkFramebuffer framebuffers[total_presentation_surface_count];
+
+  // Declare a lookup table that will define which framebuffer goes to which presentation surface
+  // Rows are render passes
+  // Cols are presentation surfaces
+  // Values are framebuffer indices
+  uint32_t framebuffer_lookup_table
+    [plan->_protected->render_pass_count]
+    [max_presentation_surface_count]
+    [max_swapchain_image_count];
+
+  // Create our framebuffers, writing our framebuffer lookup table along the way
+  uint32_t created_framebuffer_count = 0;
+  for (int i = 0; i < plan->_protected->render_pass_count; i++) {
+    uint32_t pass_index = plan->_protected->render_pass_order[i];
+    planned_render_pass* planned_pass = &(plan->_protected->planned_render_passes[pass_index]);
+    
+    for (int j = 0; j < planned_pass->render_pass->_protected->presentation_surface_count; j++) {
+      presentation_surface_data* presentation_surface_data =
+        (planned_pass->render_pass->_protected->presentation_surface_data[j]);
+
+      // Create a framebuffer for each swapchain image view
+      uint32_t swap_chain_image_count = presentation_surface_data->swap_chain_image_count;
+      VkImageView *swap_chain_image_views = presentation_surface_data->swap_chain_image_views;
+      VkExtent2D swap_chain_extent = presentation_surface_data->swap_chain_extent;
+
+      for (int k = 0; k < swap_chain_image_count; k++) {
+        VkImageView attachments[] = {swap_chain_image_views[k]};
+
+        VkFramebufferCreateInfo frame_buffer_create_info = {};
+        frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frame_buffer_create_info.renderPass = render_pass;
+        frame_buffer_create_info.attachmentCount =1;
+        frame_buffer_create_info.pAttachments  = attachments;
+        frame_buffer_create_info.width = swap_chain_extent.width;
+        frame_buffer_create_info.height = swap_chain_extent.height;
+        frame_buffer_create_info.layers = 1;
+
+        if (vkCreateFramebuffer(vk_device,
+                                &frame_buffer_create_info, 
+                                NULL, 
+                                &framebuffers[created_framebuffer_count]) != VK_SUCCESS) {
+          // TODO error
+        }
+
+        framebuffer_lookup_table[i][j][k] = created_framebuffer_count;
+        created_framebuffer_count++;
+      }
+    }
+  }
+   
   // TODO static hax
   // create command pool
   VkCommandPool command_pool;
@@ -251,6 +381,11 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
     printf("Failed to create command pool\n");
     exit(0);
   }
+
+  uint32_t swap_chain_image_count = 2; // TODO hax
+  VkExtent2D swap_chain_extent = {};   // etc...
+  swap_chain_extent.width = 1024;      // etc...
+  swap_chain_extent.height = 728;      // etc
 
   // TODO static hax
   // create command buffer for each swap chain image
@@ -278,13 +413,13 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
     begin_info.pInheritanceInfo = NULL;
 
     if (vkBeginCommandBuffer(command_buffers[i], &begin_info) != VK_SUCCESS) {
-      printf("Failed to begin command buffer %i\n",i);
+      // TODO error
     }
 
     VkRenderPassBeginInfo render_pass_begin_info = {};
     render_pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     render_pass_begin_info.renderPass = render_pass;
-    render_pass_begin_info.framebuffer = swap_chain_frame_buffers[i];
+    render_pass_begin_info.framebuffer = framebuffers[framebuffer_lookup_table[0][0][i]];
     render_pass_begin_info.renderArea.offset = (VkOffset2D){0, 0};
     render_pass_begin_info.renderArea.extent = swap_chain_extent;
 
@@ -293,12 +428,11 @@ static bool gfks_render_plan_finalize_plan(gfks_render_plan *plan) {
     render_pass_begin_info.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(command_buffers[i], &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
+    vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, draw_step_pipelines[0]);
     vkCmdDraw(command_buffers[i],3,1,0,0);
     vkCmdEndRenderPass(command_buffers[i]);
     if (vkEndCommandBuffer(command_buffers[i]) != VK_SUCCESS) {
-      printf("Failed to end command buffer\n");
-      exit(0);
+      // TODO error
     }
   }
 
@@ -367,7 +501,6 @@ static bool gfks_render_plan_execute(gfks_render_plan *plan){
   VkSemaphore wait_semaphores[] = {image_available_semaphore};
   VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   VkSemaphore signal_semaphores[] = {render_finished_semaphore};
-
 
   VkSubmitInfo submit_info = {};
   submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
