@@ -106,7 +106,7 @@ void main() {
   gfks_subpass* triangle_subpass = gfks_create_subpass(gfks_context, &(gfks_devices[0]), 1024.0f, 768.0f);
 
   // Make the result of this pass present to our surface
-  if (triangle_subpass->add_presentation_surface(triangle_subpass, gfks_surface) == -1) handle_gfks_error();
+  if (!triangle_render_pass->set_presentation_surface(triangle_render_pass, gfks_surface)) handle_gfks_error();
 
   // Add our shader set to our subpass
   uint32_t shaderset_index = triangle_subpass->add_shader_set(triangle_subpass, 2, gfks_shader_stages);

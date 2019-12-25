@@ -1,4 +1,5 @@
 #include "graffiks/internal.h"
+#include "surface_utils.c"
 
 static void add_subpass_to_subpass_order(gfks_render_pass *pass,
                                    uint32_t pass_index,
@@ -48,6 +49,69 @@ static void determine_subpass_order(gfks_render_pass *pass) {
   for (int i = 0; i < pass->_protected->subpass_count; i++) {
     add_subpass_to_subpass_order(pass, i, pass_added, &passes_added);
   }
+}
+
+static bool set_up_presentation_surface(gfks_render_pass *render_pass) {
+
+
+  // Grab easy handle to presentation surface
+  presentation_surface *ps = &(render_pass->_protected->presentation_surface);
+
+  // Grab our surface and device
+  gfks_surface *surface = ps->surface;
+  gfks_device *device = render_pass->device;
+
+  // Define our surface capabilities
+  if (!gfks_surface_util_obtain_surface_capabilities_for_device(surface,
+                                                                device,
+                                                                &(ps->surface_capabilities))) {
+    return false;
+  }
+
+  // Decide swap chain image count
+  uint32_t desired_swap_chain_image_count =
+    gfks_surface_util_decide_desired_swap_chain_image_count(ps->surface_capabilities);
+
+  // Decide swap chain image size
+  ps->swap_chain_extent =
+    gfks_surface_util_decide_swap_chain_image_size(ps->surface_capabilities, surface);
+
+  // Decide surface format
+  if (!gfks_surface_util_decide_surface_format_for_device(surface,
+                                                          device,
+                                                          &(ps->surface_format))) return false;
+
+  // Decide presentation mode
+  if (!gfks_surface_util_decide_surface_presentation_mode_for_device(surface,
+                                                                     device,
+                                                                     &(ps->surface_presentation_mode))) return false;
+
+  // Create our swap chain
+  if(!gfks_surface_util_create_swap_chain(surface,
+                                          device,
+                                          ps->surface_capabilities,
+                                          ps->surface_format,
+                                          ps->surface_presentation_mode,
+                                          ps->swap_chain_extent,
+                                          &(ps->swap_chain),
+                                          &(ps->swap_chain_image_count),
+                                          &(ps->swap_chain_images),
+                                          &(ps->swap_chain_image_views),
+                                          desired_swap_chain_image_count)) return false;
+
+  return true;
+}
+
+static bool gfks_render_pass_set_presentation_surface(gfks_render_pass *render_pass,
+                                                      gfks_surface *surface) {
+
+  render_pass->_protected->presentation_surface.surface = surface;
+
+  if (!set_up_presentation_surface(render_pass)) return false;
+
+  render_pass->_protected->presentation_surface_defined = true;
+
+  return true;
 }
 
 static uint32_t gfks_render_pass_add_subpass(gfks_render_pass *pass, gfks_subpass *subpass) {
@@ -108,7 +172,7 @@ static bool gfks_render_pass_finalize_pass(gfks_render_pass *pass) {
   // define color attachment
   VkAttachmentDescription color_attachment = {};
   color_attachment.format =
-    pass->_protected->planned_subpasses[0].subpass->_protected->presentation_surface_data[0]->surface_format.format;
+    pass->_protected->presentation_surface.surface_format.format;
   color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
   color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -281,90 +345,41 @@ static bool gfks_render_pass_finalize_pass(gfks_render_pass *pass) {
   }
 
   // --------------------------------
-  // Create a framebuffer for each swapchain image view in each presentation surface
+  // Create a framebuffer for each swapchain image view in our presentation surface
   // --------------------------------
 
-  // Count up presentation surfaces for array allocation
-  uint32_t total_presentation_surface_count = 0;
-  uint32_t max_presentation_surface_count = 0;
-  for (int i = 0; i < pass->_protected->subpass_count; i++) {
-    uint32_t pass_index = pass->_protected->subpass_order[i];
-    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
-
-    uint32_t c = planned_pass->subpass->_protected->presentation_surface_count;
-    if (c > max_presentation_surface_count) {
-      max_presentation_surface_count = c;
-    }
-    total_presentation_surface_count += c;
-  }
-
-  // Figure out our largest swap chain image count for array allocation
-  uint32_t max_swapchain_image_count = 0;
-
-  for (int i = 0; i < pass->_protected->subpass_count; i++) {
-    uint32_t pass_index = pass->_protected->subpass_order[i];
-    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
-
-    for (int j = 0; j < planned_pass->subpass->_protected->presentation_surface_count; j++) {
-      uint32_t c =
-        planned_pass->subpass->_protected->presentation_surface_data[j]->swap_chain_image_count;
-
-      if (c > max_swapchain_image_count) {
-        max_swapchain_image_count = c;
-      }
-    }
-  }
 
   // Declare our framebuffer array
-  VkFramebuffer framebuffers[total_presentation_surface_count];
+  VkFramebuffer framebuffers[pass->_protected->presentation_surface.swap_chain_image_count];
 
-  // Declare a lookup table that will define which framebuffer goes to which presentation surface
-  // Rows are render passes
-  // Cols are presentation surfaces
-  // Values are framebuffer indices
-  uint32_t framebuffer_lookup_table
-    [pass->_protected->subpass_count]
-    [max_presentation_surface_count]
-    [max_swapchain_image_count];
-
-  // Create our framebuffers, writing our framebuffer lookup table along the way
+  // Create our framebuffers
   uint32_t created_framebuffer_count = 0;
-  for (int i = 0; i < pass->_protected->subpass_count; i++) {
-    uint32_t pass_index = pass->_protected->subpass_order[i];
-    planned_subpass* planned_pass = &(pass->_protected->planned_subpasses[pass_index]);
-    
-    for (int j = 0; j < planned_pass->subpass->_protected->presentation_surface_count; j++) {
-      presentation_surface_data* presentation_surface_data =
-        (planned_pass->subpass->_protected->presentation_surface_data[j]);
 
-      // Create a framebuffer for each swapchain image view
-      uint32_t swap_chain_image_count = presentation_surface_data->swap_chain_image_count;
-      VkImageView *swap_chain_image_views = presentation_surface_data->swap_chain_image_views;
-      VkExtent2D swap_chain_extent = presentation_surface_data->swap_chain_extent;
+  // Create a framebuffer for each swapchain image view
+  uint32_t swap_chain_image_count = pass->_protected->presentation_surface.swap_chain_image_count;
+  VkImageView *swap_chain_image_views = pass->_protected->presentation_surface.swap_chain_image_views;
+  VkExtent2D swap_chain_extent = pass->_protected->presentation_surface.swap_chain_extent;
 
-      for (int k = 0; k < swap_chain_image_count; k++) {
-        VkImageView attachments[] = {swap_chain_image_views[k]};
+  for (int i = 0; i < swap_chain_image_count; i++) {
+    VkImageView attachments[] = {swap_chain_image_views[i]};
 
-        VkFramebufferCreateInfo frame_buffer_create_info = {};
-        frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        frame_buffer_create_info.renderPass = render_pass;
-        frame_buffer_create_info.attachmentCount =1;
-        frame_buffer_create_info.pAttachments  = attachments;
-        frame_buffer_create_info.width = swap_chain_extent.width;
-        frame_buffer_create_info.height = swap_chain_extent.height;
-        frame_buffer_create_info.layers = 1;
+    VkFramebufferCreateInfo frame_buffer_create_info = {};
+    frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    frame_buffer_create_info.renderPass = render_pass;
+    frame_buffer_create_info.attachmentCount = 1;
+    frame_buffer_create_info.pAttachments  = attachments;
+    frame_buffer_create_info.width = swap_chain_extent.width;
+    frame_buffer_create_info.height = swap_chain_extent.height;
+    frame_buffer_create_info.layers = 1;
 
-        if (vkCreateFramebuffer(vk_device,
-                                &frame_buffer_create_info, 
-                                NULL, 
-                                &framebuffers[created_framebuffer_count]) != VK_SUCCESS) {
-          // TODO error
-        }
-
-        framebuffer_lookup_table[i][j][k] = created_framebuffer_count;
-        created_framebuffer_count++;
-      }
+    if (vkCreateFramebuffer(vk_device,
+                            &frame_buffer_create_info, 
+                            NULL, 
+                            &framebuffers[created_framebuffer_count]) != VK_SUCCESS) {
+      // TODO error
     }
+
+    created_framebuffer_count++;
   }
    
   // TODO static hax
@@ -381,11 +396,6 @@ static bool gfks_render_pass_finalize_pass(gfks_render_pass *pass) {
     printf("Failed to create command pool\n");
     exit(0);
   }
-
-  uint32_t swap_chain_image_count = 2; // TODO hax
-  VkExtent2D swap_chain_extent = {};   // etc...
-  swap_chain_extent.width = 1024;      // etc...
-  swap_chain_extent.height = 728;      // etc
 
   // TODO static hax
   // create command buffer for each swap chain image
@@ -419,7 +429,7 @@ static bool gfks_render_pass_finalize_pass(gfks_render_pass *pass) {
     VkRenderPassBeginInfo subpass_begin_info = {};
     subpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     subpass_begin_info.renderPass = render_pass;
-    subpass_begin_info.framebuffer = framebuffers[framebuffer_lookup_table[0][0][i]];
+    subpass_begin_info.framebuffer = framebuffers[i];
     subpass_begin_info.renderArea.offset = (VkOffset2D){0, 0};
     subpass_begin_info.renderArea.extent = swap_chain_extent;
 
@@ -471,12 +481,7 @@ static bool gfks_render_pass_execute(gfks_render_pass *pass){
   // ------------------
 
   VkSwapchainKHR swap_chain =
-    pass->
-    _protected->
-    planned_subpasses[0].subpass->
-    _protected->
-    presentation_surface_data[0]->
-    swap_chain;
+    pass->_protected->presentation_surface.swap_chain;
 
   VkQueue graphics_queue =
     pass->device->_protected->queues[pass->device->_protected->graphics_queue_indices[0]];
@@ -553,12 +558,15 @@ static gfks_render_pass* init_struct() {
   p->_protected->planned_subpasses = NULL;
   p->_protected->command_buffers = NULL;
   p->_protected->subpass_count = 0;
+  p->_protected->presentation_surface_defined = false;
 
+  // Assign method pointers
   p->free = &gfks_free_render_pass;
   p->add_subpass = &gfks_render_pass_add_subpass;
   p->add_subpass_dependency = &gfks_render_pass_add_subpass_dependency;
   p->finalize = &gfks_render_pass_finalize_pass;
   p->execute = &gfks_render_pass_execute;
+  p->set_presentation_surface = &gfks_render_pass_set_presentation_surface;
 }
 
 gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device) {
