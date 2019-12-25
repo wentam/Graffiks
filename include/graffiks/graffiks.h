@@ -266,8 +266,8 @@ struct gfks_subpass_struct {
   /// \private
   gfks_subpass_protected* _protected;
 
-  gfks_device *device; // the device this subpass will utilize
-  gfks_context *context; // the parent context for this render pass
+  gfks_device *device; // The device this subpass will utilize
+  gfks_context *context; // The parent context for this render pass
 
   /// \public
   /// \brief Frees a subpass
@@ -276,13 +276,6 @@ struct gfks_subpass_struct {
   /// \param device A subpass to be destroyed
   /// \memberof gfks_subpass_struct
   void (*free)(gfks_subpass *subpass);
-
-  // Surface must be capable of being drawn to by the device this render pass was created with
-  // TODO Make sure we error if the surface can't be drawn to by the device
-  // TODO have user set swapchain settings like double-buffer etc on surface add time?
-  //int16_t (*add_presentation_surface)(gfks_subpass *subpass,
-                                      //gfks_surface *surface); // returns index of surface or error -1
-  //bool (*remove_presentation_surface)(gfks_subpass *subpass, uint8_t index);
 
   // TODO methods to disable/enable presentation to specific presentation surfaces?
   uint32_t (*add_shader_set)(gfks_subpass *subpass, uint32_t shader_count, gfks_shader **shader_set);
@@ -320,23 +313,18 @@ struct gfks_render_pass_struct {
   /// \param device A render_pass to be destroyed
   /// \memberof gfks_render_pass_struct
   void (*free)(gfks_render_pass *render_pass);
-  uint32_t (*add_subpass)(gfks_render_pass *pass, gfks_subpass *subpass);
-  void (*add_subpass_dependency)(gfks_render_pass *pass,
-                                     uint32_t pass_index,
-                                     uint32_t pass_dep_index);
 
-
-  bool (*set_presentation_surface)(gfks_render_pass *render_pass,
-                                   gfks_surface *surface);
-
-  // Applies dependencies in our pass. Must be called again after future dependency changes.
-  bool (*finalize)(gfks_render_pass *pass);
-
-  //
   bool (*execute)(gfks_render_pass *pass);
 };
 
-gfks_render_pass* gfks_create_render_pass(gfks_context *context, gfks_device *device);
+  // TODO Make sure we error if the surface can't be drawn to by the device
+gfks_render_pass* gfks_create_render_pass(gfks_context *context,
+                                          gfks_device *device,
+                                          gfks_surface *surface,
+                                          gfks_subpass **subpasses, // Array of pointers to subpasses
+                                          uint32_t subpass_count,
+                                          uint32_t* subpass_deps,
+                                          uint32_t subpass_dep_count);
 
 
 

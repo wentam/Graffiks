@@ -122,22 +122,16 @@ struct gfks_shader_protected_struct {
 // ---gfks_subpass---
 // ----------------------
 
+
+
 /// \private
-/*typedef struct {
-  VkSurfaceCapabilitiesKHR surface_capabilities;
-  VkSurfaceFormatKHR surface_format;
-  VkPresentModeKHR surface_presentation_mode;
+typedef struct {  
+  gfks_render_pass *render_pass;
+  VkRenderPass vk_render_pass;
+  uint32_t subpass_index; // My index within the render pass.
+} subpass_render_pass_info;
 
-  bool swap_chain_defined;
-  VkSwapchainKHR swap_chain;
-
-  VkExtent2D swap_chain_extent;
-
-  uint32_t swap_chain_image_count;
-  VkImage *swap_chain_images;
-  VkImageView *swap_chain_image_views;
-} presentation_surface_data;*/
-
+/// \private
 typedef struct {
   uint32_t shader_count;
   gfks_shader **shader_set; // array of pointers to shaders
@@ -150,6 +144,14 @@ struct gfks_subpass_protected_struct {
   uint32_t draw_step_count;
   draw_step **draw_steps; // array of pointers to our draw steps
 
+  uint32_t render_pass_info_count;
+  subpass_render_pass_info render_pass_info[16]; // TODO probably shouldn't be static size
+
+  // Row-wise
+  // Rows are render passes
+  // Columns are draw steps
+  VkPipeline vk_pipelines[16][128]; // TODO probably shouldn't be static size, especially 2nd dimension
+
   //uint8_t presentation_surface_count;
 
   // TODO these two could be the same array (put the surface in the struct)
@@ -160,6 +162,12 @@ struct gfks_subpass_protected_struct {
   VkViewport viewport;
   VkRect2D scissor;
   VkPipelineViewportStateCreateInfo viewport_state_create_info;
+
+  // Private method pointers
+  int (*set_up_for_render_pass)(gfks_subpass *subpass,
+                                 gfks_render_pass *render_pass,
+                                 VkRenderPass vk_render_pass,
+                                 uint32_t subpass_index);
 };
 
 
@@ -197,7 +205,6 @@ struct gfks_render_pass_protected_struct {
   VkCommandBuffer *command_buffers; 
   uint32_t *subpass_order; // A pre-calculated order that satisfies dependencies. Array of indices.
 
-  bool presentation_surface_defined;
   presentation_surface presentation_surface;
 };
 

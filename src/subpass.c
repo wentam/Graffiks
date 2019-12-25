@@ -3,6 +3,95 @@
 
 // TODO free all mallocs in this file
 
+static bool create_pipeline_for_draw_step(gfks_subpass* subpass,
+                                          draw_step* draw_step,
+                                          VkRenderPass vk_render_pass,
+                                          uint32_t subpass_index,
+                                          uint32_t output_render_pass_index,
+                                          uint32_t output_draw_step_index) {
+  // TODO statix hax
+  VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {};
+  vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
+  vertex_input_state_create_info.pVertexBindingDescriptions = NULL;
+  vertex_input_state_create_info.vertexAttributeDescriptionCount = 0;
+  vertex_input_state_create_info.pVertexAttributeDescriptions = NULL;
+
+  // TODO statix hax
+  VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {};
+  input_assembly_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
+
+
+  // TODO static hax
+  // set up color blending info
+  VkPipelineColorBlendAttachmentState color_blend_attachment = {};
+  color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+                                          VK_COLOR_COMPONENT_G_BIT |
+                                          VK_COLOR_COMPONENT_B_BIT |
+                                          VK_COLOR_COMPONENT_A_BIT;
+  color_blend_attachment.blendEnable = VK_FALSE;
+  VkPipelineColorBlendStateCreateInfo color_blending = {};
+  color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  color_blending.logicOpEnable = VK_FALSE;
+  color_blending.attachmentCount = 1;
+  color_blending.pAttachments = &color_blend_attachment;
+
+  // TODO static hax
+  // set up pipeline layout
+  VkPipelineLayout pipeline_layout;
+  VkPipelineLayoutCreateInfo pipeline_layout_create_info = {};
+  pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+
+  if (vkCreatePipelineLayout(subpass->device->_protected->vk_logical_device,
+                             &pipeline_layout_create_info,
+                             NULL,
+                             &pipeline_layout) != VK_SUCCESS) {
+    printf("Failed to create pipeline layout\n");
+  }
+
+  // Create pipeline 
+  VkPipelineShaderStageCreateInfo vk_shader_set[draw_step->shader_count];
+  for (int i = 0; i < draw_step->shader_count; i++) {
+    vk_shader_set[i] = draw_step->shader_set[i]->_protected->vk_shader_stage_create_info;
+  }
+
+  VkGraphicsPipelineCreateInfo pipeline_create_info = {};
+  pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  pipeline_create_info.stageCount = draw_step->shader_count;
+  pipeline_create_info.pStages = vk_shader_set;
+  pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
+  pipeline_create_info.pInputAssemblyState = &input_assembly_state_create_info;
+  pipeline_create_info.pViewportState =
+    &(subpass->_protected->viewport_state_create_info);
+
+  pipeline_create_info.pRasterizationState = &(draw_step->rsettings->_protected->settings);
+  pipeline_create_info.pMultisampleState = &(draw_step->msettings->_protected->settings);
+  pipeline_create_info.pDepthStencilState = NULL;
+  pipeline_create_info.pColorBlendState = &color_blending;
+  pipeline_create_info.pDynamicState = NULL;
+  pipeline_create_info.layout = pipeline_layout;
+  pipeline_create_info.renderPass = vk_render_pass;
+  pipeline_create_info.subpass = subpass_index;
+  pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
+  pipeline_create_info.basePipelineIndex = -1;
+
+  VkPipeline pipeline;
+
+  if (vkCreateGraphicsPipelines(subpass->device->_protected->vk_logical_device,
+                                VK_NULL_HANDLE,
+                                1,
+                                &pipeline_create_info,
+                                NULL,
+                                &pipeline) != VK_SUCCESS) {
+    // TODO error
+  } 
+
+  subpass->_protected->vk_pipelines[output_render_pass_index][output_draw_step_index] = pipeline;
+
+  return true;
+}
 
 static uint32_t gfks_subpass_add_shader_set(gfks_subpass *subpass,
                                                 uint32_t shader_count,
@@ -12,26 +101,55 @@ static uint32_t gfks_subpass_add_shader_set(gfks_subpass *subpass,
   uint32_t* draw_step_count = &(subpass->_protected->draw_step_count);
   subpass->_protected->draw_steps[*draw_step_count] = malloc(sizeof(draw_step));
 
+  // Grab an easy handle to our new draw step
+  draw_step *draw_step = subpass->_protected->draw_steps[*draw_step_count];
+
   // Copy the shader pointers in the users shader set into our own set.
   // We need to own the memory.
-  subpass->_protected->draw_steps[*draw_step_count]->shader_count = shader_count;
-  subpass->_protected->draw_steps[*draw_step_count]->shader_set = malloc(sizeof(gfks_shader)*shader_count);
+  draw_step->shader_count = shader_count;
+  draw_step->shader_set = malloc(sizeof(gfks_shader)*shader_count);
   for (int i = 0; i < shader_count; i++) {
-    subpass->_protected->draw_steps[*draw_step_count]->shader_set[i] = shader_set[i];
+    draw_step->shader_set[i] = shader_set[i];
   }
 
   // Define our rasterization/multisampling settings with the defaults
-  subpass->_protected->draw_steps[*draw_step_count]->rsettings =
+  draw_step->rsettings =
     subpass->context->_protected->defaults->rasterization_settings;
-  subpass->_protected->draw_steps[*draw_step_count]->msettings =
+  draw_step->msettings =
     subpass->context->_protected->defaults->multisample_settings;
 
   return (*draw_step_count)++;
 }
 
+static int gfks_subpass_set_up_for_render_pass(gfks_subpass *subpass,
+                                                gfks_render_pass *render_pass,
+                                                VkRenderPass vk_render_pass,
+                                                uint32_t subpass_index) {
+ 
+  uint32_t* info_count = &(subpass->_protected->render_pass_info_count);
+  
+  subpass->_protected->render_pass_info[*info_count].render_pass = render_pass;
+  subpass->_protected->render_pass_info[*info_count].vk_render_pass = vk_render_pass;
+  subpass->_protected->render_pass_info[*info_count].subpass_index = subpass_index;
+
+  // Create vulkan pipelines for every draw step that already exists
+  // TODO: create them also when new shaders are added
+
+  for (int i = 0; i < subpass->_protected->draw_step_count; i++) {
+    if (!create_pipeline_for_draw_step(subpass,
+                                       subpass->_protected->draw_steps[i],
+                                       vk_render_pass,
+                                       subpass_index,
+                                       *info_count,
+                                       i)) return -1;    
+  }
+
+  return (*info_count)++;
+}
+
 static void gfks_subpass_set_shaderset_rasterization(gfks_subpass *subpass,
-                                                         uint32_t shaderset_index,
-                                                         gfks_rasterization_settings *settings) {
+                                                     uint32_t shaderset_index,
+                                                     gfks_rasterization_settings *settings) {
   
   subpass->_protected->draw_steps[shaderset_index]->rsettings = settings;
 }
@@ -56,15 +174,19 @@ static gfks_subpass* init_struct() {
 
   // Initialize primitive members
   new_pass->_protected->draw_step_count = 0;
+  new_pass->_protected->render_pass_info_count = 0;
 
   // Assign NULL to all pointer members
   new_pass->context = NULL;
   new_pass->device = NULL;
 
-  // Assign method pointers
+  // Assign public cmethod pointers
   new_pass->add_shader_set = &gfks_subpass_add_shader_set;
   new_pass->set_shaderset_rasterization = &gfks_subpass_set_shaderset_rasterization;
   new_pass->set_shaderset_multisampling = &gfks_subpass_set_shaderset_multisampling;
+
+  // Assign private method pointers
+  new_pass->_protected->set_up_for_render_pass = &gfks_subpass_set_up_for_render_pass;
 
   // Return the struct
   return new_pass;
@@ -76,9 +198,9 @@ static void gfks_free_subpass(gfks_subpass *subpass) {
 }
 
 gfks_subpass* gfks_create_subpass(gfks_context *context,
-                                          gfks_device *device,
-                                          float width,
-                                          float height) {
+                                  gfks_device *device,
+                                  float width,
+                                  float height) {
   // Init our struct
   gfks_subpass* new_pass = init_struct();
   new_pass->context = context;

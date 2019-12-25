@@ -99,25 +99,25 @@ void main() {
   gfks_shader_stages[0] = gfks_create_shader(vertshader->data, *(vertshader->file_size), "main", &(gfks_devices[0]), GFKS_SHADER_STAGE_VERTEX);
   gfks_shader_stages[1] = gfks_create_shader(fragshader->data, *(fragshader->file_size), "main", &(gfks_devices[0]), GFKS_SHADER_STAGE_FRAGMENT);
 
-  // Create our render plan
-  gfks_render_pass* triangle_render_pass = gfks_create_render_pass(gfks_context, gfks_devices+0);
 
-  // Define our render pass
+  /////////////////////////////////////
+  // Create our subpass
   gfks_subpass* triangle_subpass = gfks_create_subpass(gfks_context, &(gfks_devices[0]), 1024.0f, 768.0f);
-
-  // Make the result of this pass present to our surface
-  if (!triangle_render_pass->set_presentation_surface(triangle_render_pass, gfks_surface)) handle_gfks_error();
 
   // Add our shader set to our subpass
   uint32_t shaderset_index = triangle_subpass->add_shader_set(triangle_subpass, 2, gfks_shader_stages);
 
-  // Add our render pass to the plan
-  uint32_t triangle_subpass_index = triangle_render_pass->add_subpass(triangle_render_pass, triangle_subpass);
+  // Define our subpass input array
+  gfks_subpass* subpasses[1];
+  subpasses[0] = triangle_subpass;
 
-  triangle_render_pass->finalize(triangle_render_pass) || handle_gfks_error();
+  // Define our subpass dependencies
+  uint32_t subpass_deps[] = {};
 
-  // Make a circular dep for fun
-  //triangle_render_pass->add_subpass_dependency(triangle_render_pass, triangle_subpass_index, triangle_subpass_index);
+  // Create our render pass
+  gfks_render_pass* triangle_render_pass = gfks_create_render_pass(gfks_context, gfks_devices+0, gfks_surface, subpasses, 1, subpass_deps, 0);
+  ////////////////////////////////////
+
 
   // Draw our triangle!
   triangle_render_pass->execute(triangle_render_pass) || handle_gfks_error();
@@ -131,3 +131,6 @@ void main() {
   gfks_surface->free(gfks_surface);
   gfks_context->free(gfks_context);
 }
+
+
+
