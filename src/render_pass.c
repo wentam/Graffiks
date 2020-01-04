@@ -358,16 +358,18 @@ gfks_render_pass* gfks_create_render_pass(gfks_context *context,
     // TODO error
   }
 
-  // Set up our subpasses for this render pass based on subpass_order
-  for(int i = 0; i < pass->_protected->subpass_count; i++) {
-    uint32_t pass_index = pass->_protected->subpass_order[i];
-    gfks_subpass* subpass = pass->_protected->planned_subpasses[i].subpass;
-  
-    subpass->_protected->set_up_for_render_pass(subpass,
-                                                pass,
-                                                render_pass,
-                                                pass_index);
-  } 
+  // Create command pool
+  VkCommandPool command_pool;
+
+  VkCommandPoolCreateInfo pool_create_info = {};
+  pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+  pool_create_info.queueFamilyIndex =
+    pass->device->_protected->queue_families_for_queues[pass->device->_protected->graphics_queue_indices[0]];
+  pool_create_info.flags = 0;
+
+  if (vkCreateCommandPool(vk_device, &pool_create_info, NULL, &command_pool) != VK_SUCCESS) {
+    // TODO error
+  }
 
   // --------------------------------
   // Create a framebuffer for each swapchain image view in our presentation surface
@@ -405,22 +407,21 @@ gfks_render_pass* gfks_create_render_pass(gfks_context *context,
 
     created_framebuffer_count++;
   }
-   
-  // TODO static hax
-  // Create command pool
-  VkCommandPool command_pool;
 
-  VkCommandPoolCreateInfo pool_create_info = {};
-  pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  pool_create_info.queueFamilyIndex =
-    pass->device->_protected->queue_families_for_queues[pass->device->_protected->graphics_queue_indices[0]];
-  pool_create_info.flags = 0;
+  // Set up our subpasses for this render pass based on subpass_order
+  uint32_t render_pass_data_indices[pass->_protected->subpass_count];
 
-  if (vkCreateCommandPool(vk_device, &pool_create_info, NULL, &command_pool) != VK_SUCCESS) {
-    // TODO error
-  }
-
-  // TODO static hax
+  for(int i = 0; i < pass->_protected->subpass_count; i++) {
+    uint32_t pass_index = pass->_protected->subpass_order[i];
+    gfks_subpass* subpass = pass->_protected->planned_subpasses[i].subpass;
+  
+    render_pass_data_indices[i] = subpass->_protected->set_up_for_render_pass(subpass,
+                                                                              pass,
+                                                                              render_pass,
+                                                                              command_pool,
+                                                                              pass_index);
+  } 
+  
   // Create command buffer for each swap chain image
   pass->_protected->command_buffers = malloc(sizeof(VkCommandBuffer)*swap_chain_image_count);
   VkCommandBuffer *command_buffers = pass->_protected->command_buffers;
@@ -435,7 +436,6 @@ gfks_render_pass* gfks_create_render_pass(gfks_context *context,
     // TODO error
   }
 
-  // TODO static hax
   // Set each command buffer to complete a basic render pass
   for (int i = 0; i < swap_chain_image_count; i++)  {
     VkCommandBufferBeginInfo begin_info = {};
@@ -458,13 +458,28 @@ gfks_render_pass* gfks_create_render_pass(gfks_context *context,
     render_pass_begin_info.clearValueCount = 1;
     render_pass_begin_info.pClearValues = &clearColor;
 
-    vkCmdBeginRenderPass(command_buffers[i], &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-    // TODO use secondary command buffers for subpasses
-    vkCmdBindPipeline(command_buffers[i],
-                      VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      pass->_protected->planned_subpasses[0].subpass->_protected->vk_pipelines[0][0]);
+    vkCmdBeginRenderPass(command_buffers[i],
+                         &render_pass_begin_info,
+                         VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
-    vkCmdDraw(command_buffers[i],3,1,0,0);
+    // Loop over subpasses
+    for (int j = 0; j < pass->_protected->subpass_count; j++) {
+      // We need to use our subpasses in the order defined in subpass_order to satisfy dependencies
+      uint32_t pass_index = pass->_protected->subpass_order[j];
+      gfks_subpass* subpass = pass->_protected->planned_subpasses[j].subpass;
+
+      // Execute secondary command buffer for this subpass
+      // TODO render pass data index should not be static
+      vkCmdExecuteCommands(command_buffers[i],
+                           1,
+                           &(subpass->_protected->render_pass_data[render_pass_data_indices[j]].vk_command_buffer));
+
+      // If this is not the last subpass, call vkCmdNextSubpass
+      if (j < (pass->_protected->subpass_count)-1) {
+        vkCmdNextSubpass(command_buffers[i], VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+      }
+    }
+
     vkCmdEndRenderPass(command_buffers[i]);
     if (vkEndCommandBuffer(command_buffers[i]) != VK_SUCCESS) {
       // TODO error

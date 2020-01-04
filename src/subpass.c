@@ -23,7 +23,6 @@ static bool create_pipeline_for_draw_step(gfks_subpass* subpass,
   input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
 
-
   // TODO static hax
   // set up color blending info
   VkPipelineColorBlendAttachmentState color_blend_attachment = {};
@@ -88,7 +87,7 @@ static bool create_pipeline_for_draw_step(gfks_subpass* subpass,
     // TODO error
   } 
 
-  subpass->_protected->vk_pipelines[output_render_pass_index][output_draw_step_index] = pipeline;
+  subpass->_protected->render_pass_data[output_render_pass_index].vk_pipelines[output_draw_step_index] = pipeline;
 
   return true;
 }
@@ -121,20 +120,64 @@ static uint32_t gfks_subpass_add_shader_set(gfks_subpass *subpass,
   return (*draw_step_count)++;
 }
 
-static int gfks_subpass_set_up_for_render_pass(gfks_subpass *subpass,
-                                                gfks_render_pass *render_pass,
-                                                VkRenderPass vk_render_pass,
-                                                uint32_t subpass_index) {
+static bool fill_pass_data_command_buffer(gfks_subpass *subpass,
+                                          subpass_render_pass_data *render_pass_data) {
+
+  // Define command buffer inheritance info
+  VkCommandBufferInheritanceInfo command_buffer_inheritance_info = {};
+  command_buffer_inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+  command_buffer_inheritance_info.pNext = NULL;
+  command_buffer_inheritance_info.renderPass = render_pass_data->vk_render_pass;
+  command_buffer_inheritance_info.subpass = render_pass_data->subpass_index;
+  command_buffer_inheritance_info.framebuffer = VK_NULL_HANDLE;
+  command_buffer_inheritance_info.occlusionQueryEnable = VK_FALSE;
+  command_buffer_inheritance_info.queryFlags = 0;
+  command_buffer_inheritance_info.pipelineStatistics = 0; 
+
+  VkCommandBuffer command_buffer = render_pass_data->vk_command_buffer;
+
+  VkCommandBufferBeginInfo begin_info = {};
+  begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  begin_info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+  begin_info.pInheritanceInfo = &command_buffer_inheritance_info;
+
+  if (vkBeginCommandBuffer(command_buffer, &begin_info) != VK_SUCCESS) {
+    // TODO error
+  }
+
+  // Loop over our draw steps, bind each pipeline, and draw any associated vertices
+  for (int i = 0; i < subpass->_protected->draw_step_count; i++) {
+    vkCmdBindPipeline(command_buffer,
+                      VK_PIPELINE_BIND_POINT_GRAPHICS,
+                      render_pass_data->vk_pipelines[i]);
+
+    // TODO static hax
+    vkCmdDraw(command_buffer,3,1,0,0);
+  }
+
+
+
+  if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
+    // TODO error
+  }
+
+  return true;
+}
+
+static int gfks_subpass_set_up_for_render_pass(gfks_subpass *subpass, 
+                                               gfks_render_pass *render_pass,
+                                               VkRenderPass vk_render_pass,
+                                               VkCommandPool vk_command_pool,
+                                               uint32_t subpass_index) {
  
-  uint32_t* info_count = &(subpass->_protected->render_pass_info_count);
+  uint32_t* info_count = &(subpass->_protected->render_pass_data_count);
   
-  subpass->_protected->render_pass_info[*info_count].render_pass = render_pass;
-  subpass->_protected->render_pass_info[*info_count].vk_render_pass = vk_render_pass;
-  subpass->_protected->render_pass_info[*info_count].subpass_index = subpass_index;
+  subpass->_protected->render_pass_data[*info_count].render_pass = render_pass;
+  subpass->_protected->render_pass_data[*info_count].vk_render_pass = vk_render_pass;
+  subpass->_protected->render_pass_data[*info_count].subpass_index = subpass_index;
 
   // Create vulkan pipelines for every draw step that already exists
   // TODO: create them also when new shaders are added
-
   for (int i = 0; i < subpass->_protected->draw_step_count; i++) {
     if (!create_pipeline_for_draw_step(subpass,
                                        subpass->_protected->draw_steps[i],
@@ -143,6 +186,25 @@ static int gfks_subpass_set_up_for_render_pass(gfks_subpass *subpass,
                                        *info_count,
                                        i)) return -1;    
   }
+
+  // Create a command buffer that will draw our subpass
+  VkCommandBuffer *command_buffer =
+    &(subpass->_protected->render_pass_data[*info_count].vk_command_buffer);
+
+  VkCommandBufferAllocateInfo alloc_info = {};
+  alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  alloc_info.commandPool = vk_command_pool;
+  alloc_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+  alloc_info.commandBufferCount = 1;
+
+  if (vkAllocateCommandBuffers(subpass->device->_protected->vk_logical_device,
+                               &alloc_info,
+                               command_buffer) != VK_SUCCESS) {
+    // TODO error
+  }
+
+  if (!fill_pass_data_command_buffer(subpass, 
+                                       &(subpass->_protected->render_pass_data[*info_count]))) return -1;
 
   return (*info_count)++;
 }
@@ -174,7 +236,7 @@ static gfks_subpass* init_struct() {
 
   // Initialize primitive members
   new_pass->_protected->draw_step_count = 0;
-  new_pass->_protected->render_pass_info_count = 0;
+  new_pass->_protected->render_pass_data_count = 0;
 
   // Assign NULL to all pointer members
   new_pass->context = NULL;

@@ -99,8 +99,6 @@ void main() {
   gfks_shader_stages[0] = gfks_create_shader(vertshader->data, *(vertshader->file_size), "main", &(gfks_devices[0]), GFKS_SHADER_STAGE_VERTEX);
   gfks_shader_stages[1] = gfks_create_shader(fragshader->data, *(fragshader->file_size), "main", &(gfks_devices[0]), GFKS_SHADER_STAGE_FRAGMENT);
 
-
-  /////////////////////////////////////
   // Create our subpass
   gfks_subpass* triangle_subpass = gfks_create_subpass(gfks_context, &(gfks_devices[0]), 1024.0f, 768.0f);
 
@@ -111,13 +109,8 @@ void main() {
   gfks_subpass* subpasses[1];
   subpasses[0] = triangle_subpass;
 
-  // Define our subpass dependencies
-  uint32_t subpass_deps[] = {};
-
   // Create our render pass
-  gfks_render_pass* triangle_render_pass = gfks_create_render_pass(gfks_context, gfks_devices+0, gfks_surface, subpasses, 1, subpass_deps, 0);
-  ////////////////////////////////////
-
+  gfks_render_pass* triangle_render_pass = gfks_create_render_pass(gfks_context, gfks_devices+0, gfks_surface, subpasses, 1, 0, 0);
 
   // Draw our triangle!
   triangle_render_pass->execute(triangle_render_pass) || handle_gfks_error();
@@ -131,6 +124,3 @@ void main() {
   gfks_surface->free(gfks_surface);
   gfks_context->free(gfks_context);
 }
-
-
-

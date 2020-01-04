@@ -129,7 +129,11 @@ typedef struct {
   gfks_render_pass *render_pass;
   VkRenderPass vk_render_pass;
   uint32_t subpass_index; // My index within the render pass.
-} subpass_render_pass_info;
+  VkPipeline vk_pipelines[128]; // Array of pipelines -- one pipeline per draw step
+                                // TODO shouldn't be static size
+  
+  VkCommandBuffer vk_command_buffer;
+} subpass_render_pass_data;
 
 /// \private
 typedef struct {
@@ -144,15 +148,8 @@ struct gfks_subpass_protected_struct {
   uint32_t draw_step_count;
   draw_step **draw_steps; // array of pointers to our draw steps
 
-  uint32_t render_pass_info_count;
-  subpass_render_pass_info render_pass_info[16]; // TODO probably shouldn't be static size
-
-  // Row-wise
-  // Rows are render passes
-  // Columns are draw steps
-  VkPipeline vk_pipelines[16][128]; // TODO probably shouldn't be static size, especially 2nd dimension
-
-  //uint8_t presentation_surface_count;
+  uint32_t render_pass_data_count;
+  subpass_render_pass_data render_pass_data[16]; // TODO probably shouldn't be static size
 
   // TODO these two could be the same array (put the surface in the struct)
   //gfks_surface **presentation_surfaces; // array of pointers to gfks_surfaces
@@ -167,6 +164,7 @@ struct gfks_subpass_protected_struct {
   int (*set_up_for_render_pass)(gfks_subpass *subpass,
                                  gfks_render_pass *render_pass,
                                  VkRenderPass vk_render_pass,
+                                 VkCommandPool vk_command_pool,
                                  uint32_t subpass_index);
 };
 
