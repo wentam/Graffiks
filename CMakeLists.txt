@@ -6,6 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 add_definitions(-DRESOURCE_PATH="${CMAKE_INSTALL_PREFIX}/share/graffiks/")
 #set(CMAKE_C_FLAGS "-g -fsanitize=address")
+set(CMAKE_C_FLAGS "-fcommon")
 
 file(GLOB base_SRC
   "src/*.c"
